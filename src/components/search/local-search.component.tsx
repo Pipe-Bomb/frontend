@@ -80,7 +80,7 @@ export function LocalSearch({ query }: Props) {
 					onChange={setCustomAttributes}
 					openModal={() => setModalOpen(true)}
 				/>
-				{search.data && !search.isPending && search.data.status >= 200 && search.data.status < 300 ? (
+				{search.data && !search.isPending && search.data.status === 200 ? (
 					<SearchResults
 						tracks={search.data.data.tracks}
 						artists={search.data.data.artists}
