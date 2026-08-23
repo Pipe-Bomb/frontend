@@ -55,7 +55,7 @@ export function LocalSearch({ query }: Props) {
 		attributes,
 	});
 
-	const [debouncedOptions, isDebouncingOptions] = useDebounce(options, 1_000);
+	const [debouncedOptions] = useDebounce(options, 1_000);
 
 	useEffect(() => {
 		setOptions((options) => ({
@@ -80,10 +80,7 @@ export function LocalSearch({ query }: Props) {
 					onChange={setCustomAttributes}
 					openModal={() => setModalOpen(true)}
 				/>
-				{search.data &&
-				!isDebouncingOptions &&
-				!search.isPending &&
-				search.data.status == 200 ? (
+				{search.data && !search.isPending && search.data.status >= 200 && search.data.status < 300 ? (
 					<SearchResults
 						tracks={search.data.data.tracks}
 						artists={search.data.data.artists}
