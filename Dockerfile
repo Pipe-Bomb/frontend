@@ -1,4 +1,5 @@
-# Build context must be the repo root (docker-compose sets this automatically).
+# Build context: repo root with tanstack-client checked out alongside.
+# In CI, a second actions/checkout step places tanstack-client/ next to the website source.
 # This lets us build tanstack-client locally so local changes are always reflected.
 
 # Stage 1: Build tanstack-client
@@ -14,7 +15,7 @@ RUN npm run build
 FROM node:24-bookworm-slim AS deps
 
 WORKDIR /app
-COPY website/package*.json ./
+COPY package*.json ./
 RUN npm ci
 # Replace the GitHub-fetched package with the locally built one
 COPY --from=tanstack-builder /tanstack/dist ./node_modules/pipe-bomb-tanstack-client/dist
@@ -25,7 +26,7 @@ FROM node:24-bookworm-slim AS builder
 
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY website/ ./
+COPY . .
 
 # NEXT_PUBLIC_API_URL is baked at build time.
 # The default (/api) works with the bundled nginx config.
