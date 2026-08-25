@@ -1,0 +1,35 @@
+name: Docker
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # tanstack-client source is needed so the Dockerfile can build it locally
+      # rather than pulling the GitHub-hosted package (which may lag behind)
+      - uses: actions/checkout@v4
+        with:
+          repository: pipe-bomb/tanstack-client
+          path: tanstack-client
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: ghcr.io/pipe-bomb/frontend:latest

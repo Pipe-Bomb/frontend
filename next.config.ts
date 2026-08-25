@@ -3,6 +3,7 @@ import { resolve } from "path";
 
 const nextConfig: NextConfig = {
 	/* config options here */
+	output: "standalone",
 	allowedDevOrigins: ["127.0.0.1", "local.eyezah.net"],
 	webpack: (config) => {
 		const root = process.cwd();
