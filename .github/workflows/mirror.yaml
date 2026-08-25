@@ -1,0 +1,26 @@
+name: Mirror to Atomira
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["**"]
+    tags: ["*"]
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push to Atomira
+        env:
+          ATOMIRA_PAT: ${{ secrets.ATOMIRA_PAT }}
+        run: |
+          git remote add atomira "https://pipebomb:${ATOMIRA_PAT}@atomira.dev/o/pipe-bomb/r/frontend" || \
+          git remote set-url atomira "https://pipebomb:${ATOMIRA_PAT}@atomira.dev/o/pipe-bomb/r/frontend"
+
+          git push atomira --all
+          git push atomira --tags
