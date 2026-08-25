@@ -1,0 +1,70 @@
+.wizard {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	min-height: 100%;
+	padding: 40px 20px;
+}
+
+.card {
+	width: 100%;
+	max-width: 480px;
+	display: flex;
+	flex-direction: column;
+	gap: 24px;
+}
+
+.header {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.stepLabel {
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	opacity: 0.5;
+}
+
+.title {
+	font-size: 24px;
+	font-weight: 700;
+	margin: 0;
+}
+
+.body {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.description {
+	opacity: 0.7;
+	line-height: 1.6;
+	margin: 0;
+}
+
+.libraryList {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.emptyLibraries {
+	opacity: 0.6;
+	font-style: italic;
+}
+
+.actions {
+	display: flex;
+	gap: 10px;
+	justify-content: flex-end;
+	padding-top: 8px;
+}
+
+.error {
+	color: var(--color-error, #f87171);
+	font-size: 14px;
+}
