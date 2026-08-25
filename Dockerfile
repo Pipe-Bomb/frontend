@@ -7,7 +7,7 @@ FROM node:24-bookworm-slim AS tanstack-builder
 
 WORKDIR /tanstack
 COPY tanstack-client/package*.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts
 COPY tanstack-client/ ./
 RUN npm run build
 
