@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { setBaseUrl, getSetupStatus } from "pipe-bomb-tanstack-client";
 
-export async function middleware(request: NextRequest): Promise<NextResponse> {
+export async function proxy(request: NextRequest): Promise<NextResponse> {
 	const pathname = request.nextUrl.pathname;
 
 	if (pathname.startsWith("/setup")) {
@@ -9,13 +10,10 @@ export async function middleware(request: NextRequest): Promise<NextResponse> {
 	}
 
 	try {
-		const apiUrl = process.env.INTERNAL_API_URL || "http://127.0.0.1:3000";
-		const res = await fetch(`${apiUrl}/setup`, { cache: "no-store" });
-		if (res.ok) {
-			const data = (await res.json()) as { needsSetup: boolean };
-			if (data.needsSetup) {
-				return NextResponse.redirect(new URL("/setup", request.url));
-			}
+		setBaseUrl(process.env.INTERNAL_API_URL ?? "http://127.0.0.1:3000");
+		const result = await getSetupStatus({ cache: "no-store" });
+		if (result.status === 200 && result.data.needsSetup) {
+			return NextResponse.redirect(new URL("/setup", request.url));
 		}
 	} catch {
 		// Backend temporarily unavailable — let the request through
