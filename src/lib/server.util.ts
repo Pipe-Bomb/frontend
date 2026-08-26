@@ -1,17 +1,36 @@
 import { cookies, headers } from "next/headers";
 
 export async function getAuthHeaders(): Promise<HeadersInit | null> {
-	const cookiesStore = await cookies();
+	const [cookiesStore, incomingHeaders] = await Promise.all([
+		cookies(),
+		headers(),
+	]);
 	const token = cookiesStore.get("auth_token")?.value;
 
-	const publicApiUrl = process.env.NEXT_PUBLIC_API_URL;
 	const baseHeaders: HeadersInit = {};
+
+	const publicApiUrl = process.env.NEXT_PUBLIC_API_URL;
+	let resolvedHost: string | null = null;
+	let resolvedProto: string | null = null;
+
 	if (publicApiUrl) {
 		try {
 			const url = new URL(publicApiUrl);
-			baseHeaders["X-Forwarded-Host"] = url.host;
-			baseHeaders["X-Forwarded-Proto"] = url.protocol.replace(":", "");
+			resolvedHost = url.host;
+			resolvedProto = url.protocol.replace(":", "");
 		} catch {}
+	}
+
+	if (!resolvedHost) {
+		resolvedHost = incomingHeaders.get("host");
+		resolvedProto =
+			incomingHeaders.get("x-forwarded-proto") ??
+			(resolvedHost?.includes(":443") ? "https" : "http");
+	}
+
+	if (resolvedHost) {
+		baseHeaders["X-Forwarded-Host"] = resolvedHost;
+		baseHeaders["X-Forwarded-Proto"] = resolvedProto ?? "http";
 	}
 
 	if (!token) {
