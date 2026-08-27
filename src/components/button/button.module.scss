@@ -64,4 +64,25 @@
 			background: var(--button-ghost-active);
 		}
 	}
+
+	&.danger {
+		background: var(--color-error);
+		color: #fff;
+
+		&:hover {
+			background: color-mix(in srgb, var(--color-error) 85%, #000);
+		}
+
+		&:active {
+			background: color-mix(in srgb, var(--color-error) 70%, #000);
+		}
+
+		&:disabled {
+			background: color-mix(in srgb, var(--color-error) 50%, transparent);
+		}
+
+		&:focus {
+			outline-color: color-mix(in srgb, var(--color-error) 85%, #000);
+		}
+	}
 }

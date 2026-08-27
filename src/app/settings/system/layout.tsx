@@ -35,6 +35,9 @@ export default function Layout({ children }: Props) {
 					{hasPrivilege("view-privileges") && (
 						<Link href="/settings/system/users">Users</Link>
 					)}
+					{hasPrivilege("view-plugins") && (
+						<Link href="/settings/system/plugins">Plugins</Link>
+					)}
 					<Link href="/settings/system/libraries">Libraries</Link>
 					{hasPrivilege("edit-attribute-source-order") && (
 						<Link href="/settings/system/attribute-sources">

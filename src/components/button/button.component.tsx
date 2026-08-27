@@ -7,7 +7,7 @@ import { useTranslation } from "@/context/language.context";
 import { Spinner } from "@/components/spinner/spinner.component";
 
 type Props = {
-	style?: "primary" | "secondary" | "ghost";
+	style?: "primary" | "secondary" | "ghost" | "danger";
 	onClick?: (() => void) | null;
 	disabled?: boolean;
 	loading?: boolean;
