@@ -7,3 +7,12 @@
 	.overview {
 	}
 }
+
+.sectionHeader {
+	margin: 16px 16px 8px;
+
+	.sectionTitle {
+		font-size: 0.85rem;
+		color: var(--fg-secondary);
+	}
+}

@@ -5,7 +5,11 @@ import { useState } from "react";
 import styles from "./confirm-plugin-delete.module.scss";
 import { useNotificationStore } from "@/store/notification.store";
 import { safeFetch } from "@/lib/api.util";
-import { getGetInstalledPluginsQueryKey, removePlugin } from "@api";
+import {
+	getGetInstalledPluginsQueryKey,
+	getListMarketplacePluginsQueryKey,
+	removePlugin,
+} from "@api";
 import { useQueryClient } from "@tanstack/react-query";
 
 interface Props extends SharedProps {
@@ -47,6 +51,9 @@ export function ConfirmPluginDeleteModal({ open, onClose, pluginId }: Props) {
 			});
 			queryClient.invalidateQueries({
 				queryKey: getGetInstalledPluginsQueryKey(),
+			});
+			queryClient.invalidateQueries({
+				queryKey: getListMarketplacePluginsQueryKey(),
 			});
 		} else {
 			updateNotification(notificationId, {

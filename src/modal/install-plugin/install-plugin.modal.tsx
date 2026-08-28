@@ -3,7 +3,11 @@ import { Modal } from "@/components/modal/modal.component";
 import { TextInput } from "@/components/text-input/text-input.component";
 import { useNotificationStore } from "@/store/notification.store";
 import { safeFetch } from "@/lib/api.util";
-import { getGetInstalledPluginsQueryKey, installPlugin } from "@api";
+import {
+	getGetInstalledPluginsQueryKey,
+	getListMarketplacePluginsQueryKey,
+	installPlugin,
+} from "@api";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -51,6 +55,9 @@ export function InstallPluginModal({ open, onClose }: Props) {
 			});
 			queryClient.invalidateQueries({
 				queryKey: getGetInstalledPluginsQueryKey(),
+			});
+			queryClient.invalidateQueries({
+				queryKey: getListMarketplacePluginsQueryKey(),
 			});
 			router.refresh();
 		} else {

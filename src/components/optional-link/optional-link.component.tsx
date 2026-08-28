@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ReactNode } from "react";
+import { HTMLAttributeAnchorTarget, ReactNode } from "react";
 
 interface Props extends Omit<
 	React.DetailedHTMLProps<
@@ -10,12 +10,19 @@ interface Props extends Omit<
 > {
 	href: string | null;
 	children?: ReactNode;
+	target?: HTMLAttributeAnchorTarget;
 }
 
-export function OptionalLink({ href, children, ...props }: Props) {
+export function OptionalLink({
+	href,
+	children,
+	popoverTarget,
+	target,
+	...props
+}: Props) {
 	if (href) {
 		return (
-			<Link href={href} {...props}>
+			<Link href={href} {...props} target={target}>
 				{children}
 			</Link>
 		);
