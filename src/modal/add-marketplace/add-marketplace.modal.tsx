@@ -2,7 +2,11 @@ import { Modal } from "@/components/modal/modal.component";
 import { TextInput } from "@/components/text-input/text-input.component";
 import { useNotificationStore } from "@/store/notification.store";
 import { safeFetch } from "@/lib/api.util";
-import { addMarketplace, getListMarketplacesQueryKey } from "@api";
+import {
+	addMarketplace,
+	getListMarketplacePluginsQueryKey,
+	getListMarketplacesQueryKey,
+} from "@api";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -41,6 +45,9 @@ export function AddMarketplaceModal({ open, onClose }: Props) {
 			createNotification("Marketplace added successfully");
 			queryClient.invalidateQueries({
 				queryKey: getListMarketplacesQueryKey(),
+			});
+			queryClient.invalidateQueries({
+				queryKey: getListMarketplacePluginsQueryKey(),
 			});
 			onClose?.();
 		} else {

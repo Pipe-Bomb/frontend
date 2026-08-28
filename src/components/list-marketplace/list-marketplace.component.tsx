@@ -1,4 +1,5 @@
 import {
+	getListMarketplacePluginsQueryKey,
 	getListMarketplacesQueryKey,
 	Marketplace,
 	removeMarketplace,
@@ -50,6 +51,9 @@ export function ListMarketplace({ marketplace }: Props) {
 			});
 			queryClient.invalidateQueries({
 				queryKey: getListMarketplacesQueryKey(),
+			});
+			queryClient.invalidateQueries({
+				queryKey: getListMarketplacePluginsQueryKey(),
 			});
 		} else {
 			if (data) {

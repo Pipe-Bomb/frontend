@@ -68,3 +68,10 @@
 	color: var(--color-error, #f87171);
 	font-size: 14px;
 }
+
+.marketplaceOption {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	cursor: pointer;
+}

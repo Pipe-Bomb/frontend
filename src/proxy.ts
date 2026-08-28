@@ -16,7 +16,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
 			return NextResponse.redirect(new URL("/setup", request.url));
 		}
 	} catch {
-		// Backend temporarily unavailable — let the request through
+		// Backend temporarily unavailable - let the request through
 	}
 
 	return NextResponse.next();

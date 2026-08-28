@@ -57,11 +57,7 @@ export default function Page() {
 			)}
 			{plugins.length > 0 && (
 				<>
-					<div className={styles.sectionHeader}>
-						<span className={styles.sectionTitle}>
-							{plugins.length} plugin{plugins.length !== 1 ? "s" : ""} available
-						</span>
-					</div>
+					<h3 className={styles.heading}>Marketplace Plugins</h3>
 					<List className={styles.pluginList}>
 						{plugins.map((plugin) => (
 							<ListMarketplacePlugin

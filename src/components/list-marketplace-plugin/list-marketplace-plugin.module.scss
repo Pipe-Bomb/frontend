@@ -8,7 +8,7 @@
 	.info {
 		display: flex;
 		flex-direction: column;
-		gap: 2px;
+		gap: 4px;
 		min-width: 0;
 		flex-grow: 1;
 
@@ -19,6 +19,10 @@
 			a {
 				text-decoration: underline;
 			}
+		}
+
+		.name {
+			font-weight: 700;
 		}
 
 		.description {

@@ -8,38 +8,42 @@ import { Spinner } from "@/components/spinner/spinner.component";
 import { SystemConfigEntry } from "@/components/system-config-entry/system-config-entry.component";
 import { safeFetch } from "@/lib/api.util";
 import {
+	addMarketplace,
 	createUser,
 	updateSystemConfigOptions,
 	useGetSystemConfigOptions,
 	UpdateSystemConfigOptionsDto,
 } from "@api";
+import { Checkbox } from "@/components/checkbox/checkbox.component";
 
-type Step = 1 | 2 | 3 | 4;
+type Step = 1 | 2 | 3 | 4 | 5;
 
 const STEP_LABELS: Record<Step, string> = {
 	1: "Welcome",
 	2: "Admin account",
-	3: "User registrations",
-	4: "Done",
+	3: "Plugin marketplaces",
+	4: "User registrations",
+	5: "Done",
 };
 
 export function SetupWizard() {
 	const [step, setStep] = useState<Step>(1);
 
-	const next = () => setStep((s) => (s < 4 ? ((s + 1) as Step) : s));
+	const next = () => setStep((s) => (s < 5 ? ((s + 1) as Step) : s));
 
 	return (
 		<div className={styles.wizard}>
 			<div className={styles.card}>
 				<div className={styles.header}>
 					<span className={styles.stepLabel}>
-						Step {step} of 4 — {STEP_LABELS[step]}
+						Step {step} of 5 — {STEP_LABELS[step]}
 					</span>
 				</div>
 				{step === 1 && <StepWelcome onNext={next} />}
 				{step === 2 && <StepCreateAccount onNext={next} />}
-				{step === 3 && <StepRegistrations onNext={next} />}
-				{step === 4 && <StepDone />}
+				{step === 3 && <StepMarketplaces onNext={next} />}
+				{step === 4 && <StepRegistrations onNext={next} />}
+				{step === 5 && <StepDone />}
 			</div>
 		</div>
 	);
@@ -126,6 +130,66 @@ function StepCreateAccount({ onNext }: { onNext: () => void }) {
 			<div className={styles.actions}>
 				<Button onClick={submit} loading={isLoading}>
 					Create account
+				</Button>
+			</div>
+		</>
+	);
+}
+
+const OFFICIAL_MARKETPLACE_URL =
+	"https://raw.githubusercontent.com/Pipe-Bomb/marketplace/refs/heads/master/marketplace.json";
+const COMMUNITY_MARKETPLACE_URL =
+	"https://raw.githubusercontent.com/Pipe-Bomb-Community/community-marketplace/refs/heads/master/marketplace.json";
+
+function StepMarketplaces({ onNext }: { onNext: () => void }) {
+	const [official, setOfficial] = useState(true);
+	const [community, setCommunity] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
+
+	const handleSaveAndNext = async () => {
+		if (isLoading) {
+			return;
+		}
+		setIsLoading(true);
+		const selected = [
+			official && OFFICIAL_MARKETPLACE_URL,
+			community && COMMUNITY_MARKETPLACE_URL,
+		].filter(Boolean) as string[];
+		await Promise.all(
+			selected.map((url) => safeFetch(addMarketplace, { url })),
+		);
+		setIsLoading(false);
+		onNext();
+	};
+
+	return (
+		<>
+			<div className={styles.body}>
+				<h2 className={styles.title}>Plugin marketplaces</h2>
+				<p className={styles.description}>
+					Choose which plugin marketplaces to enable. You can add or remove
+					marketplaces later.
+				</p>
+				<label className={styles.marketplaceOption}>
+					<Checkbox
+						checked={official}
+						onChange={setOfficial}
+						disabled={isLoading}
+					/>
+					<span>Official marketplace</span>
+				</label>
+				<label className={styles.marketplaceOption}>
+					<Checkbox
+						checked={community}
+						onChange={setCommunity}
+						disabled={isLoading}
+					/>
+					<span>Community marketplace</span>
+				</label>
+			</div>
+			<div className={styles.actions}>
+				<Button onClick={handleSaveAndNext} loading={isLoading}>
+					Save and continue
 				</Button>
 			</div>
 		</>
