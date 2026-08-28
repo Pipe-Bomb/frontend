@@ -29,7 +29,7 @@ export function InstallPluginModal({ open, onClose }: Props) {
 		}
 
 		setIsInstalling(true);
-		const notificationId = createNotification(`Installing plugin...`, {
+		const notificationId = createNotification(`Installing plugin`, {
 			isLoading: true,
 			timeout: null,
 		});

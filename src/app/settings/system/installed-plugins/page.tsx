@@ -3,12 +3,12 @@
 import Loading from "@/app/loading";
 import { ListPlugin } from "@/components/list-plugin/list-plugin.component";
 import { List } from "@/components/list/list.component";
-import { useGetInstalledPlugins } from "pipe-bomb-tanstack-client";
-import styles from "./page.module.scss";
 import { IconButton } from "@/components/icon-button/icon-button";
+import { useGetInstalledPlugins } from "@api";
 import { IconCloudDownload } from "@tabler/icons-react";
 import { InstallPluginModal } from "@/modal/install-plugin/install-plugin.modal";
 import { useState } from "react";
+import styles from "./page.module.scss";
 
 export default function Page() {
 	const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
