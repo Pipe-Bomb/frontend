@@ -2,6 +2,7 @@ import {
 	getGetInstalledPluginsQueryKey,
 	getListMarketplacePluginsQueryKey,
 	installPlugin,
+	Marketplace,
 	MarketplacePlugin,
 } from "@api";
 import styles from "./list-marketplace-plugin.module.scss";
@@ -16,9 +17,10 @@ import { useRouter } from "next/navigation";
 
 interface Props {
 	plugin: MarketplacePlugin;
+	marketplace: Marketplace | null;
 }
 
-export function ListMarketplacePlugin({ plugin }: Props) {
+export function ListMarketplacePlugin({ plugin, marketplace }: Props) {
 	const [isInstalling, setIsInstalling] = useState(false);
 	const { createNotification, updateNotification, resetNotificationTimeout } =
 		useNotificationStore();
@@ -80,6 +82,14 @@ export function ListMarketplacePlugin({ plugin }: Props) {
 					<OptionalLink href={plugin.authorUrl} target="_blank">
 						{plugin.authorName}
 					</OptionalLink>
+					{" • "}
+					{marketplace ? (
+						<OptionalLink href={marketplace.url} target="_blank">
+							{marketplace.name}
+						</OptionalLink>
+					) : (
+						<span>{plugin.marketplaceName}</span>
+					)}
 				</span>
 				<div className={styles.nameContainer}>
 					<span className={styles.name}>{plugin.name}</span>

@@ -64,7 +64,15 @@ export default function Page() {
 					</div>
 					<List className={styles.pluginList}>
 						{plugins.map((plugin) => (
-							<ListMarketplacePlugin plugin={plugin} key={plugin.id} />
+							<ListMarketplacePlugin
+								plugin={plugin}
+								marketplace={
+									marketplaces.find(
+										({ uuid }) => uuid == plugin.marketplaceUuid,
+									) ?? null
+								}
+								key={plugin.id}
+							/>
 						))}
 					</List>
 				</>
