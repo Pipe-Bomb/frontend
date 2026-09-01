@@ -20,8 +20,9 @@ import {
 export function AlbumGrid() {
 	const search = useSearchAlbums();
 	const { currentPage, setPage } = useUrlPagination();
-	const { pluginId, sourceId, hasSortMethods, sortMethods } =
-		useSearchSource({ albums: true });
+	const { pluginId, sourceId, hasSortMethods, sortMethods } = useSearchSource({
+		albums: true,
+	});
 	const { t } = useTranslation();
 	const [sortParam, setSortParam] = useUrlParam("sort", { replace: true });
 	const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
@@ -54,12 +55,12 @@ export function AlbumGrid() {
 		if (colonIdx === -1) {
 			return undefined;
 		}
-		const attributeKey = sortParam.slice(0, colonIdx);
+		const key = sortParam.slice(0, colonIdx);
 		const direction = sortParam.slice(colonIdx + 1);
 		if (direction !== "asc" && direction !== "desc") {
 			return undefined;
 		}
-		return { attributeKey, direction } as const;
+		return { key, direction } as const;
 	}, [sortParam]);
 
 	useEffect(() => {

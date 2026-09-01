@@ -84,9 +84,8 @@ function Inner({ onSetting }: InnerProps) {
 	const selectedAttribute = useMemo(
 		() =>
 			selectedAttributeKey
-				? (attrsForMedia.find(
-						(a) => a.attributeKey === selectedAttributeKey,
-					) ?? null)
+				? (attrsForMedia.find((a) => a.attributeKey === selectedAttributeKey) ??
+					null)
 				: null,
 		[selectedAttributeKey, attrsForMedia],
 	);
@@ -238,10 +237,7 @@ function StringOptions({ attribute, onChange, entityType }: OptionsProps) {
 
 		if (!value) {
 			setting.exists = exists;
-			return onChange?.(
-				setting,
-				`${exists ? "Has" : "Doesn't have"} ${label}`,
-			);
+			return onChange?.(setting, `${exists ? "Has" : "Doesn't have"} ${label}`);
 		}
 
 		setting.query = value;
@@ -374,10 +370,7 @@ function IntegerOptions({ attribute, onChange, entityType }: OptionsProps) {
 
 		if (value === null && min === null && max === null) {
 			setting.exists = exists;
-			return onChange?.(
-				setting,
-				`${exists ? "Has" : "Doesn't have"} ${label}`,
-			);
+			return onChange?.(setting, `${exists ? "Has" : "Doesn't have"} ${label}`);
 		}
 
 		let name: string;
@@ -492,10 +485,7 @@ function DecimalOptions({ attribute, onChange, entityType }: OptionsProps) {
 
 		if (value === null && min === null && max === null) {
 			setting.exists = exists;
-			return onChange?.(
-				setting,
-				`${exists ? "Has" : "Doesn't have"} ${label}`,
-			);
+			return onChange?.(setting, `${exists ? "Has" : "Doesn't have"} ${label}`);
 		}
 
 		let name: string;

@@ -20,15 +20,21 @@ interface Props {
 }
 
 export function LocalSearch({ query }: Props) {
-	const { source, pluginId, sourceId, hasSortMethods, hasFilterableAttributes, sortMethods } =
-		useSearchSource({ tracks: true, albums: true, artists: true });
+	const {
+		source,
+		pluginId,
+		sourceId,
+		hasSortMethods,
+		hasFilterableAttributes,
+		sortMethods,
+	} = useSearchSource({ tracks: true, albums: true, artists: true });
 	const { t } = useTranslation();
 	const [modalOpen, setModalOpen] = useState(false);
 	const [customAttributes, setCustomAttributes] = useState<
 		(SearchAttributeDto & { name: string })[]
 	>([]);
 	const [sort, setSort] = useState<
-		{ attributeKey: string; direction: "asc" | "desc" } | undefined
+		{ key: string; direction: "asc" | "desc" } | undefined
 	>(undefined);
 	const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
 
@@ -52,7 +58,7 @@ export function LocalSearch({ query }: Props) {
 		});
 	}, [sortMethods, hasSortMethods, pluginId, sourceId, t]);
 
-	const sortParamKey = sort ? `${sort.attributeKey}:${sort.direction}` : null;
+	const sortParamKey = sort ? `${sort.key}:${sort.direction}` : null;
 
 	const attributes = useMemo(() => {
 		const attrs: SearchAttributeDto[] = [...customAttributes];
@@ -122,11 +128,11 @@ export function LocalSearch({ query }: Props) {
 							onToggle={setSortDropdownOpen}
 							onChange={(entry) => {
 								const colonIdx = entry.key.lastIndexOf(":");
-								const attributeKey = entry.key.slice(0, colonIdx);
+								const key = entry.key.slice(0, colonIdx);
 								const direction = entry.key.slice(colonIdx + 1) as
 									| "asc"
 									| "desc";
-								setSort({ attributeKey, direction });
+								setSort({ key, direction });
 								setSortDropdownOpen(false);
 							}}
 							floating

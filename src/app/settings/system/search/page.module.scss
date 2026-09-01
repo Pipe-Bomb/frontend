@@ -1,0 +1,42 @@
+.resetButton {
+	margin-top: 8px;
+	padding: 6px 12px;
+	background: none;
+	border: 1px solid var(--fg-secondary);
+	border-radius: 4px;
+	color: var(--fg-secondary);
+	cursor: pointer;
+	font-size: 0.85rem;
+
+	&:hover:not(:disabled) {
+		border-color: var(--fg-primary);
+		color: var(--fg-primary);
+	}
+
+	&:disabled {
+		opacity: 0.5;
+		cursor: default;
+	}
+}
+
+.sourceItem {
+	background: var(--bg-surface);
+	padding: 8px;
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+
+	.info {
+		display: flex;
+		flex-direction: column;
+
+		.plugin {
+			color: var(--fg-secondary);
+			font-size: 0.8rem;
+		}
+
+		.name {
+		}
+	}
+}

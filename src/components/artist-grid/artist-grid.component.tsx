@@ -55,12 +55,12 @@ export function ArtistGrid() {
 		if (colonIdx === -1) {
 			return undefined;
 		}
-		const attributeKey = sortParam.slice(0, colonIdx);
+		const key = sortParam.slice(0, colonIdx);
 		const direction = sortParam.slice(colonIdx + 1);
 		if (direction !== "asc" && direction !== "desc") {
 			return undefined;
 		}
-		return { attributeKey, direction } as const;
+		return { key, direction } as const;
 	}, [sortParam]);
 
 	useEffect(() => {
