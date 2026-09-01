@@ -9,6 +9,7 @@ import { usePlayerStore } from "@/store/player.store";
 import { cc } from "@/lib/util";
 import { IconButton } from "@/components/icon-button/icon-button";
 import {
+	IconGripVertical,
 	IconPlayerPauseFilled,
 	IconPlayerPlayFilled,
 } from "@tabler/icons-react";
@@ -22,10 +23,11 @@ import { useTrackContextMenu } from "@/hook/track-context-menu.hook";
 interface Props {
 	track: Track | EphemeralTrack;
 	queueIndex: number;
+	dragHandleProps?: React.HTMLAttributes<HTMLElement>;
 }
 
-export function QueueTrack({ track, queueIndex }: Props) {
-	const { remove, currentIndex, isPlaying, toggle, playIndex, setIsPlaying } =
+export function QueueTrack({ track, queueIndex, dragHandleProps }: Props) {
+	const { currentIndex, isPlaying, toggle, playIndex, setIsPlaying } =
 		usePlayerStore();
 	const active = currentIndex == queueIndex;
 
@@ -92,6 +94,13 @@ export function QueueTrack({ track, queueIndex }: Props) {
 					<span className={styles.artists}>
 						<TrackArtists track={track} />
 					</span>
+				</div>
+				<div
+					className={styles.dragHandle}
+					{...(dragHandleProps ?? {})}
+					onClick={(e) => e.stopPropagation()}
+				>
+					<IconGripVertical size={18} strokeWidth={1.5} />
 				</div>
 			</div>
 			{modal}

@@ -5,10 +5,14 @@ import { useUrlPagination } from "@hook/url-pagination";
 
 interface Props {
 	urlKey: string;
+	totalPages?: number;
 }
 
-export function Paginator({ urlKey }: Props) {
+export function Paginator({ urlKey, totalPages }: Props) {
 	const { currentPage, setPage } = useUrlPagination(urlKey);
+
+	const atFirst = currentPage <= 1;
+	const atLast = totalPages !== undefined && currentPage >= totalPages;
 
 	return (
 		<div className={styles.container}>
@@ -16,12 +20,17 @@ export function Paginator({ urlKey }: Props) {
 				icon={IconCaretLeftFilled}
 				onClick={() => setPage(currentPage - 1)}
 				iconSource="tabler"
+				disabled={atFirst}
 			/>
-			<span className={styles.pageNumber}>{currentPage}</span>
+			<span className={styles.pageNumber}>
+				{currentPage}
+				{totalPages !== undefined ? ` / ${totalPages}` : ""}
+			</span>
 			<IconButton
 				icon={IconCaretRightFilled}
 				onClick={() => setPage(currentPage + 1)}
 				iconSource="tabler"
+				disabled={atLast}
 			/>
 		</div>
 	);

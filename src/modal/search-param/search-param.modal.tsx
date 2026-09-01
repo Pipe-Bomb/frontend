@@ -1,13 +1,11 @@
 import { Checkbox } from "@/components/checkbox/checkbox.component";
 import { Dropdown } from "@/components/dropdown/dropdown.component";
 import { Modal } from "@/components/modal/modal.component";
-import { Spinner } from "@/components/spinner/spinner.component";
-import { useRankedAttributes } from "@/hook/ranked-attributes.hook";
 import { SearchAttributeDto } from "@/interface/search-attribute-dto.interface";
-import { LoadedAttribute } from "pipe-bomb-tanstack-client";
+import { useSearchSource } from "@/hook/search-source.hook";
+import { FilterableAttribute } from "pipe-bomb-tanstack-client";
 import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import styles from "./search-param.module.scss";
-import { useTranslation } from "@/context/language.context";
 import { Button } from "@/components/button/button.component";
 import { TextInput } from "@/components/text-input/text-input.component";
 
@@ -29,7 +27,7 @@ interface InnerProps {
 }
 
 function Inner({ onSetting }: InnerProps) {
-	const { t } = useTranslation();
+	const { filterableAttributes } = useSearchSource();
 	const [mediaDropdownOpen, setMediaDropdownOpen] = useState(false);
 	const [media, setMedia] = useState<"track" | "artist" | "album">("track");
 	useEffect(() => {
@@ -55,26 +53,43 @@ function Inner({ onSetting }: InnerProps) {
 		}
 	}, [attributeDropdownOpen]);
 
-	const rankedAttributes = useRankedAttributes(media);
+	const entityTypes = useMemo<("track" | "artist" | "album")[]>(() => {
+		const seen = new Set<string>();
+		for (const attr of filterableAttributes) {
+			seen.add(attr.entityType);
+		}
+		const order: ("track" | "artist" | "album")[] = [
+			"track",
+			"artist",
+			"album",
+		];
+		return order.filter((e) => seen.has(e));
+	}, [filterableAttributes]);
 
-	const [selectedAttribute, selectedAttributeName] = useMemo(() => {
-		if (!selectedAttributeKey || !rankedAttributes) {
-			return [null, null];
+	useEffect(() => {
+		if (entityTypes.length > 0 && !entityTypes.includes(media)) {
+			setMedia(entityTypes[0]);
 		}
-		const attribute = rankedAttributes.find(
-			(attribute) => attribute.key == selectedAttributeKey,
-		);
-		if (attribute) {
-			return [
-				attribute,
-				t(
-					`plugin.${attribute.pluginId}.attribute.${media}.${attribute.sourceId}.${attribute.key}.name`,
-					attribute.key,
-				),
-			];
-		}
-		return [null, null];
-	}, [selectedAttributeKey, rankedAttributes]);
+	}, [entityTypes]);
+
+	const attrsForMedia = useMemo(
+		() => filterableAttributes.filter((a) => a.entityType === media),
+		[filterableAttributes, media],
+	);
+
+	useEffect(() => {
+		setSelectedAttributeKey(null);
+	}, [media]);
+
+	const selectedAttribute = useMemo(
+		() =>
+			selectedAttributeKey
+				? (attrsForMedia.find(
+						(a) => a.attributeKey === selectedAttributeKey,
+					) ?? null)
+				: null,
+		[selectedAttributeKey, attrsForMedia],
+	);
 
 	const [attributeSetting, setAttributeSetting] = useState<
 		[SearchAttributeDto, string] | null
@@ -83,8 +98,12 @@ function Inner({ onSetting }: InnerProps) {
 		setAttributeSetting(null);
 	}, [selectedAttribute]);
 
-	if (!rankedAttributes) {
-		return <Spinner position="expand" />;
+	if (filterableAttributes.length === 0) {
+		return (
+			<div className={styles.container}>
+				<span>No filterable attributes available</span>
+			</div>
+		);
 	}
 
 	return (
@@ -94,41 +113,29 @@ function Inner({ onSetting }: InnerProps) {
 					open={mediaDropdownOpen}
 					onToggle={setMediaDropdownOpen}
 					onChange={(entry) => setMedia(entry.key as typeof media)}
-					entries={[
-						{
-							key: "track",
-							content: "Track",
-						},
-						{
-							key: "artist",
-							content: "Artist",
-						},
-						{
-							key: "album",
-							content: "Album",
-						},
-					]}
+					entries={entityTypes.map((e) => ({
+						key: e,
+						content: e.charAt(0).toUpperCase() + e.slice(1),
+					}))}
 					selected={media}
 				/>
 				<Dropdown
 					open={attributeDropdownOpen}
 					onToggle={setAttributeDropdownOpen}
 					onChange={(entry) => setSelectedAttributeKey(entry.key)}
-					entries={rankedAttributes.map((attribute) => ({
-						t: `plugin.${attribute.pluginId}.attribute.${media}.${attribute.sourceId}.${attribute.key}.name`,
-						key: `${attribute.key}`,
-						content: attribute.key,
+					entries={attrsForMedia.map((attr) => ({
+						key: attr.attributeKey,
+						content: attr.label ?? attr.attributeKey,
 					}))}
 					selected={selectedAttributeKey}
 				/>
 			</div>
 
-			{selectedAttribute && selectedAttributeName ? (
+			{selectedAttribute ? (
 				<div className={styles.optionsSection}>
-					{selectedAttribute.type == "string" && (
+					{selectedAttribute.attributeType == "string" && (
 						<StringOptions
 							attribute={selectedAttribute}
-							attributeName={selectedAttributeName}
 							entityType={media}
 							onChange={(attribute, name) =>
 								setAttributeSetting(
@@ -137,10 +144,9 @@ function Inner({ onSetting }: InnerProps) {
 							}
 						/>
 					)}
-					{selectedAttribute.type == "boolean" && (
+					{selectedAttribute.attributeType == "boolean" && (
 						<BooleanOptions
 							attribute={selectedAttribute}
-							attributeName={selectedAttributeName}
 							entityType={media}
 							onChange={(attribute, name) =>
 								setAttributeSetting(
@@ -149,10 +155,9 @@ function Inner({ onSetting }: InnerProps) {
 							}
 						/>
 					)}
-					{selectedAttribute.type == "integer" && (
+					{selectedAttribute.attributeType == "integer" && (
 						<IntegerOptions
 							attribute={selectedAttribute}
-							attributeName={selectedAttributeName}
 							entityType={media}
 							onChange={(attribute, name) =>
 								setAttributeSetting(
@@ -161,10 +166,9 @@ function Inner({ onSetting }: InnerProps) {
 							}
 						/>
 					)}
-					{selectedAttribute.type == "decimal" && (
+					{selectedAttribute.attributeType == "decimal" && (
 						<DecimalOptions
 							attribute={selectedAttribute}
-							attributeName={selectedAttributeName}
 							entityType={media}
 							onChange={(attribute, name) =>
 								setAttributeSetting(
@@ -173,10 +177,9 @@ function Inner({ onSetting }: InnerProps) {
 							}
 						/>
 					)}
-					{selectedAttribute.type == "buffer" && (
+					{selectedAttribute.attributeType == "buffer" && (
 						<BufferOptions
 							attribute={selectedAttribute}
-							attributeName={selectedAttributeName}
 							entityType={media}
 							onChange={(attribute, name) =>
 								setAttributeSetting(
@@ -206,8 +209,7 @@ function Inner({ onSetting }: InnerProps) {
 }
 
 interface OptionsProps {
-	attribute: LoadedAttribute;
-	attributeName: string;
+	attribute: FilterableAttribute;
 	entityType: "track" | "artist" | "album";
 	onChange?: (
 		attribute: SearchAttributeDto | null,
@@ -215,12 +217,8 @@ interface OptionsProps {
 	) => void;
 }
 
-function StringOptions({
-	attribute,
-	attributeName,
-	onChange,
-	entityType,
-}: OptionsProps) {
+function StringOptions({ attribute, onChange, entityType }: OptionsProps) {
+	const label = attribute.label ?? attribute.attributeKey;
 	const [value, setValue] = useState("");
 	const [partial, setPartial] = useState(false);
 	const [exists, setExists] = useState(true);
@@ -234,7 +232,7 @@ function StringOptions({
 	useEffect(() => {
 		const setting: SearchAttributeDto = {
 			type: "string",
-			key: attribute.key,
+			key: attribute.attributeKey,
 			entityType,
 		};
 
@@ -242,7 +240,7 @@ function StringOptions({
 			setting.exists = exists;
 			return onChange?.(
 				setting,
-				`${exists ? "Has" : "Doesn't have"} ${attributeName}`,
+				`${exists ? "Has" : "Doesn't have"} ${label}`,
 			);
 		}
 
@@ -250,12 +248,12 @@ function StringOptions({
 		setting.partial = partial;
 		let name: string;
 		if (partial) {
-			name = `${attributeName} contains "${value}"`;
+			name = `${label} contains "${value}"`;
 		} else {
-			name = `${attributeName} is "${value}"`;
+			name = `${label} is "${value}"`;
 		}
 		onChange?.(setting, name);
-	}, [attribute, attributeName, value, partial, exists]);
+	}, [attribute, label, value, partial, exists]);
 
 	return (
 		<>
@@ -279,12 +277,8 @@ function StringOptions({
 	);
 }
 
-function BooleanOptions({
-	attribute,
-	attributeName,
-	onChange,
-	entityType,
-}: OptionsProps) {
+function BooleanOptions({ attribute, onChange, entityType }: OptionsProps) {
+	const label = attribute.label ?? attribute.attributeKey;
 	const [value, setValue] = useState<"any" | "true" | "false">("any");
 	const [exists, setExists] = useState(true);
 
@@ -296,7 +290,7 @@ function BooleanOptions({
 	useEffect(() => {
 		const setting: SearchAttributeDto = {
 			type: "boolean",
-			key: attribute.key,
+			key: attribute.attributeKey,
 			entityType,
 		};
 
@@ -304,14 +298,14 @@ function BooleanOptions({
 
 		if (value == "any") {
 			setting.exists = exists;
-			name = `${attributeName} ${exists ? "exists" : "doesn't exist"}`;
+			name = `${label} ${exists ? "exists" : "doesn't exist"}`;
 		} else {
 			setting.boolean = value == "true";
-			name = `${attributeName} is ${setting.boolean ? "True" : "False"}`;
+			name = `${label} is ${setting.boolean ? "True" : "False"}`;
 		}
 
 		onChange?.(setting, name);
-	}, [value, exists, entityType, attributeName]);
+	}, [value, exists, entityType, label]);
 
 	return (
 		<>
@@ -319,18 +313,9 @@ function BooleanOptions({
 				<span className={styles.optionName}>Value</span>
 				<Dropdown
 					entries={[
-						{
-							content: "Any",
-							key: "any",
-						},
-						{
-							content: "True",
-							key: "true",
-						},
-						{
-							content: "False",
-							key: "false",
-						},
+						{ content: "Any", key: "any" },
+						{ content: "True", key: "true" },
+						{ content: "False", key: "false" },
 					]}
 					selected={value}
 					onChange={(entry) => setValue(entry.key as typeof value)}
@@ -344,23 +329,19 @@ function BooleanOptions({
 	);
 }
 
-function IntegerOptions({
-	attribute,
-	attributeName,
-	onChange,
-	entityType,
-}: OptionsProps) {
+function IntegerOptions({ attribute, onChange, entityType }: OptionsProps) {
+	const label = attribute.label ?? attribute.attributeKey;
 	const [rawValue, setRawValue] = useState<string>("");
 	const [rawMin, setRawMin] = useState<string>("");
 	const [rawMax, setRawMax] = useState<string>("");
 	const [exists, setExists] = useState(true);
 
 	const [value, min, max] = useMemo(() => {
-		const parse = (value: string) => {
-			if (!value.trim()) {
+		const parse = (v: string) => {
+			if (!v.trim()) {
 				return null;
 			}
-			const number = parseInt(value.trim());
+			const number = parseInt(v.trim());
 			if (isNaN(number)) {
 				return null;
 			}
@@ -370,55 +351,55 @@ function IntegerOptions({
 		if (rawValue.trim()) {
 			return [parse(rawValue), null, null];
 		}
-		const min = parse(rawMin);
-		const max = parse(rawMax);
+		const parsedMin = parse(rawMin);
+		const parsedMax = parse(rawMax);
 
-		if (max && min) {
-			if (max == min) {
-				return [max, null, null];
+		if (parsedMax && parsedMin) {
+			if (parsedMax == parsedMin) {
+				return [parsedMax, null, null];
 			}
-			if (max < min) {
+			if (parsedMax < parsedMin) {
 				return [null, null, null];
 			}
 		}
-		return [null, min, max];
+		return [null, parsedMin, parsedMax];
 	}, [rawValue, rawMin, rawMax]);
 
 	useEffect(() => {
 		const setting: SearchAttributeDto = {
 			type: "integer",
 			entityType,
-			key: attribute.key,
+			key: attribute.attributeKey,
 		};
 
 		if (value === null && min === null && max === null) {
 			setting.exists = exists;
 			return onChange?.(
 				setting,
-				`${exists ? "Has" : "Doesn't have"} ${attributeName}`,
+				`${exists ? "Has" : "Doesn't have"} ${label}`,
 			);
 		}
 
 		let name: string;
 		if (value !== null) {
 			setting.integer = value;
-			name = `${attributeName} is ${value}`;
+			name = `${label} is ${value}`;
 		} else {
 			if (min !== null) {
 				setting.min = min;
-				name = `${attributeName} >= ${min}`;
+				name = `${label} >= ${min}`;
 			}
 			if (max !== null) {
 				setting.max = max;
 				if (min !== null) {
 					name! += ` and <= ${max}`;
 				} else {
-					name = `${attributeName} <= ${max}`;
+					name = `${label} <= ${max}`;
 				}
 			}
 		}
 		onChange?.(setting, name!);
-	}, [value, min, max, exists, entityType, attributeName]);
+	}, [value, min, max, exists, entityType, label]);
 
 	useEffect(() => {
 		setRawValue("");
@@ -466,23 +447,19 @@ function IntegerOptions({
 	);
 }
 
-function DecimalOptions({
-	attribute,
-	attributeName,
-	onChange,
-	entityType,
-}: OptionsProps) {
+function DecimalOptions({ attribute, onChange, entityType }: OptionsProps) {
+	const label = attribute.label ?? attribute.attributeKey;
 	const [rawValue, setRawValue] = useState<string>("");
 	const [rawMin, setRawMin] = useState<string>("");
 	const [rawMax, setRawMax] = useState<string>("");
 	const [exists, setExists] = useState(true);
 
 	const [value, min, max] = useMemo(() => {
-		const parse = (value: string) => {
-			if (!value.trim()) {
+		const parse = (v: string) => {
+			if (!v.trim()) {
 				return null;
 			}
-			const number = parseFloat(value.trim());
+			const number = parseFloat(v.trim());
 			if (isNaN(number)) {
 				return null;
 			}
@@ -492,55 +469,55 @@ function DecimalOptions({
 		if (rawValue.trim()) {
 			return [parse(rawValue), null, null];
 		}
-		const min = parse(rawMin);
-		const max = parse(rawMax);
+		const parsedMin = parse(rawMin);
+		const parsedMax = parse(rawMax);
 
-		if (max && min) {
-			if (max == min) {
-				return [max, null, null];
+		if (parsedMax && parsedMin) {
+			if (parsedMax == parsedMin) {
+				return [parsedMax, null, null];
 			}
-			if (max < min) {
+			if (parsedMax < parsedMin) {
 				return [null, null, null];
 			}
 		}
-		return [null, min, max];
+		return [null, parsedMin, parsedMax];
 	}, [rawValue, rawMin, rawMax]);
 
 	useEffect(() => {
 		const setting: SearchAttributeDto = {
 			type: "decimal",
 			entityType,
-			key: attribute.key,
+			key: attribute.attributeKey,
 		};
 
 		if (value === null && min === null && max === null) {
 			setting.exists = exists;
 			return onChange?.(
 				setting,
-				`${exists ? "Has" : "Doesn't have"} ${attributeName}`,
+				`${exists ? "Has" : "Doesn't have"} ${label}`,
 			);
 		}
 
 		let name: string;
 		if (value !== null) {
 			setting.decimal = value;
-			name = `${attributeName} is ${value}`;
+			name = `${label} is ${value}`;
 		} else {
 			if (min !== null) {
 				setting.min = min;
-				name = `${attributeName} >= ${min}`;
+				name = `${label} >= ${min}`;
 			}
 			if (max !== null) {
 				setting.max = max;
 				if (min !== null) {
 					name! += ` and <= ${max}`;
 				} else {
-					name = `${attributeName} <= ${max}`;
+					name = `${label} <= ${max}`;
 				}
 			}
 		}
 		onChange?.(setting, name!);
-	}, [value, min, max, exists, entityType, attributeName]);
+	}, [value, min, max, exists, entityType, label]);
 
 	useEffect(() => {
 		setRawValue("");
@@ -588,12 +565,8 @@ function DecimalOptions({
 	);
 }
 
-function BufferOptions({
-	attribute,
-	attributeName,
-	onChange,
-	entityType,
-}: OptionsProps) {
+function BufferOptions({ attribute, onChange, entityType }: OptionsProps) {
+	const label = attribute.label ?? attribute.attributeKey;
 	const [checked, setChecked] = useState(false);
 	useEffect(() => {
 		setChecked(false);
@@ -602,13 +575,13 @@ function BufferOptions({
 		onChange?.(
 			{
 				type: "buffer",
-				key: attribute.key,
+				key: attribute.attributeKey,
 				exists: checked,
 				entityType,
 			},
-			`${checked ? "Has" : "Doesn't have"} ${attributeName}`,
+			`${checked ? "Has" : "Doesn't have"} ${label}`,
 		);
-	}, [checked, entityType, attributeName]);
+	}, [checked, entityType, label]);
 
 	return (
 		<>
