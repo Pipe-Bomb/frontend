@@ -4,15 +4,20 @@ import { ProgressTrack } from "@/components/progress-track/progress-track.compon
 import styles from "./player.module.scss";
 import { IconButton } from "@/components/icon-button/icon-button";
 import {
+	IconArrowsShuffle,
 	IconLayoutSidebarRightCollapseFilled,
 	IconLayoutSidebarRightExpandFilled,
 	IconPlayerPauseFilled,
 	IconPlayerPlayFilled,
 	IconPlayerSkipBackFilled,
 	IconPlayerSkipForwardFilled,
+	IconRepeat,
+	IconRepeatOnce,
+	IconVolume,
+	IconVolumeOff,
 } from "@tabler/icons-react";
 import { usePlayerStore } from "@/store/player.store";
-import { formatTime } from "@/lib/util";
+import { cc, formatTime } from "@/lib/util";
 import { EphemeralTrack, Track } from "@api";
 import { useAttribute } from "@/hook/attribute.hook";
 import { ResourceImage } from "@/components/resource-image/resource-image.component";
@@ -23,6 +28,7 @@ import { useTrack } from "@/hook/track.hook";
 import Link from "next/link";
 import { useRightClick } from "@/hook/right-click.hook";
 import { useTrackContextMenu } from "@/hook/track-context-menu.hook";
+import { useState } from "react";
 
 export function Player() {
 	const { open: isSidebarOpen, toggle: toggleSidebar } = useSidebarStore();
@@ -38,8 +44,36 @@ export function Player() {
 		prev,
 		setIsPlaying,
 		isBuffering,
+		shuffle,
+		toggleShuffle,
+		repeat,
+		cycleRepeat,
+		volume,
+		muted,
+		setVolume,
+		toggleMute,
 	} = usePlayerStore();
 	const currentTrackResult = useTrack(queue[currentIndex]);
+
+	const handlePrev = () => {
+		if (currentTime > 3) {
+			seek(0);
+		} else {
+			prev();
+			setIsPlaying(true);
+		}
+	};
+
+	const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const v = parseFloat(e.target.value);
+		setVolume(v);
+		if (muted && v > 0) {
+			toggleMute();
+		}
+	};
+
+	const displayVolume = muted ? 0 : volume;
+	const repeatIcon = repeat === "one" ? IconRepeatOnce : IconRepeat;
 
 	return (
 		<div className={styles.container}>
@@ -51,12 +85,15 @@ export function Player() {
 			<div className={styles.center}>
 				<div className={styles.centerButtons}>
 					<IconButton
+						icon={IconArrowsShuffle}
+						iconSource="tabler"
+						iconClassName={shuffle ? styles.activeIcon : undefined}
+						onClick={toggleShuffle}
+					/>
+					<IconButton
 						icon={IconPlayerSkipBackFilled}
 						iconSource="tabler"
-						onClick={() => {
-							prev();
-							setIsPlaying(true);
-						}}
+						onClick={handlePrev}
 					/>
 					<IconButton
 						icon={isPlaying ? IconPlayerPauseFilled : IconPlayerPlayFilled}
@@ -72,6 +109,12 @@ export function Player() {
 							next();
 							setIsPlaying(true);
 						}}
+					/>
+					<IconButton
+						icon={repeatIcon}
+						iconSource="tabler"
+						iconClassName={repeat !== "off" ? styles.activeIcon : undefined}
+						onClick={cycleRepeat}
 					/>
 				</div>
 				<div className={styles.progressContainer}>
@@ -90,6 +133,29 @@ export function Player() {
 				</div>
 			</div>
 			<div className={styles.right}>
+				<div className={cc(styles.volumeContainer)}>
+					<div className={styles.volumePopover}>
+						<input
+							type="range"
+							{...({ orient: "vertical" } as object)}
+							suppressHydrationWarning
+							className={styles.volumeSlider}
+							min="0"
+							max="1"
+							step="0.01"
+							value={displayVolume}
+							onChange={handleVolumeChange}
+							style={{
+								background: `linear-gradient(to top, var(--fg-primary) ${displayVolume * 100}%, color-mix(in srgb, var(--fg-primary) 25%, transparent) ${displayVolume * 100}%)`,
+							}}
+						/>
+					</div>
+					<IconButton
+						icon={displayVolume === 0 ? IconVolumeOff : IconVolume}
+						iconSource="tabler"
+						onClick={toggleMute}
+					/>
+				</div>
 				<IconButton
 					iconSource="tabler"
 					icon={

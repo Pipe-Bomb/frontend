@@ -22,11 +22,29 @@
 		background: var(--bg-surface);
 		border-radius: 8px;
 		padding: 8px;
+		display: flex;
+		flex-direction: column;
+
+		.header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 0 4px 8px;
+			flex-shrink: 0;
+
+			.headerTitle {
+				font-size: 0.75rem;
+				font-weight: 600;
+				color: var(--fg-muted);
+				text-transform: uppercase;
+				letter-spacing: 0.08em;
+			}
+		}
 
 		.queue {
-			max-height: 100%;
+			flex: 1;
 			overflow-y: scroll;
-			height: 100%;
+			min-height: 0;
 		}
 	}
 }

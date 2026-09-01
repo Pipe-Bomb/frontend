@@ -52,15 +52,8 @@ export function useQueueActions() {
 			const keys = tracks.map(processTrackInput);
 			store.playTrack(keys[startIndex], startIndex, keys);
 		},
-		move: (currentIndex: number, newIndex: number) => {
-			if (newIndex == currentIndex) {
-				return;
-			}
-
-			const entry = store.queue[currentIndex];
-
-			store.remove(currentIndex);
-			store.insert([entry], newIndex - 1);
+		move: (fromIndex: number, toIndex: number) => {
+			store.moveTrack(fromIndex, toIndex);
 		},
 	};
 }

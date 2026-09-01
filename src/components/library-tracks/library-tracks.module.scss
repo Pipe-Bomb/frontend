@@ -4,6 +4,16 @@
 
 .container {
 	margin: 0 auto;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+
+	.controls {
+		display: flex;
+		gap: 16px;
+		align-items: center;
+		padding: 0 16px;
+	}
 
 	.trackList {
 		display: flex;

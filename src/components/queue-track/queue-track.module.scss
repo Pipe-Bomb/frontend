@@ -1,6 +1,7 @@
 .container {
 	display: flex;
 	gap: 8px;
+	align-items: center;
 	transition: opacity 0.15s;
 	height: 56px;
 	padding: 4px;
@@ -22,7 +23,6 @@
 		flex-shrink: 0;
 		background: var(--bg-elevated);
 		border-radius: 4px;
-		overflow: hidden;
 
 		.playButton {
 			display: none;
@@ -40,6 +40,7 @@
 		display: flex;
 		flex-direction: column;
 		overflow: hidden;
+		flex: 1;
 
 		.title {
 			font-size: 1rem;
@@ -54,6 +55,23 @@
 		}
 	}
 
+	.dragHandle {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: 4px;
+		color: var(--fg-muted);
+		cursor: grab;
+		opacity: 0;
+		transition: opacity 0.15s;
+		touch-action: none;
+		flex-shrink: 0;
+
+		&:active {
+			cursor: grabbing;
+		}
+	}
+
 	&.active,
 	&:hover {
 		.imageContainer {
@@ -64,6 +82,10 @@
 			.cover {
 				opacity: 0.5;
 			}
+		}
+
+		.dragHandle {
+			opacity: 1;
 		}
 	}
 }

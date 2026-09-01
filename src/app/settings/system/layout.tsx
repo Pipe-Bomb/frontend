@@ -51,6 +51,9 @@ export default function Layout({ children }: Props) {
 							Attribute Sources
 						</Link>
 					)}
+					{hasPrivilege("view-search-sources") && (
+						<Link href="/settings/system/search">Search</Link>
+					)}
 
 					<Link href="/settings/system/identifiers">Identifiers</Link>
 					{hasPrivilege("view-tasks") && (
