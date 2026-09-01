@@ -29,7 +29,7 @@ export default function Page() {
 	const sources = data.data;
 
 	function activate(source: SearchSourceSummary) {
-		if (isSaving || canChange) {
+		if (isSaving || !canChange) {
 			return;
 		}
 
