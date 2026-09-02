@@ -1,0 +1,8 @@
+.container {
+	border-radius: 8px;
+	padding: 4px 8px;
+
+	&.active {
+		background: var(--bg-elevated);
+	}
+}

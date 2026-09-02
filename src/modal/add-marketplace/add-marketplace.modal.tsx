@@ -103,6 +103,7 @@ function Inner({ url, isInstalling, onUrlChange, onInstall }: InnerProps) {
 				loading={isInstalling}
 				icon={IconPlus}
 				iconSource="tabler"
+				style="background"
 			/>
 		</div>
 	);

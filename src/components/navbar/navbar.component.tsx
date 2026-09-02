@@ -107,6 +107,7 @@ export function Navbar() {
 										iconSource="tabler"
 										size="sm"
 										onClick={() => setCreatePlaylistOpen(true)}
+										className={styles.newPlaylistButton}
 									/>
 								</div>
 							) : (

@@ -31,12 +31,16 @@
 			}
 		}
 
+		.newPlaylistButton {
+			margin: 4px 12px;
+		}
+
 		.bottom {
 			flex-shrink: 0;
 			padding: 8px;
 			display: flex;
 			gap: 8px;
-			margin-top: 24px;
+			margin: 24px 4px 4px 4px;
 		}
 	}
 }

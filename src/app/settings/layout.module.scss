@@ -6,7 +6,7 @@
 	background: var(--bg-base);
 
 	.sideBar {
-		padding: 8px;
+		// padding: 8px;
 		width: 220px;
 		height: 100%;
 		background: var(--bg-surface);
@@ -14,13 +14,31 @@
 		top: 0;
 		overflow-y: auto;
 
+		.heading {
+			display: flex;
+			align-items: center;
+			margin: 4px 8px;
+			gap: 8px;
+			color: var(--fg-secondary);
+
+			.backArrow {
+				color: var(--fg-secondary);
+			}
+		}
+
+		.sectionName {
+			color: var(--fg-tertiary);
+			font-size: 0.8rem;
+			margin: 0 8px;
+		}
+
 		.tabs {
 			display: flex;
 			flex-direction: column;
+		}
 
-			a {
-				padding: 6px;
-			}
+		.sidebarSpinner {
+			padding: 4px 0 8px 8px;
 		}
 	}
 

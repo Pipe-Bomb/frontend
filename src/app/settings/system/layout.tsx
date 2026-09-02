@@ -2,11 +2,14 @@
 
 import { ReactNode } from "react";
 import styles from "../layout.module.scss";
-import Link from "next/link";
 import { useGetAllPluginConfigs } from "@api";
 import { useTranslation } from "@/context/language.context";
 import { Spinner } from "@/components/spinner/spinner.component";
 import { usePrivilegeCheck } from "@/hook/privilege-check.hook";
+import { SystemSidebarLink } from "@/components/system-sidebar-link/system-sidebar-link.component";
+import Link from "next/link";
+import { IconButton } from "@/components/icon-button/icon-button";
+import { IconArrowLeft } from "@tabler/icons-react";
 
 interface Props {
 	children: ReactNode;
@@ -30,54 +33,96 @@ export default function Layout({ children }: Props) {
 	return (
 		<div className={styles.container}>
 			<div className={styles.sideBar}>
+				<div className={styles.heading}>
+					<Link href="/">
+						<IconButton
+							icon={IconArrowLeft}
+							iconSource="tabler"
+							style="ghost"
+							iconClassName={styles.backArrow}
+						/>
+					</Link>
+					<span className={styles.headingText}>Server Settings</span>
+				</div>
 				<div className={styles.tabs}>
-					<Link href="/settings/system">System</Link>
-					{hasPrivilege("view-privileges") && (
-						<Link href="/settings/system/users">Users</Link>
-					)}
-					{hasPrivilege("view-plugins") && (
-						<Link href="/settings/system/installed-plugins">
-							Installed Plugins
-						</Link>
-					)}
-					{hasPrivilege("view-plugin-marketplaces") && (
-						<Link href="/settings/system/plugin-marketplace">
-							Plugin Marketplace
-						</Link>
-					)}
-					<Link href="/settings/system/libraries">Libraries</Link>
-					{hasPrivilege("edit-attribute-source-order") && (
-						<Link href="/settings/system/attribute-sources">
-							Attribute Sources
-						</Link>
-					)}
-					{hasPrivilege("view-search-sources") && (
-						<Link href="/settings/system/search">Search</Link>
-					)}
+					<SystemSidebarLink url="/settings/system" exactUrl>
+						System
+					</SystemSidebarLink>
 
-					<Link href="/settings/system/identifiers">Identifiers</Link>
-					{hasPrivilege("view-tasks") && (
-						<Link href="/settings/system/tasks">Tasks</Link>
-					)}
-					{hasPrivilege("view-workflows") && (
-						<Link href="/settings/workflows">Workflows</Link>
-					)}
+					<SystemSidebarLink
+						url="/settings/system/users"
+						privilege="view-privileges"
+					>
+						Users
+					</SystemSidebarLink>
+
+					<SystemSidebarLink
+						url="/settings/system/installed-plugins"
+						privilege="view-plugins"
+					>
+						Installed Plugins
+					</SystemSidebarLink>
+
+					<SystemSidebarLink
+						url="/settings/system/plugin-marketplace"
+						privilege="view-plugin-marketplaces"
+					>
+						Plugin Marketplace
+					</SystemSidebarLink>
+
+					<SystemSidebarLink url="/settings/system/libraries">
+						Libraries
+					</SystemSidebarLink>
+
+					<SystemSidebarLink
+						url="/settings/system/attribute-sources"
+						privilege="edit-attribute-source-order"
+					>
+						Attribute Sources
+					</SystemSidebarLink>
+
+					<SystemSidebarLink
+						url="/settings/system/search"
+						privilege="view-search-sources"
+					>
+						Search
+					</SystemSidebarLink>
+
+					<SystemSidebarLink url="/settings/system/identifiers">
+						Identifiers
+					</SystemSidebarLink>
+
+					<SystemSidebarLink
+						url="/settings/system/tasks"
+						privilege="view-tasks"
+					>
+						Tasks
+					</SystemSidebarLink>
+
+					<SystemSidebarLink
+						url="/settings/workflows"
+						privilege="view-workflows"
+					>
+						Workflows
+					</SystemSidebarLink>
 				</div>
 				{hasPrivilege("view-plugin-configs") && (
 					<>
-						<h3>Plugin Configuration</h3>
+						<span className={styles.sectionName}>Plugin Configuration</span>
 						<div className={styles.tabs}>
 							{pluginConfigs ? (
 								pluginConfigs.configs.map((config) => (
-									<Link
-										href={`/settings/system/plugin/${config.id}`}
+									<SystemSidebarLink
+										url={`/settings/system/plugin/${config.id}`}
 										key={config.id}
 									>
 										{t(`plugin.${config.id}.name`)}
-									</Link>
+									</SystemSidebarLink>
 								))
 							) : (
-								<Spinner />
+								<div className={styles.sidebarSpinner}>
+									<Spinner />
+								</div>
 							)}
 						</div>
 					</>

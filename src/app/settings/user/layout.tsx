@@ -3,13 +3,12 @@
 import { ReactNode, useMemo } from "react";
 import styles from "../layout.module.scss";
 import Link from "next/link";
-import {
-	useGetAllPluginConfigs,
-	useGetAllUserConfigs,
-	UserConfigStub,
-} from "@api";
+import { useGetAllUserConfigs, UserConfigStub } from "@api";
 import { useTranslation } from "@/context/language.context";
 import { Spinner } from "@/components/spinner/spinner.component";
+import { SystemSidebarLink } from "@/components/system-sidebar-link/system-sidebar-link.component";
+import { IconButton } from "@/components/icon-button/icon-button";
+import { IconArrowLeft } from "@tabler/icons-react";
 
 interface Props {
 	children: ReactNode;
@@ -46,19 +45,32 @@ export default function Layout({ children }: Props) {
 	return (
 		<div className={styles.container}>
 			<div className={styles.sideBar}>
+				<div className={styles.heading}>
+					<Link href="/">
+						<IconButton
+							icon={IconArrowLeft}
+							iconSource="tabler"
+							style="ghost"
+							iconClassName={styles.backArrow}
+						/>
+					</Link>
+					<span className={styles.headingText}>User Settings</span>
+				</div>
 				{Object.entries(pluginConfigSections).map(([pluginId, configs]) => (
 					<div key={pluginId}>
-						<h3>{t(`plugin.${pluginId}.name`)}</h3>
+						<span className={styles.sectionName}>
+							{t(`plugin.${pluginId}.name`)}
+						</span>
 						<div className={styles.tabs}>
 							{configs.map((config) => (
-								<Link
-									href={`/settings/user/${config.pluginId}/${config.configId}`}
+								<SystemSidebarLink
+									url={`/settings/user/${config.pluginId}/${config.configId}`}
 									key={config.configId}
 								>
 									{t(
 										`plugin.${config.pluginId}.user-config.${config.configId}.name`,
 									)}
-								</Link>
+								</SystemSidebarLink>
 							))}
 						</div>
 					</div>

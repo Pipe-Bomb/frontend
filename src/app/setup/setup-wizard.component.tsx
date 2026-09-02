@@ -13,37 +13,53 @@ import {
 	updateSystemConfigOptions,
 	useGetSystemConfigOptions,
 	UpdateSystemConfigOptionsDto,
+	createWorkflow,
+	addWorkflowTrigger,
+	addWorkflowStep,
+	updateWorkflowStepOptions,
 } from "@api";
+import { ProgressBar } from "@/components/progress-bar/progress-bar.component";
 import { Checkbox } from "@/components/checkbox/checkbox.component";
 
-type Step = 1 | 2 | 3 | 4 | 5;
+type Step = 1 | 2 | 3 | 4 | 5 | 6;
 
 const STEP_LABELS: Record<Step, string> = {
 	1: "Welcome",
 	2: "Admin account",
 	3: "Plugin marketplaces",
 	4: "User registrations",
-	5: "Done",
+	5: "First workflow",
+	6: "Done",
 };
 
 export function SetupWizard() {
 	const [step, setStep] = useState<Step>(1);
+	const [hasMarketplaces, setHasMarketplaces] = useState(false);
 
-	const next = () => setStep((s) => (s < 5 ? ((s + 1) as Step) : s));
+	const next = () => setStep((s) => (s < 6 ? ((s + 1) as Step) : s));
 
 	return (
 		<div className={styles.wizard}>
 			<div className={styles.card}>
 				<div className={styles.header}>
 					<span className={styles.stepLabel}>
-						Step {step} of 5 — {STEP_LABELS[step]}
+						Step {step} of {Object.keys(STEP_LABELS).length} —{" "}
+						{STEP_LABELS[step]}
 					</span>
 				</div>
 				{step === 1 && <StepWelcome onNext={next} />}
 				{step === 2 && <StepCreateAccount onNext={next} />}
-				{step === 3 && <StepMarketplaces onNext={next} />}
+				{step === 3 && (
+					<StepMarketplaces
+						onNext={(hasMarketplaces) => {
+							setHasMarketplaces(hasMarketplaces);
+							next();
+						}}
+					/>
+				)}
 				{step === 4 && <StepRegistrations onNext={next} />}
-				{step === 5 && <StepDone />}
+				{step === 5 && <StepWorkflow onNext={next} />}
+				{step === 6 && <StepDone hasMarketplaces={hasMarketplaces} />}
 			</div>
 		</div>
 	);
@@ -141,7 +157,11 @@ const OFFICIAL_MARKETPLACE_URL =
 const COMMUNITY_MARKETPLACE_URL =
 	"https://raw.githubusercontent.com/Pipe-Bomb-Community/community-marketplace/refs/heads/master/marketplace.json";
 
-function StepMarketplaces({ onNext }: { onNext: () => void }) {
+function StepMarketplaces({
+	onNext,
+}: {
+	onNext: (hasMarketplaces: boolean) => void;
+}) {
 	const [official, setOfficial] = useState(true);
 	const [community, setCommunity] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
@@ -159,7 +179,7 @@ function StepMarketplaces({ onNext }: { onNext: () => void }) {
 			selected.map((url) => safeFetch(addMarketplace, { url })),
 		);
 		setIsLoading(false);
-		onNext();
+		onNext(!!selected.length);
 	};
 
 	return (
@@ -285,7 +305,137 @@ function StepRegistrations({ onNext }: { onNext: () => void }) {
 	);
 }
 
-function StepDone() {
+const WORKFLOW_TASKS = [
+	":cache-all-libraries:",
+	":identify-tracks:new",
+	":attribute-tracks:new",
+	":identify-albums:new",
+	":attribute-albums:new",
+	":identify-artists:new",
+	":attribute-artists:new",
+] as const;
+
+// 1 createWorkflow + 1 addWorkflowTrigger + (addWorkflowStep + updateWorkflowStepOptions) per task
+const WORKFLOW_TOTAL_STEPS = 2 + WORKFLOW_TASKS.length * 2;
+
+function StepWorkflow({ onNext }: { onNext: () => void }) {
+	const [enabled, setEnabled] = useState(true);
+	const [progress, setProgress] = useState<number | null>(null);
+	const [error, setError] = useState<string | null>(null);
+
+	const isCreating = progress !== null;
+
+	const handleContinue = async () => {
+		if (isCreating) {
+			return;
+		}
+
+		if (!enabled) {
+			onNext();
+			return;
+		}
+
+		setError(null);
+		setProgress(0);
+		let completed = 0;
+
+		const tick = () => {
+			completed++;
+			setProgress(Math.round((completed / WORKFLOW_TOTAL_STEPS) * 100));
+		};
+
+		try {
+			const [createStatus, workflow] = await safeFetch(createWorkflow, {
+				name: "Cache & induct new tracks",
+			});
+			if (createStatus !== 200 || !workflow) {
+				throw new Error();
+			}
+			tick();
+
+			const workflowUuid = workflow.uuid;
+
+			const [triggerStatus] = await safeFetch(
+				addWorkflowTrigger,
+				workflowUuid,
+				{
+					pluginId: null,
+					stepId: "new-tracks",
+				},
+			);
+			if (triggerStatus !== 200) {
+				throw new Error();
+			}
+			tick();
+
+			for (const taskId of WORKFLOW_TASKS) {
+				const [stepStatus, stepWorkflow] = await safeFetch(
+					addWorkflowStep,
+					workflowUuid,
+					{ pluginId: null, stepId: "run-task" },
+				);
+				if (stepStatus !== 200 || !stepWorkflow) {
+					throw new Error();
+				}
+				tick();
+
+				const steps = stepWorkflow.steps ?? [];
+				const newStep = steps[steps.length - 1];
+
+				const [status, data] = await safeFetch(
+					updateWorkflowStepOptions,
+					workflowUuid,
+					newStep.uuid,
+					{
+						options: [
+							{
+								id: "taskId",
+								type: "enum",
+								value: taskId,
+							},
+						],
+					},
+				);
+
+				tick();
+			}
+
+			onNext();
+		} catch {
+			setError("Something went wrong. Please try again.");
+			setProgress(null);
+		}
+	};
+
+	return (
+		<>
+			<div className={styles.body}>
+				<h2 className={styles.title}>First workflow</h2>
+				<p className={styles.description}>
+					Create a workflow that automatically caches, identifies, and
+					attributes new tracks when they're added to your library.
+				</p>
+				<label className={styles.marketplaceOption}>
+					<Checkbox
+						checked={enabled}
+						onChange={setEnabled}
+						disabled={isCreating}
+					/>
+					<span>Create first workflow</span>
+				</label>
+				{isCreating && <ProgressBar percent={progress} />}
+				{error && <span className={styles.error}>{error}</span>}
+			</div>
+			<div className={styles.actions}>
+				<Button onClick={handleContinue} loading={isCreating}>
+					Continue
+				</Button>
+			</div>
+		</>
+	);
+}
+
+function StepDone({ hasMarketplaces }: { hasMarketplaces: boolean }) {
 	return (
 		<>
 			<div className={styles.body}>
@@ -297,7 +447,11 @@ function StepDone() {
 			<div className={styles.actions}>
 				<Button
 					onClick={() => {
-						window.location.href = "/";
+						if (hasMarketplaces) {
+							window.location.href = "/settings/system/plugin-marketplace";
+						} else {
+							window.location.href = "/";
+						}
 					}}
 				>
 					Go to Pipe Bomb

@@ -11,7 +11,7 @@ import {
 } from "@api";
 import { Spinner } from "@/components/spinner/spinner.component";
 import { IconButton } from "@/components/icon-button/icon-button";
-import { IconPlus } from "@tabler/icons-react";
+import { IconArrowLeft, IconPlus } from "@tabler/icons-react";
 import { CreateWorkflowModal } from "@/modal/create-workflow/create-workflow.modal";
 import { useRightClick } from "@/hook/right-click.hook";
 import { useQueryClient } from "@tanstack/react-query";
@@ -21,6 +21,7 @@ import {
 	WorkflowProgressProvider,
 } from "@/context/workflow-progress.context";
 import { usePrivilegeCheck } from "@/hook/privilege-check.hook";
+import { SystemSidebarLink } from "@/components/system-sidebar-link/system-sidebar-link.component";
 
 interface Props {
 	children: ReactNode;
@@ -71,14 +72,27 @@ export default function Layout({ children }: Props) {
 		<WorkflowProgressProvider data={context}>
 			<div className={styles.container}>
 				<div className={styles.sideBar}>
-					<h3>Workflows</h3>
+					<div className={styles.heading}>
+						<Link href="/settings/system">
+							<IconButton
+								icon={IconArrowLeft}
+								iconSource="tabler"
+								style="ghost"
+								iconClassName={styles.backArrow}
+							/>
+						</Link>
+						<span className={styles.headingText}>Workflows</span>
+					</div>
+
 					<div className={styles.tabs}>
 						{workflows ? (
 							workflows.map((workflow) => (
 								<WorkflowEntry workflow={workflow} key={workflow.uuid} />
 							))
 						) : (
-							<Spinner />
+							<div className={styles.sidebarSpinner}>
+								<Spinner />
+							</div>
 						)}
 					</div>
 					{canEditWorkflows && (
@@ -128,14 +142,11 @@ function WorkflowEntry({ workflow }: WorkflowEntryProps) {
 	]);
 
 	return (
-		<>
-			<Link
-				href={`/settings/workflows/${workflow.uuid}`}
-				key={workflow.uuid}
-				{...rightClick}
-			>
-				{workflow.name}
-			</Link>
-		</>
+		<SystemSidebarLink
+			url={`/settings/workflows/${workflow.uuid}`}
+			{...rightClick}
+		>
+			{workflow.name}
+		</SystemSidebarLink>
 	);
 }
