@@ -2,7 +2,11 @@ name: Docker
 
 on:
   push:
-    branches: [main]
+    branches: [master]
+    tags: ["v*.*.*"]
+
+env:
+  IMAGE: ghcr.io/pipe-bomb/frontend
 
 jobs:
   build-and-push:
@@ -14,8 +18,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # tanstack-client source is needed so the Dockerfile can build it locally
-      # rather than pulling the GitHub-hosted package (which may lag behind)
       - uses: actions/checkout@v4
         with:
           repository: pipe-bomb/tanstack-client
@@ -31,10 +33,27 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE }}
+          flavor: latest=auto
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=edge,enable={{is_default_branch}}
+          labels: |
+            org.opencontainers.image.description=Pipe Bomb frontend
+
       - uses: docker/build-push-action@v5
         with:
           context: .
           file: Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/pipe-bomb/frontend:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
