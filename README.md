@@ -7,7 +7,9 @@ The officially maintained frontend for [Pipe Bomb server](https://github.com/pip
 
 ## Getting Started
 
-Pipe Bomb website is developed using Node.js 24. Clone the repository, then run:
+Full installation instructions for Pipe Bomb are on the [Pipe Bomb Wiki](https://pipebomb.net/wiki/installation). You can also directly run the Pipe Bomb frontend standalone using the following instructions:
+
+Pipe Bomb frontend is developed using Node.js 24. Clone the repository, then run:
 
 ```bash
 npm ci
@@ -15,17 +17,17 @@ npm run build
 npm run start
 ```
 
-If you experience a port conflict, run the website on a different port using the `PORT` environment variable:
+If you experience a port conflict, run the frontend on a different port using the `PORT` environment variable:
 
 ```bash
 PORT=3001 npm run start
 ```
 
-The server address that Pipe Bomb website uses can also be configured using environment variables. `INTERNAL_API_URL` is used in server-side rendering and `NEXT_PUBLIC_API_URL` is used by the browser.
+The server address that Pipe Bomb frontend uses can also be configured using environment variables. `INTERNAL_API_URL` is used in server-side rendering and `NEXT_PUBLIC_API_URL` is used by the browser.
 
 ## Attributes
 
-Pipe Bomb's attribute system is very dynamic and has no defaults, leaving all naming decisions to plugin developers. That being said, Pipe Bomb website gives a few attributes special treatment:
+Pipe Bomb's attribute system is very dynamic and has no defaults, leaving all naming decisions to plugin developers. That being said, Pipe Bomb frontend gives a few attributes special treatment:
 
 ### Track
 
