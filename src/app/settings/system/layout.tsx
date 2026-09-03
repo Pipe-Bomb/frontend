@@ -45,62 +45,62 @@ export default function Layout({ children }: Props) {
 					<span className={styles.headingText}>Server Settings</span>
 				</div>
 				<div className={styles.tabs}>
-					<SystemSidebarLink url="/settings/system" exactUrl>
+					<SystemSidebarLink href="/settings/system" exactUrl>
 						System
 					</SystemSidebarLink>
 
 					<SystemSidebarLink
-						url="/settings/system/users"
+						href="/settings/system/users"
 						privilege="view-privileges"
 					>
 						Users
 					</SystemSidebarLink>
 
 					<SystemSidebarLink
-						url="/settings/system/installed-plugins"
+						href="/settings/system/installed-plugins"
 						privilege="view-plugins"
 					>
 						Installed Plugins
 					</SystemSidebarLink>
 
 					<SystemSidebarLink
-						url="/settings/system/plugin-marketplace"
+						href="/settings/system/plugin-marketplace"
 						privilege="view-plugin-marketplaces"
 					>
 						Plugin Marketplace
 					</SystemSidebarLink>
 
-					<SystemSidebarLink url="/settings/system/libraries">
+					<SystemSidebarLink href="/settings/system/libraries">
 						Libraries
 					</SystemSidebarLink>
 
 					<SystemSidebarLink
-						url="/settings/system/attribute-sources"
+						href="/settings/system/attribute-sources"
 						privilege="edit-attribute-source-order"
 					>
 						Attribute Sources
 					</SystemSidebarLink>
 
 					<SystemSidebarLink
-						url="/settings/system/search"
+						href="/settings/system/search"
 						privilege="view-search-sources"
 					>
 						Search
 					</SystemSidebarLink>
 
-					<SystemSidebarLink url="/settings/system/identifiers">
+					<SystemSidebarLink href="/settings/system/identifiers">
 						Identifiers
 					</SystemSidebarLink>
 
 					<SystemSidebarLink
-						url="/settings/system/tasks"
+						href="/settings/system/tasks"
 						privilege="view-tasks"
 					>
 						Tasks
 					</SystemSidebarLink>
 
 					<SystemSidebarLink
-						url="/settings/workflows"
+						href="/settings/workflows"
 						privilege="view-workflows"
 					>
 						Workflows
@@ -113,7 +113,7 @@ export default function Layout({ children }: Props) {
 							{pluginConfigs ? (
 								pluginConfigs.configs.map((config) => (
 									<SystemSidebarLink
-										url={`/settings/system/plugin/${config.id}`}
+										href={`/settings/system/plugin/${config.id}`}
 										key={config.id}
 									>
 										{t(`plugin.${config.id}.name`)}

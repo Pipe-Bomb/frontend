@@ -1,31 +1,31 @@
 "useClient";
 
-import Link from "next/link";
+import Link, { LinkProps } from "next/link";
 import styles from "./system-sidebar-link.module.scss";
 import { usePrivilegeCheck } from "@/hook/privilege-check.hook";
 import { usePathname } from "next/navigation";
 import { useMemo } from "react";
 import { cc } from "@/lib/util";
 
-interface Props {
-	url: string;
+interface Props extends LinkProps<any> {
 	exactUrl?: boolean;
 	children: string;
 	privilege?: string;
 }
 
 export function SystemSidebarLink({
-	url,
 	children,
 	privilege,
 	exactUrl,
+	href,
+	...props
 }: Props) {
 	const hasPrivilege = usePrivilegeCheck();
 	const pathname = usePathname();
 
 	const isActive = useMemo(() => {
-		return url == pathname || (!exactUrl && pathname.startsWith(`${url}/`));
-	}, [pathname, url, exactUrl]);
+		return href == pathname || (!exactUrl && pathname.startsWith(`${href}/`));
+	}, [pathname, href, exactUrl]);
 
 	if (privilege && !hasPrivilege(privilege)) {
 		return null;
@@ -33,8 +33,9 @@ export function SystemSidebarLink({
 
 	return (
 		<Link
-			href={url}
 			className={cc(styles.container, isActive && styles.active)}
+			href={href}
+			{...props}
 		>
 			{children}
 		</Link>

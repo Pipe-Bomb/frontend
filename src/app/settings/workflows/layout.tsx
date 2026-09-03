@@ -143,7 +143,7 @@ function WorkflowEntry({ workflow }: WorkflowEntryProps) {
 
 	return (
 		<SystemSidebarLink
-			url={`/settings/workflows/${workflow.uuid}`}
+			href={`/settings/workflows/${workflow.uuid}`}
 			{...rightClick}
 		>
 			{workflow.name}

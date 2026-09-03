@@ -64,7 +64,7 @@ export default function Layout({ children }: Props) {
 						<div className={styles.tabs}>
 							{configs.map((config) => (
 								<SystemSidebarLink
-									url={`/settings/user/${config.pluginId}/${config.configId}`}
+									href={`/settings/user/${config.pluginId}/${config.configId}`}
 									key={config.configId}
 								>
 									{t(
