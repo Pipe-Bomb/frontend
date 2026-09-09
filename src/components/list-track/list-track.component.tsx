@@ -1,6 +1,14 @@
 "use client";
 
-import { AttributeMap, EphemeralTrack, Track } from "@api";
+import {
+	AttributeMap,
+	BooleanAttribute,
+	DecimalAttribute,
+	EphemeralTrack,
+	IntegerAttribute,
+	StringAttribute,
+	Track,
+} from "@api";
 import styles from "./list-track.module.scss";
 import { IconButton } from "@/components/icon-button/icon-button";
 import {
@@ -27,6 +35,8 @@ import { serializeTrackKey } from "@/lib/track-batcher.util";
 import { useQueueActions } from "@/hook/queue-actions.hook";
 import { OptionalLink } from "@/components/optional-link/optional-link.component";
 import { useTrackContextMenu } from "@/hook/track-context-menu.hook";
+import { useIsTruncated } from "@/hook/is-truncated.hook";
+import { SingleAttributeModal } from "@/modal/single-attribute/single-attribute.modal";
 
 interface Props {
 	track: Track | EphemeralTrack;
@@ -48,6 +58,18 @@ export function ListTrack({
 	const { queue, currentIndex, isPlaying, toggle } = usePlayerStore();
 	const { playNow } = useQueueActions();
 	const nowPlaying = queue[currentIndex];
+	const [openAttribute, setOpenAttribute] = useState<
+		| [
+				(
+					| StringAttribute
+					| BooleanAttribute
+					| IntegerAttribute
+					| DecimalAttribute
+				),
+				string,
+		  ]
+		| null
+	>(null);
 
 	const isPlayingThis = useMemo(
 		() => nowPlaying == serializeTrackKey(track),
@@ -155,6 +177,12 @@ export function ListTrack({
 									>
 								}
 								attributes={track.attributes}
+								openAttribute={(key) => {
+									const attribute = track.attributes?.[key];
+									if (attribute && attribute.type != "buffer") {
+										setOpenAttribute([attribute, key]);
+									}
+								}}
 							/>
 						)}
 					</div>
@@ -167,6 +195,12 @@ export function ListTrack({
 					onClose={() => setInfoOpen(false)}
 				/>
 			)}
+			<SingleAttributeModal
+				attribute={openAttribute?.[0] ?? null}
+				attributeKey={openAttribute?.[1] ?? null}
+				entityType="track"
+				onClose={() => setOpenAttribute(null)}
+			/>
 			{modal}
 		</>
 	);
@@ -205,14 +239,22 @@ function BufferColumn({ column, attributes }: BufferColumnProps) {
 interface ValueColumnProps {
 	column: BasicAttributeColumn<Exclude<AttributeUnion["type"], "buffer">>;
 	attributes: AttributeMap | null;
+	openAttribute: (key: string) => void;
 }
 
-function ValueColumn({ column, attributes }: ValueColumnProps) {
+function ValueColumn({ column, attributes, openAttribute }: ValueColumnProps) {
 	const attribute = useAttribute(
 		attributes,
 		column.attribute,
 		column.attributeType,
 	);
 
-	return <span className={styles.columnValue}>{attribute}</span>;
+	return (
+		<span
+			className={cc(styles.columnValue)}
+			onClick={() => openAttribute(column.attribute)}
+		>
+			{attribute}
+		</span>
+	);
 }
