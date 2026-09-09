@@ -7,6 +7,7 @@ import styles from "./search-results.module.scss";
 import { TrackList } from "@/components/track-list/track-list.component";
 import { HorizontalScroller } from "@/components/horizontal-scroller/horizontal-scroller.component";
 import { RootPadding } from "@/components/root-padding/root-padding.component";
+import { HorizontalScrollerId } from "@/enum/horizontal-scroller-id.enum";
 
 interface Props {
 	tracks: (Track | EphemeralTrack)[];
@@ -42,7 +43,10 @@ export function SearchResults({ tracks, artists, albums }: Props) {
 				</RootPadding>
 			)}
 			{!!artists.length && (
-				<HorizontalScroller heading="Artists">
+				<HorizontalScroller
+					heading="Artists"
+					id={HorizontalScrollerId.SEARCH_ARTISTS}
+				>
 					{artists.map((artist, index) => {
 						let key = index.toString();
 						if (artist.uuid) {
@@ -57,7 +61,10 @@ export function SearchResults({ tracks, artists, albums }: Props) {
 				</HorizontalScroller>
 			)}
 			{!!albums.length && (
-				<HorizontalScroller heading="Albums">
+				<HorizontalScroller
+					heading="Albums"
+					id={HorizontalScrollerId.SEARCH_ALBUMS}
+				>
 					{albums.map((album, index) => {
 						let key = index.toString();
 						if (album.uuid) {

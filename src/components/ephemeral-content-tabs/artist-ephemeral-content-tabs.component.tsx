@@ -17,6 +17,7 @@ import { HorizontalScroller } from "@/components/horizontal-scroller/horizontal-
 import { GridAlbum } from "@/components/grid-album/grid-album.component";
 import { TrackList } from "@/components/track-list/track-list.component";
 import { RootPadding } from "@/components/root-padding/root-padding.component";
+import { HorizontalScrollerId } from "@/enum/horizontal-scroller-id.enum";
 
 interface Props {
 	artistId: string;
@@ -219,7 +220,10 @@ function Content({ tracks, albums }: ContentProps) {
 	return (
 		<div className={styles.content}>
 			{!!albums.length && (
-				<HorizontalScroller heading="Albums">
+				<HorizontalScroller
+					heading="Albums"
+					id={HorizontalScrollerId.ARTIST_EPHEMERAL_ALBUMS}
+				>
 					{albums.map((album, index) => {
 						let key: string | number = index;
 						const identity = album.identities?.[0];

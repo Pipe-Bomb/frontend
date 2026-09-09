@@ -6,6 +6,7 @@ import { GridPlaylist } from "@/components/grid-playlist/grid-playlist.component
 import { Metadata } from "next";
 import { getAuthHeaders } from "@/lib/server.util";
 import { unwrapData } from "@/lib/api.util";
+import { HorizontalScrollerId } from "@/enum/horizontal-scroller-id.enum";
 
 interface Props {
 	params: Promise<{ userId: string }>;
@@ -60,7 +61,10 @@ export default async function Page({ params }: Props) {
 				<h1 className={styles.username}>{user.username}</h1>
 			</RootPadding>
 			{!!user.playlists?.length && (
-				<HorizontalScroller heading="Playlists">
+				<HorizontalScroller
+					heading="Playlists"
+					id={HorizontalScrollerId.USER_PLAYLISTS}
+				>
 					{user.playlists.map((playlist) => (
 						<GridPlaylist playlist={playlist} key={playlist.uuid} />
 					))}
