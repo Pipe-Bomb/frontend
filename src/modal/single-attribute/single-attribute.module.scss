@@ -1,0 +1,77 @@
+.container {
+	.key {
+		color: var(--fg-secondary);
+		display: block;
+		text-align: left;
+		font-size: 0.8rem;
+	}
+
+	.name {
+		font-size: 1.2rem;
+		font-weight: 700;
+		display: block;
+		text-align: left;
+		margin-bottom: 8px;
+	}
+
+	.valueContainer {
+		border: 1px solid var(--border-strong);
+		border-radius: 8px;
+		background: var(--bg-elevated);
+		margin-top: 4px;
+		display: flex;
+		flex-direction: column;
+		max-width: 600px;
+
+		.formattedValue {
+			padding: 6px 8px;
+			text-align: left;
+		}
+
+		.rawValue {
+			display: block;
+			border-top: 1px solid var(--border-strong);
+			padding: 12px 8px 6px 8px;
+			text-align: left;
+			position: relative;
+			color: var(--fg-secondary);
+			font-size: 0.8rem;
+
+			&::before {
+				content: "Raw";
+				position: absolute;
+				top: 1;
+				left: 3;
+				color: var(--fg-tertiary);
+				font-size: 0.6rem;
+				font-weight: 700;
+			}
+		}
+	}
+
+	.infoContainer {
+		display: flex;
+		flex-wrap: wrap;
+		margin-top: 8px;
+		gap: 16px;
+		justify-content: space-between;
+
+		.infoModule {
+			.infoHeader {
+				display: block;
+				font-size: 0.8rem;
+				color: var(--fg-secondary);
+				text-align: left;
+			}
+
+			.infoValue {
+				display: block;
+				text-align: left;
+			}
+
+			.infoType {
+				text-transform: capitalize;
+			}
+		}
+	}
+}
