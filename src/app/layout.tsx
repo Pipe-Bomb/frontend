@@ -26,6 +26,7 @@ import { ScrollParentProvider } from "@/context/scroll-parent.context";
 import { getAuthHeaders } from "@/lib/server.util";
 import { NotificationList } from "@/components/notification-list/notification-list.component";
 import { unwrapData } from "@/lib/api.util";
+import { UISettings, UISettingsProvider } from "@/context/ui-settings.context";
 
 const inter = Inter({
 	variable: "--font-inter",
@@ -78,6 +79,14 @@ export default async function RootLayout({
 			} catch {}
 		}
 
+		const uiSettingsCookie = cookieStore.get("ui_settings");
+		let initialUISettings: Partial<UISettings> = {};
+		if (uiSettingsCookie) {
+			try {
+				initialUISettings = JSON.parse(uiSettingsCookie.value);
+			} catch {}
+		}
+
 		return (
 			<html lang="en" className={cc(inter.variable, outfit.variable)}>
 				<body>
@@ -85,27 +94,29 @@ export default async function RootLayout({
 						<AuthProvider user={user}>
 							<ContextMenuProvider>
 								<TrackColumnsProvider initialColumns={initialTrackColumns}>
-									<ModalProvider>
-										<ReactQueryProvider>
-											<div className={styles.container}>
-												<TopBar />
-												<div className={styles.body}>
-													{user && <Navbar />}
-													<ScrollParentProvider
-														className={styles.contentPlacement}
-													>
-														<div className={styles.content}>{children}</div>
-													</ScrollParentProvider>
+									<UISettingsProvider data={initialUISettings}>
+										<ModalProvider>
+											<ReactQueryProvider>
+												<div className={styles.container}>
+													<TopBar />
+													<div className={styles.body}>
+														{user && <Navbar />}
+														<ScrollParentProvider
+															className={styles.contentPlacement}
+														>
+															<div className={styles.content}>{children}</div>
+														</ScrollParentProvider>
 
-													{user && <SideBar />}
+														{user && <SideBar />}
+													</div>
+													{user && <Player />}
+													<AudioEngine />
 												</div>
-												{user && <Player />}
-												<AudioEngine />
-											</div>
-											<ModalBackground />
-											<NotificationList />
-										</ReactQueryProvider>
-									</ModalProvider>
+												<ModalBackground />
+												<NotificationList />
+											</ReactQueryProvider>
+										</ModalProvider>
+									</UISettingsProvider>
 								</TrackColumnsProvider>
 							</ContextMenuProvider>
 						</AuthProvider>

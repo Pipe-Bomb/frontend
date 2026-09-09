@@ -12,6 +12,7 @@ import { TrackList } from "@/components/track-list/track-list.component";
 import { HorizontalScroller } from "@/components/horizontal-scroller/horizontal-scroller.component";
 import { RootPadding } from "@/components/root-padding/root-padding.component";
 import { getAuthHeaders } from "@/lib/server.util";
+import { HorizontalScrollerId } from "@/enum/horizontal-scroller-id.enum";
 
 interface Props {
 	params: Promise<{
@@ -138,7 +139,10 @@ export default async function Page({ params }: Props) {
 				</RootPadding>
 				{artist.albums && (
 					<div className={styles.albums}>
-						<HorizontalScroller heading="Albums">
+						<HorizontalScroller
+							heading="Albums"
+							id={HorizontalScrollerId.ARTIST_ALBUMS}
+						>
 							{artist.albums.map((album) => (
 								<GridAlbum album={album} key={album.uuid} />
 							))}
