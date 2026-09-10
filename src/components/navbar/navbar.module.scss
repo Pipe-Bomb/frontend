@@ -19,10 +19,11 @@
 		border-radius: 8px;
 		display: flex;
 		flex-direction: column;
-		overflow-y: scroll;
+		overflow: hidden;
 
 		.main {
 			flex-grow: 1;
+			overflow-y: auto;
 
 			.sectionName {
 				color: var(--fg-tertiary);

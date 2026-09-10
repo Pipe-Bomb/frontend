@@ -8,7 +8,7 @@
 	isolation: isolate;
 	flex-shrink: 0;
 
-	&:focus {
+	&:focus-visible {
 		outline: 2px solid var(--accent-primary);
 		outline-offset: 2px;
 	}
