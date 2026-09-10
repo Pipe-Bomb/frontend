@@ -8,7 +8,7 @@
 	border-radius: 8px;
 	height: 54px;
 
-	&:has(:focus) {
+	&:has(:focus-visible) {
 		outline: 1px solid var(--accent-primary);
 		// background: var(--bg-elevated);
 		outline-offset: -0.5px;
@@ -60,7 +60,7 @@
 			border-radius: 4px;
 			overflow: hidden;
 
-			&:focus {
+			&:focus-visible {
 				outline: 2px solid var(--accent-primary);
 				outline-offset: 2px;
 			}
