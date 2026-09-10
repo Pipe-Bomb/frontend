@@ -101,11 +101,13 @@ export default async function RootLayout({
 													<TopBar />
 													<div className={styles.body}>
 														{user && <Navbar />}
-														<ScrollParentProvider
-															className={styles.contentPlacement}
-														>
-															<div className={styles.content}>{children}</div>
-														</ScrollParentProvider>
+														<div className={styles.contentOuter}>
+															<ScrollParentProvider
+																className={styles.contentPlacement}
+															>
+																<div className={styles.content}>{children}</div>
+															</ScrollParentProvider>
+														</div>
 
 														{user && <SideBar />}
 													</div>

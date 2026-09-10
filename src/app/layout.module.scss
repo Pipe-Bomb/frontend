@@ -11,21 +11,27 @@
 		align-items: stretch;
 		margin-bottom: 8px;
 
-		.contentPlacement {
+		.contentOuter {
 			flex-grow: 1;
 			position: relative;
-			overflow-x: hidden;
-			overflow-y: auto;
 			background: var(--bg-surface);
 			border-radius: 8px;
 			margin: 0 8px;
+			overflow: hidden;
 
-			.content {
+			.contentPlacement {
 				position: absolute;
 				inset: 0;
-				isolation: isolate;
-				display: flex;
-				flex-direction: column;
+				overflow-x: hidden;
+				overflow-y: auto;
+
+				.content {
+					position: absolute;
+					inset: 0;
+					isolation: isolate;
+					display: flex;
+					flex-direction: column;
+				}
 			}
 		}
 	}
