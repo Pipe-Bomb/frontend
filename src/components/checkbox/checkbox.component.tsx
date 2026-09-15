@@ -12,7 +12,11 @@ export function Checkbox({ checked, onChange, disabled }: Props) {
 	return (
 		<button
 			className={cc(styles.checkbox, checked && styles.checked)}
-			onClick={() => onChange?.(!checked)}
+			onClick={() => {
+				if (!disabled) {
+					onChange?.(!checked);
+				}
+			}}
 			disabled={disabled}
 		>
 			{checked && <IconCheck className={styles.tick} strokeWidth={4} />}
