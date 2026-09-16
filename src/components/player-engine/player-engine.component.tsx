@@ -6,6 +6,7 @@ import Hls from "hls.js";
 import { createTrackAudioSession } from "@api";
 import { useNotificationStore } from "@/store/notification.store";
 import { useKeyboardShortcuts } from "@/hook/keyboard-shortcuts.hook";
+import { usePlaybackReporter } from "@/hook/playback-reporter.hook";
 import { useTrack } from "@/hook/track.hook";
 import { getAttribute } from "@/lib/attribute.util";
 
@@ -49,6 +50,8 @@ export default function AudioEngine() {
 		volume,
 		muted,
 	} = usePlayerStore();
+
+	usePlaybackReporter();
 
 	const currentTrack = queue[currentIndex];
 	const trackResult = useTrack(currentTrack);
