@@ -3,6 +3,7 @@
 import { RequireAuth } from "@/guard/auth.guard";
 import styles from "./page.module.scss";
 import Link from "next/link";
+import { PlaybackHistoryList } from "@/components/playback-history-list.component";
 
 export default function Home() {
 	return (
@@ -17,6 +18,7 @@ export default function Home() {
 						Discord
 					</Link>
 				</div>
+				<PlaybackHistoryList />
 			</div>
 		</RequireAuth>
 	);

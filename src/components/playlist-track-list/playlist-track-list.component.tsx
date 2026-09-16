@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { getPlaylistTracks, PlaylistTrack } from "@/api";
 import { LazyTrackList } from "@/components/track-list/lazy-track-list.component";
 import { useTranslation } from "@/context/language.context";
