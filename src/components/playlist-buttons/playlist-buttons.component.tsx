@@ -65,108 +65,122 @@ export function PlaylistButtons({ playlist, isOwner }: Props) {
 	}, [playlist, playlist.trackCount]);
 
 	const { onClick } = useButtonMenu(() => [
-		{
-			key: "rename",
-			languageKey: "contextmenu.playlist.rename",
-			onClick: () => setIsRenameOpen(true),
-		},
 		...(isOwner
 			? [
+					{
+						key: "rename",
+						languageKey: "contextmenu.playlist.rename",
+						onClick: () => setIsRenameOpen(true),
+					},
 					{
 						key: "manage-collaborators",
 						languageKey: "contextmenu.playlist.manage-collaborators",
 						onClick: () => setIsCollaboratorsOpen(true),
 					},
+					{
+						key: "change-thumb",
+						languageKey: "contextmenu.playlist.change-thumbnail",
+						onClick: () => {
+							openFilePicker("image/*,.png,.jpg,.jpeg,.webp,.gif").then(
+								async (file) => {
+									if (!file) {
+										return;
+									}
+
+									const extension = path.extname(file.name).substring(1);
+									if (!extension) {
+										createNotification("Failed to upload image");
+										return;
+									}
+
+									const notifId = createNotification(
+										"Requesting to upload image",
+										{
+											isLoading: true,
+											timeout: null,
+										},
+									);
+
+									try {
+										const response = await updatePlaylistAttributes(
+											playlist.uuid,
+											{
+												attributes: [
+													{
+														type: "buffer",
+														key: "thumb",
+														extension,
+													},
+												],
+											},
+										);
+
+										if (response.status != 200) {
+											throw new Error(
+												`Unsupported status code ${response.status}`,
+											);
+										}
+
+										const session = response.data.find(
+											(session) =>
+												session.extension == extension &&
+												session.key == "thumb",
+										);
+
+										if (!session) {
+											throw new Error(`Session not found`);
+										}
+										updateNotification(notifId, {
+											message: "Uploading image...",
+										});
+
+										const bufferResponse = await uploadAttributeBuffer(
+											session.uuid,
+											{
+												file,
+											},
+										);
+
+										if (bufferResponse.status != 204) {
+											throw new Error(
+												`Unsupported status code ${response.status}`,
+											);
+										}
+										updateNotification(notifId, {
+											message: "Uploaded image",
+											isLoading: false,
+										});
+										if (pathname == `/playlist/${playlist.uuid}`) {
+											router.refresh();
+										}
+									} catch (e) {
+										console.error(e);
+										updateNotification(notifId, {
+											message: "Failed to upload image",
+											isLoading: false,
+										});
+									} finally {
+										resetNotificationTimeout(notifId);
+									}
+								},
+							);
+						},
+					},
+					{
+						key: "scan-smart-filters",
+						languageKey: "contextmenu.playlist.scan-smart-filters",
+						onClick: () => {
+							runPlaylistSmartFilters(playlist.uuid)
+								.then(() => {
+									if (pathname == `/playlist/${playlist.uuid}`) {
+										router.refresh();
+									}
+								})
+								.catch(console.error);
+						},
+					},
 				]
 			: []),
-		{
-			key: "change-thumb",
-			languageKey: "contextmenu.playlist.change-thumbnail",
-			onClick: () => {
-				openFilePicker("image/*,.png,.jpg,.jpeg,.webp,.gif").then(
-					async (file) => {
-						if (!file) {
-							return;
-						}
-
-						const extension = path.extname(file.name).substring(1);
-						if (!extension) {
-							createNotification("Failed to upload image");
-							return;
-						}
-
-						const notifId = createNotification("Requesting to upload image", {
-							isLoading: true,
-							timeout: null,
-						});
-
-						try {
-							const response = await updatePlaylistAttributes(playlist.uuid, {
-								attributes: [
-									{
-										type: "buffer",
-										key: "thumb",
-										extension,
-									},
-								],
-							});
-
-							if (response.status != 200) {
-								throw new Error(`Unsupported status code ${response.status}`);
-							}
-
-							const session = response.data.find(
-								(session) =>
-									session.extension == extension && session.key == "thumb",
-							);
-
-							if (!session) {
-								throw new Error(`Session not found`);
-							}
-							updateNotification(notifId, {
-								message: "Uploading image...",
-							});
-
-							const bufferResponse = await uploadAttributeBuffer(session.uuid, {
-								file,
-							});
-
-							if (bufferResponse.status != 204) {
-								throw new Error(`Unsupported status code ${response.status}`);
-							}
-							updateNotification(notifId, {
-								message: "Uploaded image",
-								isLoading: false,
-							});
-							if (pathname == `/playlist/${playlist.uuid}`) {
-								router.refresh();
-							}
-						} catch (e) {
-							console.error(e);
-							updateNotification(notifId, {
-								message: "Failed to upload image",
-								isLoading: false,
-							});
-						} finally {
-							resetNotificationTimeout(notifId);
-						}
-					},
-				);
-			},
-		},
-		{
-			key: "scan-smart-filters",
-			languageKey: "contextmenu.playlist.scan-smart-filters",
-			onClick: () => {
-				runPlaylistSmartFilters(playlist.uuid)
-					.then(() => {
-						if (pathname == `/playlist/${playlist.uuid}`) {
-							router.refresh();
-						}
-					})
-					.catch(console.error);
-			},
-		},
 	]);
 
 	return (
@@ -220,12 +234,14 @@ export function PlaylistButtons({ playlist, isOwner }: Props) {
 							}
 							disabled={!tracklist}
 						/>
-						<IconButton
-							size="md"
-							icon={IconDots}
-							iconSource="tabler"
-							onClick={onClick}
-						/>
+						{isOwner && (
+							<IconButton
+								size="md"
+								icon={IconDots}
+								iconSource="tabler"
+								onClick={onClick}
+							/>
+						)}
 					</>
 				)}
 			</div>

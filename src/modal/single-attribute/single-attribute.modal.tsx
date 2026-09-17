@@ -55,7 +55,7 @@ export function SingleAttributeModal({
 	}, [attribute, attributeKey, entityType]);
 
 	return (
-		<Modal open={!!attribute} onClose={onClose}>
+		<Modal open={!!attribute} onClose={onClose} title="Attribute Overview">
 			{debouncedAttribute && (
 				<Inner
 					attribute={debouncedAttribute[0]}

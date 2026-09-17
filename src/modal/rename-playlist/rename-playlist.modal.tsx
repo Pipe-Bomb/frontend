@@ -25,6 +25,7 @@ export function RenamePlaylistModal({ open, onClose, playlist }: Props) {
 					onClose?.();
 				}
 			}}
+			title="Rename Playlist"
 		>
 			<Inner
 				playlist={playlist}

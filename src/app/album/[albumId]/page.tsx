@@ -1,7 +1,6 @@
 import { getAttribute } from "@/lib/attribute.util";
-import { Album, getAlbumExternalUrls } from "@api";
+import { getAlbumExternalUrls } from "@api";
 import styles from "./page.module.scss";
-import { ExternalUrlList } from "@/components/external-url-list/external-url-list.component";
 import { ResourceImage } from "@/components/resource-image/resource-image.component";
 import { AlbumArtists } from "@/components/album-artists/album-artists.component";
 import { AlbumButtons } from "@/components/album-buttons/album-buttons.component";
@@ -12,6 +11,7 @@ import { RootPadding } from "@/components/root-padding/root-padding.component";
 import { TrackListProvider } from "@/context/tracklist.context";
 import { Metadata } from "next";
 import { getAuthHeaders } from "@/lib/server.util";
+import Link from "next/link";
 
 interface Props {
 	params: Promise<{
@@ -87,6 +87,8 @@ export default async function Page({ params }: Props) {
 	const title =
 		getAttribute(album.attributes, "title", "string", true) ?? "Unknown Album";
 	const front = getAttribute(album.attributes, "front", "buffer");
+	const year = getAttribute(album.attributes, "year", "integer", false);
+	const trackCount = album.tracks?.length ?? null;
 
 	const albumUrlsResponse =
 		(!!album.uuid &&
@@ -95,45 +97,72 @@ export default async function Page({ params }: Props) {
 			}))) ||
 		null;
 
+	const externalUrls =
+		albumUrlsResponse?.status == 200 && albumUrlsResponse.data.length
+			? albumUrlsResponse.data
+			: null;
+
 	return (
 		<TrackListProvider>
-			<div>
-				<div className={styles.top}>
-					<ResourceImage
-						resource={front}
-						fallbackSrc="/no_album_art.jpg"
-						className={styles.coverArt}
-						width={240}
-						height={240}
-					/>
-					<div className={styles.topInfo}>
-						<h1 className={styles.title}>{title}</h1>
-						<div className={styles.artists}>
-							<AlbumArtists album={album} />
-						</div>
-						<div className={styles.topButtons}>
+			<div className={styles.container}>
+				<div className={`${styles.hero} ${!front ? styles.noArt : ""}`}>
+					<div className={styles.background}>
+						<ResourceImage resource={front} className={styles.bgImage} />
+					</div>
+					<div className={styles.overlay} />
+					<div className={styles.content}>
+						<ResourceImage
+							resource={front}
+							fallbackSrc="/no_album_art.jpg"
+							className={styles.thumb}
+							width={180}
+							height={180}
+						/>
+						<div className={styles.info}>
+							<h1 className={styles.title}>{title}</h1>
+							<span className={styles.artists}>
+								<AlbumArtists album={album} />
+							</span>
+							{(year != null || trackCount != null) && (
+								<div className={styles.meta}>
+									{year != null && <span>{year}</span>}
+									{year != null && trackCount != null && (
+										<span className={styles.dot}>·</span>
+									)}
+									{trackCount != null && (
+										<span>
+											{trackCount} {trackCount === 1 ? "track" : "tracks"}
+										</span>
+									)}
+								</div>
+							)}
 							<AlbumButtons album={album} />
+							{externalUrls && (
+								<div className={styles.urlRow}>
+									{externalUrls.map((url, index) => (
+										<Link
+											key={index}
+											href={url.url}
+											target="_blank"
+											className={styles.urlItem}
+											title={url.name}
+										>
+											<img src={url.iconUrl} alt={url.name} />
+										</Link>
+									))}
+								</div>
+							)}
 						</div>
 					</div>
 				</div>
-				<RootPadding className={styles.split}>
-					<div className={styles.main}>
-						{!!album.tracks?.length && (
-							<TrackList
-								tracks={album.tracks}
-								trackNumbers={album.tracks.map((_, index) => index + 1)}
-								noArt
-							/>
-						)}
-					</div>
-					<div className={styles.sidebar}>
-						{albumUrlsResponse?.status == 200 &&
-							!!albumUrlsResponse.data.length && (
-								<div>
-									<ExternalUrlList urls={albumUrlsResponse.data} />
-								</div>
-							)}
-					</div>
+				<RootPadding className={styles.body}>
+					{!!album.tracks?.length && (
+						<TrackList
+							tracks={album.tracks}
+							trackNumbers={album.tracks.map((_, index) => index + 1)}
+							noArt
+						/>
+					)}
 				</RootPadding>
 				<RootPadding>
 					<AlbumEphemeralContentTabs albumId={albumId} />

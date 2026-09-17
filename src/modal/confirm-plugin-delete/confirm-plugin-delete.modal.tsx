@@ -72,6 +72,7 @@ export function ConfirmPluginDeleteModal({ open, onClose, pluginId }: Props) {
 					onClose?.();
 				}
 			}}
+			title="Confirm Plugin Deletion"
 		>
 			<Inner pluginId={pluginId} uninstall={uninstall} />
 		</Modal>

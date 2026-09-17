@@ -67,6 +67,7 @@ export function AddMarketplaceModal({ open, onClose }: Props) {
 					onClose?.();
 				}
 			}}
+			title="Add Marketplace"
 		>
 			<Inner
 				url={url}

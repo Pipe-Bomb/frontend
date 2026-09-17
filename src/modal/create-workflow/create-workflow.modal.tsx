@@ -25,6 +25,7 @@ export function CreateWorkflowModal({ open, onClose, onCreate }: Props) {
 					onClose?.();
 				}
 			}}
+			title="Create Workflow"
 		>
 			<Inner
 				onCreate={(workflow) => {

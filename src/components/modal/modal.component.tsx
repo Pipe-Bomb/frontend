@@ -8,21 +8,37 @@ import { useModals } from "@/context/modal.context";
 import { useIsMounted } from "@/hook/mounted.hook";
 import { IconButton } from "@/components/icon-button/icon-button";
 import { IconArrowLeft, IconX } from "@tabler/icons-react";
+import { useTranslation } from "@/context/language.context";
 
-interface Props {
+type Props = {
 	children?: React.ReactNode;
 	open?: boolean;
 	onClose?: (method: "button" | "background" | "escape") => void;
 	onBack?: (() => void) | null;
 	className?: string;
-}
+} & (
+	| {
+			titleKey: string;
+	  }
+	| {
+			title: string;
+	  }
+);
 
-export function Modal({ children, open, onClose, onBack, className }: Props) {
+export function Modal({
+	children,
+	open,
+	onClose,
+	onBack,
+	className,
+	...props
+}: Props) {
 	const { register, unregister } = useModals();
 	const id = useId();
 	const isMounted = useIsMounted();
 	const [shouldRender, setShouldRender] = useState(open);
 	const closeRef = useRef(onClose);
+	const { t } = useTranslation();
 
 	closeRef.current = onClose;
 
@@ -63,6 +79,14 @@ export function Modal({ children, open, onClose, onBack, className }: Props) {
 					onClick={() => closeRef.current?.("button")}
 				/>
 			</span>
+
+			{"title" in props ? (
+				<span className={styles.heading}>{props.title}</span>
+			) : (
+				"titleKey" in props && (
+					<span className={styles.heading}>{t(props.titleKey)}</span>
+				)
+			)}
 
 			<div className={styles.children}>{children}</div>
 		</div>,

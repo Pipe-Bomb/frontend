@@ -17,7 +17,12 @@ interface Props extends InnerProps {
 
 export function TrackInfoModal({ track, open, onClose }: Props) {
 	return (
-		<Modal open={open} onClose={onClose} className={styles.container}>
+		<Modal
+			open={open}
+			onClose={onClose}
+			className={styles.container}
+			title="Track Info"
+		>
 			<Inner track={track} />
 		</Modal>
 	);

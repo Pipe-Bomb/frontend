@@ -18,7 +18,7 @@ interface Props extends InnerProps {
 
 export function TrackListModal({ open, onClose, specialColumns }: Props) {
 	return (
-		<Modal open={open} onClose={onClose}>
+		<Modal open={open} onClose={onClose} title="Select Track Columns">
 			<Inner specialColumns={specialColumns} />
 		</Modal>
 	);
