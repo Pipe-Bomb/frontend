@@ -61,6 +61,7 @@ export function CreateFilterGroupModal({
 			open={open}
 			onClose={onClose}
 			onBack={isEditing ? () => setIsEditing(false) : null}
+			title="Create Filter Group"
 		>
 			<Inner
 				existingGroup={existingGroup}

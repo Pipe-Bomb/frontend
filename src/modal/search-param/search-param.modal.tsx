@@ -16,7 +16,7 @@ interface Props extends InnerProps {
 
 export function SearchParamModal({ open, onClose, ...props }: Props) {
 	return (
-		<Modal open={open} onClose={onClose}>
+		<Modal open={open} onClose={onClose} title="Search Parameter">
 			<Inner {...props} />
 		</Modal>
 	);

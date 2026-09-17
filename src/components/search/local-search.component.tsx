@@ -1,3 +1,5 @@
+"use client";
+
 import { SearchDto, useSearch } from "@/api";
 import { SearchResults } from "@/components/search-results/search-results.component";
 import { Spinner } from "@/components/spinner/spinner.component";

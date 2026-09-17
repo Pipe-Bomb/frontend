@@ -31,7 +31,7 @@ interface Props extends SharedProps {
 
 export function PlaylistCollaboratorsModal({ open, onClose, playlist }: Props) {
 	return (
-		<Modal open={open} onClose={onClose}>
+		<Modal open={open} onClose={onClose} title="Manage Playlist Collaborators">
 			<Inner playlist={playlist} onClose={onClose} />
 		</Modal>
 	);
@@ -44,7 +44,7 @@ function Inner({ playlist }: SharedProps) {
 	});
 
 	if (membersQuery.isPending || !membersQuery.data) {
-		return <Spinner />;
+		return <Spinner position="expand" />;
 	}
 
 	if (membersQuery.data.status !== 200) {

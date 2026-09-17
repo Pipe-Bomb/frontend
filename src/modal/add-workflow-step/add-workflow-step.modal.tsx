@@ -33,6 +33,7 @@ export function AddWorkflowStepModal({ open, onClose, workflow }: Props) {
 					onClose?.();
 				}
 			}}
+			title="Add Workflow Step"
 		>
 			<Inner
 				isCreating={isCreating}

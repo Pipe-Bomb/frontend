@@ -20,7 +20,12 @@ export function ArtistInfoModal({ artist, open, onClose }: Props) {
 		return null;
 	}
 	return (
-		<Modal open={open} onClose={onClose} className={styles.container}>
+		<Modal
+			open={open}
+			onClose={onClose}
+			className={styles.container}
+			title="Artist Info"
+		>
 			<Inner artistUuid={artist.uuid} />
 		</Modal>
 	);

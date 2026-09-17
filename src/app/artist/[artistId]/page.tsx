@@ -12,6 +12,7 @@ import { HorizontalScroller } from "@/components/horizontal-scroller/horizontal-
 import { RootPadding } from "@/components/root-padding/root-padding.component";
 import { getAuthHeaders } from "@/lib/server.util";
 import { HorizontalScrollerId } from "@/enum/horizontal-scroller-id.enum";
+import { OptionalLink } from "@/components/optional-link/optional-link.component";
 
 interface Props {
 	params: Promise<{
@@ -113,13 +114,14 @@ export default async function Page({ params }: Props) {
 					{!!genres?.length && (
 						<div className={styles.genres}>
 							{genres.map((genre, index) => (
-								<Link
-									href={`/genre/${genre}`}
+								<OptionalLink
+									// href={`/genre/${genre}`}
+									href={null}
 									key={index}
 									className={styles.genre}
 								>
 									{genre}
-								</Link>
+								</OptionalLink>
 							))}
 						</div>
 					)}

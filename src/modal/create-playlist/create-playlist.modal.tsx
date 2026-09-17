@@ -16,7 +16,7 @@ interface Props extends InnerProps {
 
 export function CreatePlaylistModal({ open, onClose, onCreate }: Props) {
 	return (
-		<Modal open={open} onClose={onClose}>
+		<Modal open={open} onClose={onClose} title="Create Playlist">
 			<Inner onCreate={onCreate} />
 		</Modal>
 	);

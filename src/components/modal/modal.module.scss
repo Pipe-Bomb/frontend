@@ -16,6 +16,7 @@
 	max-height: calc(100vh - 40px);
 	max-width: min(1100px, calc(100% - 40px));
 	display: flex;
+	flex-direction: column;
 
 	& > h1 {
 		margin-top: 0;
@@ -56,6 +57,12 @@
 		.backIcon {
 			color: var(--fg-tertiary);
 		}
+	}
+
+	.heading {
+		margin: 4px 40px;
+		font-weight: 700;
+		color: var(--fg-secondary);
 	}
 }
 

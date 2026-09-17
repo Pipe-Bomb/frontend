@@ -13,7 +13,7 @@ interface Props extends InnerProps {
 
 export function PlaylistSelectModal({ open, onClose, onSelect }: Props) {
 	return (
-		<Modal open={open} onClose={onClose}>
+		<Modal open={open} onClose={onClose} title="Select Playlist">
 			<Inner onSelect={onSelect} />
 		</Modal>
 	);

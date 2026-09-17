@@ -84,6 +84,7 @@ export function InstallPluginModal({ open, onClose }: Props) {
 					onClose?.();
 				}
 			}}
+			title="Install Plugin"
 		>
 			<Inner
 				url={url}

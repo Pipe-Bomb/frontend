@@ -23,7 +23,7 @@ export function SelectWorkflowStepModal({
 	onClose,
 }: Props) {
 	return (
-		<Modal open={open} onClose={onClose}>
+		<Modal open={open} onClose={onClose} title="Select Workflow Step">
 			<Inner options={options} onSelect={onSelect} />
 		</Modal>
 	);

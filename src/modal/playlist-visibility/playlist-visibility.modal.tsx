@@ -22,6 +22,7 @@ export function PlaylistVisibilityModal({ open, onClose, playlist }: Props) {
 					onClose?.();
 				}
 			}}
+			title="Change Playlist Visibility"
 		>
 			<Inner
 				playlist={playlist}

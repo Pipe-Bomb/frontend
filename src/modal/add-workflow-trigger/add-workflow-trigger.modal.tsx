@@ -33,6 +33,7 @@ export function AddWorkflowTriggerModal({ open, onClose, workflow }: Props) {
 					onClose?.();
 				}
 			}}
+			title="Add Workflow Trigger"
 		>
 			<Inner
 				isCreating={isCreating}

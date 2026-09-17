@@ -113,17 +113,20 @@ async function Contents({ params }: Props) {
 					/>
 					<div className={styles.topInfo}>
 						<h1 className={styles.title}>{title ?? "Unnamed Playlist"}</h1>
-						<div className={styles.ownerContainer}>
-							<Link
-								href={`/user/${playlist.ownerUuid}`}
-								className={styles.ownerLink}
-							>
-								{playlist.owner?.username ?? "Unknown User"}
-							</Link>
-							<span className={styles.visibilityButton}>
-								<PlaylistVisibilityButton playlist={playlist} />
-							</span>
-						</div>
+						{!!playlist.ownerUuid && (
+							<div className={styles.ownerContainer}>
+								<Link
+									href={`/user/${playlist.ownerUuid}`}
+									className={styles.ownerLink}
+								>
+									{playlist.owner?.username ?? "Unknown User"}
+								</Link>
+								<span className={styles.visibilityButton}>
+									<PlaylistVisibilityButton playlist={playlist} />
+								</span>
+							</div>
+						)}
+
 						<div className={styles.topButtons}>
 							<PlaylistButtons playlist={playlist} isOwner={isOwner} />
 						</div>
