@@ -9,6 +9,7 @@
 	position: relative;
 	overflow: hidden;
 	transition: background 0.1s;
+	flex-shrink: 0;
 
 	&:focus-visible {
 		outline: 2px solid var(--accent-primary);

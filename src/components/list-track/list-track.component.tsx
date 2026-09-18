@@ -139,14 +139,6 @@ export function ListTrack({
 								<TrackArtists track={track} />
 							</span>
 						)}
-						{/* {"albums" in track && !!track.albums && (
-							<span className={styles.album}>
-								<TrackAlbum
-									album={track.albums?.[0] ?? null}
-									fallback={album}
-								/>
-							</span>
-						)} */}
 					</div>
 				</div>
 				{columns?.map((column, index) => (
@@ -160,7 +152,10 @@ export function ListTrack({
 						{column.type == "special" ? (
 							<OptionalLink
 								href={column.url}
-								className={cc(!!column.url && styles.columnLink)}
+								className={cc(
+									styles.columnValue,
+									!!column.url && styles.columnLink,
+								)}
 							>
 								{column.formatted}
 							</OptionalLink>

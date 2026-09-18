@@ -65,8 +65,7 @@ function Inner({ specialColumns }: InnerProps) {
 	}
 
 	return (
-		<div>
-			<h1>Columns</h1>
+		<div className={styles.container}>
 			{!!specialColumns?.length && (
 				<div className={styles.list}>
 					{specialColumns.map((column) => {

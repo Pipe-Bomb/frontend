@@ -85,6 +85,8 @@
 				white-space: pre;
 				text-overflow: ellipsis;
 				overflow: hidden;
+				display: block;
+				max-width: 100%;
 
 				&:focus {
 					color: var(--accent-primary);
@@ -98,6 +100,7 @@
 				white-space: pre;
 				text-overflow: ellipsis;
 				overflow: hidden;
+				max-width: 100%;
 			}
 
 			.title,
