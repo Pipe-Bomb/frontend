@@ -65,7 +65,10 @@ export function Paginator({ urlKey, totalPages }: Props) {
 
 			<IconButton
 				icon={IconCaretLeftFilled}
-				onClick={() => setPage(currentPage - 1)}
+				onClick={() => {
+					setPageString((currentPage - 1).toString());
+					setPage(currentPage - 1);
+				}}
 				iconSource="tabler"
 				disabled={atFirst}
 			/>
@@ -73,7 +76,10 @@ export function Paginator({ urlKey, totalPages }: Props) {
 				<button
 					className={styles.sideButton}
 					key={pageNumber}
-					onClick={() => setPage(pageNumber)}
+					onClick={() => {
+						setPageString(pageNumber.toString());
+						setPage(pageNumber);
+					}}
 				>
 					{pageNumber}
 				</button>
@@ -84,19 +90,33 @@ export function Paginator({ urlKey, totalPages }: Props) {
 				className={styles.pageNumber}
 				onChange={(e) => setPageString(e.currentTarget.value)}
 				style={css}
+				onKeyDown={(e) => {
+					if (e.key == "Enter" && pageString) {
+						const int = parseInt(pageString);
+						if (!isNaN(int)) {
+							setPage(int);
+						}
+					}
+				}}
 			/>
 			{additionalButtons[1].map((pageNumber) => (
 				<button
 					className={styles.sideButton}
 					key={pageNumber}
-					onClick={() => setPage(pageNumber)}
+					onClick={() => {
+						setPageString(pageNumber.toString());
+						setPage(pageNumber);
+					}}
 				>
 					{pageNumber}
 				</button>
 			))}
 			<IconButton
 				icon={IconCaretRightFilled}
-				onClick={() => setPage(currentPage + 1)}
+				onClick={() => {
+					setPageString((currentPage + 1).toString());
+					setPage(currentPage + 1);
+				}}
 				iconSource="tabler"
 				disabled={atLast}
 			/>

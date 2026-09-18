@@ -1,3 +1,7 @@
+.container {
+	width: 300px;
+}
+
 .loading {
 	height: 300px;
 }
@@ -25,6 +29,7 @@
 	cursor: pointer;
 	align-items: center;
 	font-weight: 500;
+	// width: 300px;
 
 	.attributeName {
 		flex-grow: 1;
