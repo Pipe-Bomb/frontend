@@ -1,5 +1,7 @@
 "use client";
 
+import { AlbumArtFallback } from "@/components/album-art-fallback/album-art-fallback.component";
+
 import { ProgressTrack } from "@/components/progress-track/progress-track.component";
 import styles from "./player.module.scss";
 import { IconButton } from "@/components/icon-button/icon-button";
@@ -191,7 +193,7 @@ function NowPlaying({ track }: NowPlayingProps) {
 					<ResourceImage
 						resource={cover}
 						className={styles.nowPlayingCover}
-						fallbackSrc="/no_album_art.jpg"
+						fallback={<AlbumArtFallback />}
 						width={72}
 						height={72}
 					/>

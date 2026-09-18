@@ -1,6 +1,50 @@
 .top {
-	.username {
-		font-size: 3rem;
-		font-family: var(--font-heading);
+	position: relative;
+	padding: 52px 16px 32px;
+	border-bottom: 1px solid var(--border-subtle);
+	margin-bottom: 8px;
+
+	&::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		background: radial-gradient(
+			ellipse 65% 100% at 0% 0%,
+			rgba(29, 185, 84, 0.13),
+			transparent
+		);
+		pointer-events: none;
+		z-index: 0;
 	}
+}
+
+.header {
+	position: relative;
+	z-index: 1;
+	display: flex;
+	align-items: center;
+	gap: 24px;
+}
+
+.avatar {
+	width: 88px;
+	height: 88px;
+	border-radius: 50%;
+	background: rgba(29, 185, 84, 0.12);
+	border: 1.5px solid var(--accent-primary);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-family: var(--font-heading);
+	font-size: 2.5rem;
+	font-weight: 700;
+	color: var(--accent-primary);
+	flex-shrink: 0;
+}
+
+.username {
+	font-size: 4rem;
+	font-family: var(--font-heading);
+	font-weight: 700;
+	color: var(--fg-primary);
 }

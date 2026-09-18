@@ -1,6 +1,5 @@
 import { getUser } from "@api";
 import styles from "./page.module.scss";
-import { RootPadding } from "@/components/root-padding/root-padding.component";
 import { HorizontalScroller } from "@/components/horizontal-scroller/horizontal-scroller.component";
 import { GridPlaylist } from "@/components/grid-playlist/grid-playlist.component";
 import { Metadata } from "next";
@@ -57,9 +56,14 @@ export default async function Page({ params }: Props) {
 
 	return (
 		<div>
-			<RootPadding className={styles.top}>
-				<h1 className={styles.username}>{user.username}</h1>
-			</RootPadding>
+			<div className={styles.top}>
+				<div className={styles.header}>
+					<div className={styles.avatar}>
+						{user.username[0].toUpperCase()}
+					</div>
+					<h1 className={styles.username}>{user.username}</h1>
+				</div>
+			</div>
 			{!!user.playlists?.length && (
 				<HorizontalScroller
 					heading="Playlists"

@@ -4,6 +4,7 @@ import { Playlist } from "@api";
 import styles from "./grid-playlist.module.scss";
 import Link from "next/link";
 import { ResourceImage } from "@/components/resource-image/resource-image.component";
+import { AlbumArtFallback } from "@/components/album-art-fallback/album-art-fallback.component";
 
 interface Props {
 	playlist: Playlist;
@@ -22,7 +23,7 @@ export function GridPlaylist({ playlist }: Props) {
 				<ResourceImage
 					resource={thumb}
 					className={styles.image}
-					fallbackSrc="/no_album_art.jpg"
+					fallback={<AlbumArtFallback />}
 					width={180}
 					height={180}
 				/>

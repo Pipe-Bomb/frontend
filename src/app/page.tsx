@@ -2,23 +2,17 @@
 
 import { RequireAuth } from "@/guard/auth.guard";
 import styles from "./page.module.scss";
-import Link from "next/link";
-import { PlaybackHistoryList } from "@/components/playback-history-list.component";
+import { HomeHistorySection } from "@/components/home-history-section/home-history-section.component";
+import { HomePlaylistsSection } from "@/components/home-playlists-section/home-playlists-section.component";
+import { WelcomeBanner } from "@/components/welcome-banner/welcome-banner.component";
 
 export default function Home() {
 	return (
 		<RequireAuth>
 			<div className={styles.container}>
-				<h1 className={styles.title}>Welcome to Pipe Bomb</h1>
-				<div className={styles.links}>
-					<Link href="https://pipebomb.net/wiki" target="_blank">
-						Wiki
-					</Link>
-					<Link href="https://discord.gg/Kj7KfPDwCE" target="_blank">
-						Discord
-					</Link>
-				</div>
-				<PlaybackHistoryList />
+				<WelcomeBanner />
+				<HomePlaylistsSection />
+				<HomeHistorySection />
 			</div>
 		</RequireAuth>
 	);

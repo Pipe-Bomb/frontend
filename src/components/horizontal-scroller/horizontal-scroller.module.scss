@@ -1,4 +1,6 @@
 .container {
+	margin: 16px 0;
+
 	.top {
 		display: flex;
 		align-items: center;
@@ -6,15 +8,20 @@
 
 		.heading {
 			margin-right: 16px;
-			font-size: 1.5rem;
 			margin-left: 16px;
+			font-family: var(--font-heading);
+			font-size: 1.5rem;
+			font-weight: 700;
 		}
 	}
 
 	.content {
-		overflow-x: scroll;
 		padding: 0 16px;
 		isolation: isolate;
+
+		&:has(.scroll) {
+			overflow-x: scroll;
+		}
 
 		.scroll {
 			display: flex;
@@ -27,6 +34,7 @@
 			display: flex;
 			flex-wrap: wrap;
 			gap: 32px 16px;
+			padding-bottom: 31px;
 		}
 	}
 }

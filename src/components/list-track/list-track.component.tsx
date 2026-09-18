@@ -1,5 +1,7 @@
 "use client";
 
+import { AlbumArtFallback } from "@/components/album-art-fallback/album-art-fallback.component";
+
 import {
 	AttributeMap,
 	BooleanAttribute,
@@ -119,7 +121,7 @@ export function ListTrack({
 							<ResourceImage
 								resource={image}
 								className={styles.cover}
-								fallbackSrc="/no_album_art.jpg"
+								fallback={<AlbumArtFallback />}
 								width={42}
 								height={42}
 							/>

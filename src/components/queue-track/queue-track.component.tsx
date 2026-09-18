@@ -1,5 +1,7 @@
 "use client";
 
+import { AlbumArtFallback } from "@/components/album-art-fallback/album-art-fallback.component";
+
 import { EphemeralTrack, Track } from "@api";
 import styles from "./queue-track.module.scss";
 import { useAttribute } from "@/hook/attribute.hook";
@@ -59,7 +61,7 @@ export function QueueTrack({ track, queueIndex, dragHandleProps }: Props) {
 					<ResourceImage
 						resource={cover}
 						className={styles.cover}
-						fallbackSrc="/no_album_art.jpg"
+						fallback={<AlbumArtFallback />}
 						width={42}
 						height={42}
 					/>
