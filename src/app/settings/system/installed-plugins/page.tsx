@@ -39,12 +39,7 @@ export default function Page() {
 			</div>
 			<List>
 				{installedPlugins.map((plugin) => (
-					<ListPlugin
-						key={plugin.name}
-						id={plugin.name}
-						description={plugin.description}
-						version={plugin.version}
-					/>
+					<ListPlugin key={plugin.name} plugin={plugin} />
 				))}
 			</List>
 			<InstallPluginModal
