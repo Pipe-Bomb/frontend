@@ -1,5 +1,7 @@
 "use client";
 
+import { AlbumArtFallback } from "@/components/album-art-fallback/album-art-fallback.component";
+
 import { useAttribute } from "@/hook/attribute.hook";
 import {
 	Album,
@@ -118,7 +120,7 @@ export function GridAlbum({ album }: Props) {
 					<ResourceImage
 						resource={front}
 						className={styles.image}
-						fallbackSrc="/no_album_art.jpg"
+						fallback={<AlbumArtFallback />}
 						width={180}
 						height={180}
 					/>

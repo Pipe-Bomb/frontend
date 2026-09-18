@@ -1,0 +1,52 @@
+.banner {
+	position: relative;
+	padding: 36px 16px 24px;
+	border-bottom: 1px solid var(--border-subtle);
+	margin-bottom: 8px;
+
+	&::before {
+		content: "";
+		position: absolute;
+		inset: 0;
+		background: radial-gradient(
+			ellipse 65% 100% at 0% 0%,
+			rgba(29, 185, 84, 0.13),
+			transparent
+		);
+		pointer-events: none;
+		z-index: 0;
+	}
+}
+
+.greeting {
+	position: relative;
+	z-index: 1;
+	font-family: var(--font-heading);
+	font-size: 2.5rem;
+	font-weight: 700;
+	line-height: 1.2;
+	color: var(--fg-primary);
+}
+
+.username {
+	color: var(--accent-primary);
+}
+
+.links {
+	position: relative;
+	z-index: 1;
+	display: flex;
+	gap: 16px;
+	margin-top: 8px;
+
+	a {
+		font-size: 0.875rem;
+		color: var(--fg-tertiary);
+		text-decoration: underline;
+		transition: color 0.15s;
+
+		&:hover {
+			color: var(--fg-secondary);
+		}
+	}
+}

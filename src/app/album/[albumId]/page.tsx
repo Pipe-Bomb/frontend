@@ -1,3 +1,4 @@
+import { AlbumArtFallback } from "@/components/album-art-fallback/album-art-fallback.component";
 import { getAttribute } from "@/lib/attribute.util";
 import { getAlbumExternalUrls } from "@api";
 import styles from "./page.module.scss";
@@ -113,7 +114,7 @@ export default async function Page({ params }: Props) {
 					<div className={styles.content}>
 						<ResourceImage
 							resource={front}
-							fallbackSrc="/no_album_art.jpg"
+							fallback={<AlbumArtFallback />}
 							className={styles.thumb}
 							width={180}
 							height={180}

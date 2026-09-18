@@ -1,3 +1,4 @@
+import { AlbumArtFallback } from "@/components/album-art-fallback/album-art-fallback.component";
 import { RootPadding } from "@/components/root-padding/root-padding.component";
 import { getAttribute } from "@/lib/attribute.util";
 import { getAuthHeaders } from "@/lib/server.util";
@@ -106,7 +107,7 @@ async function Contents({ params }: Props) {
 				<div className={styles.top}>
 					<ResourceImage
 						resource={thumb}
-						fallbackSrc="/no_album_art.jpg"
+						fallback={<AlbumArtFallback />}
 						className={styles.coverArt}
 						width={240}
 						height={240}

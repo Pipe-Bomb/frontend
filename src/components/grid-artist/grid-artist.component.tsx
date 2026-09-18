@@ -7,6 +7,7 @@ import { ArtistInfoModal } from "@/components/artist-info-modal/artist-info-moda
 import { useMemo, useState } from "react";
 import { OptionalLink } from "@/components/optional-link/optional-link.component";
 import { useRawAttribute } from "@/hook/raw-attribute.hook";
+import { IconUser } from "@tabler/icons-react";
 
 interface Props {
 	artist: Artist;
@@ -41,12 +42,18 @@ export function GridArtist({ artist }: Props) {
 		<>
 			<OptionalLink className={styles.container} href={link} {...rightClick}>
 				<div className={styles.imageContainer}>
-					<ResourceImage
-						resource={thumbnail}
-						className={styles.image}
-						width={160}
-						height={160}
-					/>
+					{thumbnail ? (
+						<ResourceImage
+							resource={thumbnail}
+							className={styles.image}
+							width={160}
+							height={160}
+						/>
+					) : (
+						<div className={styles.imageFallback}>
+							<IconUser size={52} stroke={1.25} />
+						</div>
+					)}
 				</div>
 				<span className={styles.name}>{name ?? "Unknown Artist"}</span>
 			</OptionalLink>

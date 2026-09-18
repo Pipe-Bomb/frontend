@@ -35,6 +35,11 @@ export function HorizontalScroller({ children, heading, id }: Props) {
 			"artist:albums": false,
 			"artist:ephemeral-albums": false,
 			"user:playlists": true,
+			"home:recent-albums": false,
+			"home:recent-artists": false,
+			"home:my-playlists": false,
+			"home:system-playlists": false,
+			"home:friends-playlists": false,
 		},
 	);
 
