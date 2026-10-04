@@ -33,7 +33,6 @@ interface BaseTrackListProps<T = Track | EphemeralTrack> {
 	) => ReactNode;
 	toTrack: (index: number) => Track | EphemeralTrack | null;
 	specialColumns?: BaseTrackListSpecialColumn<T>[];
-	endReached?: () => void;
 }
 
 const MAIN_MIN_WIDTH = 200;
@@ -44,7 +43,6 @@ export function BaseTrackList<T>({
 	itemContent,
 	specialColumns,
 	toTrack,
-	endReached,
 }: BaseTrackListProps<T>) {
 	const { t } = useTranslation();
 	const { columns, setColumns } = useTrackColumns();
@@ -345,10 +343,6 @@ export function BaseTrackList<T>({
 					customScrollParent={scrollParent}
 					totalCount={totalCount}
 					itemContent={(index) => itemContent(index, boundColumns)}
-					endReached={endReached}
-					increaseViewportBy={
-						endReached ? { bottom: 600, top: 0 } : undefined
-					}
 				/>
 			</div>
 			<TrackListModal

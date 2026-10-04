@@ -1,52 +1,34 @@
 "use client";
 
-import { getSavedTracks, Track } from "@api";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { TrackList } from "@/components/track-list/track-list.component";
+import { getSavedTracks, Track, useGetSavedTracks } from "@api";
+import { LazyTrackList } from "@/components/track-list/lazy-track-list.component";
 import { Spinner } from "@/components/spinner/spinner.component";
+import { useMemo } from "react";
 import styles from "./saved-section.module.scss";
 
-const PAGE_SIZE = 30;
-
-interface SavedTracksPage {
-	tracks: Track[];
-	total: number;
-	page: number;
-}
+const CHUNK_SIZE = 30;
 
 export function SavedTracks() {
-	const query = useInfiniteQuery<SavedTracksPage>({
-		queryKey: ["saved", "tracks"],
-		queryFn: async ({ pageParam }) => {
-			const response = await getSavedTracks({
-				page: String(pageParam),
-				pageSize: String(PAGE_SIZE),
-			});
-			if (response.status != 200) {
-				throw new Error(`Unexpected status ${response.status}`);
-			}
-			return {
-				tracks: response.data.tracks,
-				total: response.data.total,
-				page: pageParam as number,
-			};
-		},
-		initialPageParam: 1,
-		getNextPageParam: (last, all) => {
-			if (last.tracks.length === 0) {
-				return undefined;
-			}
-			const loaded = all.reduce((sum, p) => sum + p.tracks.length, 0);
-			return loaded < last.total ? last.page + 1 : undefined;
-		},
-	});
+	const { data } = useGetSavedTracks(
+		{ page: "1", pageSize: String(CHUNK_SIZE) },
+		{ query: { enabled: true } },
+	);
 
-	const pages = query.data?.pages ?? [];
-	const tracks = pages.flatMap((p) => p.tracks);
-	const total = pages.length ? pages[pages.length - 1].total : 0;
-	const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+	const queryKey = useMemo(() => ["saved", "tracks"], []);
 
-	if (query.isPending) {
+	const fetchChunk = async (offset: number, limit: number) => {
+		const page = Math.floor(offset / limit) + 1;
+		const response = await getSavedTracks({
+			page: String(page),
+			pageSize: String(limit),
+		});
+		if (response.status !== 200) {
+			throw new Error(`Status code ${response.status}`);
+		}
+		return response.data.tracks;
+	};
+
+	if (!data || data.status !== 200) {
 		return (
 			<div className={styles.container}>
 				<Spinner position="expand" />
@@ -54,7 +36,9 @@ export function SavedTracks() {
 		);
 	}
 
-	if (!tracks.length) {
+	const { tracks: initialTracks, total } = data.data;
+
+	if (!total) {
 		return (
 			<div className={styles.container}>
 				<div className={styles.empty}>No saved tracks yet.</div>
@@ -62,23 +46,22 @@ export function SavedTracks() {
 		);
 	}
 
+	const trackNumbers = Array.from({ length: total }, (_, index) => index + 1);
+
 	return (
 		<div className={styles.container}>
 			<div className={styles.pageBar}>
-				<span className={styles.count}>
-					{total} tracks · page {pages.length} of {totalPages}
-				</span>
+				<span className={styles.count}>{total} tracks</span>
 			</div>
-			<TrackList
-				tracks={tracks}
-				trackNumbers={tracks.map((_t, i) => i + 1)}
-				endReached={() => {
-					if (query.hasNextPage && !query.isFetchingNextPage) {
-						query.fetchNextPage();
-					}
-				}}
+			<LazyTrackList<Track>
+				totalCount={total}
+				queryKey={queryKey}
+				fetchChunk={fetchChunk}
+				chunkSize={CHUNK_SIZE}
+				initialTracks={initialTracks}
+				trackNumbers={trackNumbers}
+				toTrack={(track) => track}
 			/>
-			{query.isFetchingNextPage && <Spinner position="expand" />}
 		</div>
 	);
 }
