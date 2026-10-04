@@ -8,12 +8,14 @@ interface Props {
 	tracks: (Track | EphemeralTrack)[];
 	trackNumbers?: number[];
 	noArt?: boolean;
+	endReached?: () => void;
 }
 
-export function TrackList({ tracks, trackNumbers, noArt }: Props) {
+export function TrackList({ tracks, trackNumbers, noArt, endReached }: Props) {
 	return (
 		<BaseTrackList
 			totalCount={tracks.length}
+			endReached={endReached}
 			toTrack={(index) => tracks[index] ?? null}
 			itemContent={(index, columns) => (
 				<ListTrack
