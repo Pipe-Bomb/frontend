@@ -88,19 +88,27 @@ function useToggle(
 	return { bookmarked, isUpdating, toggle };
 }
 
-export function useTrackBookmark(track: Track | EphemeralTrack): BookmarkToggle {
-	const key = trackSavedKey(track);
-	const { pluginId, libraryId, trackId } = track;
+export function useTrackBookmark(
+	track: Track | EphemeralTrack | null,
+): BookmarkToggle {
+	const key = track ? trackSavedKey(track) : null;
+	const pluginId = track?.pluginId;
+	const libraryId = track?.libraryId;
+	const trackId = track?.trackId;
 
 	const request = useCallback<ToggleRequest>(
-		(next) =>
-			next
+		(next) => {
+			if (!pluginId || !libraryId || !trackId) {
+				return null;
+			}
+			return next
 				? saveTrack(pluginId, libraryId, trackId)
-				: unsaveTrack(pluginId, libraryId, trackId),
+				: unsaveTrack(pluginId, libraryId, trackId);
+		},
 		[pluginId, libraryId, trackId],
 	);
 
-	return useToggle(key, !!track.bookmarked, "track", request);
+	return useToggle(key, !!track?.bookmarked, "track", request);
 }
 
 export function useAlbumBookmark(album: Album): BookmarkToggle {

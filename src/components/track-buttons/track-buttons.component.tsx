@@ -8,6 +8,7 @@ import { ListEndIcon, ListStartIcon } from "lucide-react";
 import { useQueueActions } from "@/hook/queue-actions.hook";
 import { useTrackContextMenu } from "@/hook/track-context-menu.hook";
 import { useButtonMenu } from "@/hook/button-menu.hook";
+import { TrackBookmarkButton } from "@/components/track-bookmark-button/track-bookmark-button.component";
 
 interface Props {
 	track: Track | EphemeralTrack;
@@ -41,6 +42,7 @@ export function TrackButtons({ track }: Props) {
 					iconSource="lucide"
 					onClick={() => addToEnd([track])}
 				/>
+				<TrackBookmarkButton track={track} size="md" />
 				<IconButton
 					size="md"
 					icon={IconDots}
