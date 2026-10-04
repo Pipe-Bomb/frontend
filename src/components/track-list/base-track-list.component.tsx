@@ -17,10 +17,11 @@ import { TrackListModal } from "@/modal/track-list/track-list.modal";
 import { EphemeralTrack, Track, useGetAllLibraries } from "@api";
 import { formatDate } from "@/lib/util";
 import { getAttribute } from "@/lib/attribute.util";
+import { TrackBookmarkButton } from "@/components/track-bookmark-button/track-bookmark-button.component";
 
 export interface BaseTrackListSpecialColumn<T> {
 	id: string;
-	formatter: (entry: T, index: number) => string;
+	formatter: (entry: T, index: number) => string | ReactNode;
 	url?: (entry: T, index: number) => string | null;
 }
 
@@ -62,6 +63,18 @@ export function BaseTrackList<T>({
 
 	const allSpecialColumns = useMemo(() => {
 		const columns = [...(specialColumns ?? [])];
+
+		columns.push({
+			id: "track_bookmarked",
+			formatter: (_entry, index) => {
+				const track = toTrack(index);
+				if (!track) {
+					return null;
+				}
+
+				return <TrackBookmarkButton track={track} />;
+			},
+		});
 
 		columns.push({
 			id: "track_plugin_id",

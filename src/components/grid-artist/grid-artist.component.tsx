@@ -3,6 +3,7 @@ import { Artist } from "@api";
 import styles from "./grid-artist.module.scss";
 import { ResourceImage } from "@/components/resource-image/resource-image.component";
 import { useRightClick } from "@/hook/right-click.hook";
+import { useArtistBookmark } from "@/hook/saved-toggle.hook";
 import { ArtistInfoModal } from "@/components/artist-info-modal/artist-info-modal.component";
 import { useMemo, useState } from "react";
 import { OptionalLink } from "@/components/optional-link/optional-link.component";
@@ -15,6 +16,7 @@ interface Props {
 
 export function GridArtist({ artist }: Props) {
 	const [infoOpen, setInfoOpen] = useState(false);
+	const { bookmarked, toggle } = useArtistBookmark(artist);
 
 	const link = useMemo(() => {
 		if (artist.uuid) {
@@ -35,6 +37,11 @@ export function GridArtist({ artist }: Props) {
 			languageKey: "contextmenu.artist.view-info",
 			key: "view-info",
 			onClick: () => setInfoOpen(true),
+		},
+		{
+			languageKey: `contextmenu.artist.${bookmarked ? "unsave" : "save"}`,
+			key: "toggle-save",
+			onClick: toggle,
 		},
 	]);
 

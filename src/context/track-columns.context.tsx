@@ -30,12 +30,12 @@ export interface SpecialAttributeColumn {
 export interface SpecialAttributeColumnFormatter<
 	T,
 > extends SpecialAttributeColumn {
-	formatter: (entry: T, index: number) => string;
+	formatter: (entry: T, index: number) => string | ReactNode;
 	url?: (entry: T, index: number) => string | null;
 }
 
 export interface SpecialAttributeColumnValue extends SpecialAttributeColumn {
-	formatted: string;
+	formatted: ReactNode;
 	url: string | null;
 }
 
