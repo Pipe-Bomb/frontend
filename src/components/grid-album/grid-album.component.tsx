@@ -18,6 +18,7 @@ import { OptionalLink } from "@/components/optional-link/optional-link.component
 import { useRawAttribute } from "@/hook/raw-attribute.hook";
 import { PlaylistSelectModal } from "@/modal/playlist-select/playlist-select.modal";
 import { useNotificationStore } from "@/store/notification.store";
+import { useAlbumBookmark } from "@/hook/saved-toggle.hook";
 
 interface Props {
 	album: Album;
@@ -28,6 +29,7 @@ export function GridAlbum({ album }: Props) {
 	const [playlistOpen, setPlaylistOpen] = useState(false);
 	const [isAddingToPlaylist, setIsAddingToPlaylist] = useState(false);
 	const { createNotification } = useNotificationStore();
+	const { bookmarked, toggle } = useAlbumBookmark(album);
 
 	const link = useMemo(() => {
 		if (album.uuid) {
@@ -53,6 +55,11 @@ export function GridAlbum({ album }: Props) {
 			languageKey: "contextmenu.album.add-to-playlist",
 			key: "add-to-playlist",
 			onClick: () => setPlaylistOpen(true),
+		},
+		{
+			languageKey: `contextmenu.album.${bookmarked ? "unsave" : "save"}`,
+			key: "toggle-save",
+			onClick: toggle,
 		},
 	]);
 

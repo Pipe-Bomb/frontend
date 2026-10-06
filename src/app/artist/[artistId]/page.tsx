@@ -13,6 +13,7 @@ import { RootPadding } from "@/components/root-padding/root-padding.component";
 import { getAuthHeaders } from "@/lib/server.util";
 import { HorizontalScrollerId } from "@/enum/horizontal-scroller-id.enum";
 import { OptionalLink } from "@/components/optional-link/optional-link.component";
+import { ArtistBookmarkButton } from "@/components/artist-bookmark-button/artist-bookmark-button.component";
 
 interface Props {
 	params: Promise<{
@@ -110,7 +111,10 @@ export default async function Page({ params }: Props) {
 						/>
 					)}
 					{logo && <ResourceImage resource={logo} className={styles.logo} />}
-					<h1 className={styles.name}>{name ?? "Unknown Artist"}</h1>
+					<div className={styles.nameRow}>
+						<h1 className={styles.name}>{name ?? "Unknown Artist"}</h1>
+						<ArtistBookmarkButton artist={artist} size="lg" />
+					</div>
 					{!!genres?.length && (
 						<div className={styles.genres}>
 							{genres.map((genre, index) => (

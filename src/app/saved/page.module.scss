@@ -1,0 +1,14 @@
+.container {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.title {
+	font-size: 3rem;
+	font-family: var(--font-heading);
+}
+
+.tabs {
+	margin-bottom: 8px;
+}

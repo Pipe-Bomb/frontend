@@ -18,6 +18,8 @@ import { shuffle } from "@/lib/util";
 import { useButtonMenu } from "@/hook/button-menu.hook";
 import { PlaylistSelectModal } from "@/modal/playlist-select/playlist-select.modal";
 import { useNotificationStore } from "@/store/notification.store";
+import { useAlbumBookmark } from "@/hook/saved-toggle.hook";
+import { BookmarkButton } from "@/components/bookmark-button/bookmark-button.component";
 
 interface Props {
 	album: Album;
@@ -30,6 +32,7 @@ export function AlbumButtons({ album }: Props) {
 	const [playlistOpen, setPlaylistOpen] = useState(false);
 	const [isAddingToPlaylist, setIsAddingToPlaylist] = useState(false);
 	const { createNotification } = useNotificationStore();
+	const albumBookmark = useAlbumBookmark(album);
 
 	const tracklist = useMemo(() => {
 		if (album.tracks?.length) {
@@ -137,6 +140,7 @@ export function AlbumButtons({ album }: Props) {
 							onClick={() => addToEnd(tracklist)}
 							disabled={!tracklist.length}
 						/>
+						<BookmarkButton bookmark={albumBookmark} size="md" />
 						<IconButton
 							size="md"
 							icon={IconDots}

@@ -2,6 +2,7 @@
 
 import { ContextMenuElement } from "@/context/context-menu.context";
 import { useQueueActions } from "@/hook/queue-actions.hook";
+import { useTrackBookmark } from "@/hook/saved-toggle.hook";
 import { PlaylistSelectModal } from "@/modal/playlist-select/playlist-select.modal";
 import { useNotificationStore } from "@/store/notification.store";
 import { usePlayerStore } from "@/store/player.store";
@@ -19,6 +20,7 @@ export function useTrackContextMenu(
 	const { createNotification } = useNotificationStore();
 	const router = useRouter();
 	const pathname = usePathname();
+	const { bookmarked, toggle: toggleBookmark } = useTrackBookmark(track);
 
 	const menuEntries = useCallback<() => ContextMenuElement[]>(() => {
 		if (!track) {
@@ -103,6 +105,11 @@ export function useTrackContextMenu(
 				onClick: () => setPlaylistOpen(true),
 			},
 			{
+				languageKey: `contextmenu.track.${bookmarked ? "unsave" : "save"}`,
+				key: "toggle-save",
+				onClick: toggleBookmark,
+			},
+			{
 				languageKey: "contextmenu.track.go-to-page",
 				key: "go-to-page",
 				href: `/track/${track.pluginId}/${track.libraryId}/${track.trackId}`,
@@ -110,7 +117,7 @@ export function useTrackContextMenu(
 		);
 
 		return entries;
-	}, [track, options.queueIndex, currentIndex]);
+	}, [track, options.queueIndex, currentIndex, bookmarked, toggleBookmark]);
 
 	const addToPlaylist = (playlist: Playlist) => {
 		if (!track) {

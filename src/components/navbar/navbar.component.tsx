@@ -12,6 +12,7 @@ import {
 import { Spinner } from "@/components/spinner/spinner.component";
 import { IconButton } from "@/components/icon-button/icon-button";
 import {
+	IconBookmark,
 	IconDisc,
 	IconPlus,
 	IconServerCog,
@@ -67,13 +68,19 @@ export function Navbar() {
 								active={pathname == "/artists"}
 								icon={IconUser}
 							/>
-							<NavbarLink
-								href="/albums"
-								name="Albums"
-								active={pathname == "/albums"}
-								icon={IconDisc}
-							/>
-						</div>
+						<NavbarLink
+							href="/albums"
+							name="Albums"
+							active={pathname == "/albums"}
+							icon={IconDisc}
+						/>
+						<NavbarLink
+							href="/saved"
+							name="Saved"
+							active={pathname.startsWith("/saved")}
+							icon={IconBookmark}
+						/>
+					</div>
 
 						<div>
 							<span className={styles.sectionName}>Libraries</span>
