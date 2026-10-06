@@ -5,6 +5,8 @@ import styles from "./top-bar.module.scss";
 import { IconSearch, IconUserCircle } from "@tabler/icons-react";
 import { TextInput } from "@/components/text-input/text-input.component";
 import { useUrlParam } from "@/hook/url-param.hook";
+import { useRef } from "react";
+
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { IconButton } from "@/components/icon-button/icon-button";
@@ -38,10 +40,14 @@ export function TopBar() {
 		[searchInput],
 	);
 
-	const changeQuery = (newQuery: string) => {
-		if (pathname != "/search" && newQuery.trim() != "") {
-			router.push(`/search?query=${newQuery}`);
-		}
+	const pushTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+const changeQuery = (newQuery: string) => {
+if (pathname != "/search" && newQuery.trim() != "") {
+    if (pushTimeout.current) clearTimeout(pushTimeout.current);
+    pushTimeout.current = setTimeout(() => {
+        router.push(`/search?query=${encodeURIComponent(newQuery)}`, { scroll: false });
+    }, 250);
+}
 
 		setQuery(newQuery);
 	};
@@ -90,7 +96,7 @@ export function TopBar() {
 				<IconButton
 					icon={IconSearch}
 					iconSource="tabler"
-					onClick={() => router.push("/search")}
+					onClick={() => router.push(`/search?query=${encodeURIComponent(query ?? "")}`, { scroll: false })}
 					iconClassName={styles.searchIcon}
 				/>
 			</div>

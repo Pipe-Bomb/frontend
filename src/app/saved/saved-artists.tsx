@@ -32,7 +32,6 @@ export function SavedArtists() {
 		<div className={styles.container}>
 			<div className={styles.pageBar}>
 				<span className={styles.count}>{total} artists</span>
-				<Paginator urlKey="page" totalPages={totalPages} />
 			</div>
 			{artists.length ? (
 				<Grid>
@@ -43,6 +42,7 @@ export function SavedArtists() {
 			) : (
 				<div className={styles.empty}>No saved artists yet.</div>
 			)}
+			<Paginator urlKey="page" totalPages={totalPages} />
 		</div>
 	);
 }

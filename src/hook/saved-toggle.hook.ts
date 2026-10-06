@@ -1,13 +1,16 @@
 "use client";
 
+import { safeFetch } from "@/lib/api.util";
 import { albumSavedKey, artistSavedKey, trackSavedKey } from "@/lib/saved.util";
 import { useNotificationStore } from "@/store/notification.store";
 import { useBookmarked, useSavedStore } from "@/store/saved.store";
 import {
 	Album,
 	Artist,
+	CreationSession,
 	EphemeralTrack,
 	Track,
+	getCreationSession,
 	saveAlbum,
 	saveArtist,
 	saveEphemeralAlbum,
@@ -25,7 +28,9 @@ export interface BookmarkToggle {
 	toggle: () => void;
 }
 
-type ToggleRequest = (next: boolean) => Promise<{ status: number }> | null;
+type ToggleRequest = (
+	next: boolean,
+) => Promise<{ status: number; data: any }> | null;
 
 function useToggle(
 	key: string | null,
@@ -34,7 +39,7 @@ function useToggle(
 	request: ToggleRequest,
 ): BookmarkToggle {
 	const setOverride = useSavedStore((state) => state.set);
-	const { createNotification, resetNotificationTimeout } =
+	const { createNotification, resetNotificationTimeout, updateNotification } =
 		useNotificationStore();
 	const bookmarked = useBookmarked(key, fallback);
 	const [isUpdating, setIsUpdating] = useState(false);
@@ -64,16 +69,56 @@ function useToggle(
 				if (response.status < 200 || response.status >= 300) {
 					throw new Error(`Unexpected status ${response.status}`);
 				}
-				resetNotificationTimeout(notificationId);
+				// todo: better identification of session
+				if (
+					response.data &&
+					"uuid" in response.data &&
+					"dateStarted" in response.data
+				) {
+					const session: CreationSession = response.data;
+					updateNotification(notificationId, {
+						message: `Importing ${label}`,
+						isLoading: true,
+					});
+
+					const checkActive = () => {
+						safeFetch(getCreationSession, session.uuid).then(
+							([status, data]) => {
+								if (status == 200) {
+									console.log(data.percent);
+									setTimeout(checkActive, 3_000);
+								} else {
+									updateNotification(notificationId, {
+										message: `Imported ${label}`,
+										isLoading: false,
+									});
+									resetNotificationTimeout(notificationId);
+								}
+							},
+						);
+					};
+
+					setTimeout(checkActive, 1_000);
+				} else {
+					resetNotificationTimeout(notificationId);
+					updateNotification(notificationId, {
+						message: `${next ? "Saved" : "Unsaved"} ${label}`,
+						isLoading: false,
+					});
+				}
 			})
 			.catch((e) => {
 				console.error(e);
 				setOverride(target, !next);
-				createNotification(
-					`Failed to ${next ? "save" : "unsave"} ${label}`,
-				);
+				resetNotificationTimeout(notificationId);
+				updateNotification(notificationId, {
+					message: `Failed to ${next ? "save" : "unsave"} ${label}`,
+					isLoading: false,
+				});
 			})
-			.finally(() => setIsUpdating(false));
+			.finally(() => {
+				setIsUpdating(false);
+			});
 	}, [
 		key,
 		isUpdating,
@@ -149,11 +194,7 @@ export function useArtistBookmark(artist: Artist): BookmarkToggle {
 				return next ? saveArtist(uuid) : unsaveArtist(uuid);
 			}
 			if (next && identityPluginId && identityId && identityValue) {
-				return saveEphemeralArtist(
-					identityPluginId,
-					identityId,
-					identityValue,
-				);
+				return saveEphemeralArtist(identityPluginId, identityId, identityValue);
 			}
 			return null;
 		},

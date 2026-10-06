@@ -65,7 +65,7 @@ export function BaseTrackList<T>({
 		const columns = [...(specialColumns ?? [])];
 
 		columns.push({
-			id: "track_bookmarked",
+			id: "track_saved",
 			formatter: (_entry, index) => {
 				const track = toTrack(index);
 				if (!track) {
