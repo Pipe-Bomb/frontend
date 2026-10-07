@@ -31,13 +31,11 @@ import {
 	BasicAttributeColumn,
 	SpecialAttributeColumnValue,
 } from "@/context/track-columns.context";
-import { useRawAttribute } from "@/hook/raw-attribute.hook";
 import { AttributeUnion } from "@/lib/attribute.util";
 import { serializeTrackKey } from "@/lib/track-batcher.util";
 import { useQueueActions } from "@/hook/queue-actions.hook";
 import { OptionalLink } from "@/components/optional-link/optional-link.component";
 import { useTrackContextMenu } from "@/hook/track-context-menu.hook";
-import { useIsTruncated } from "@/hook/is-truncated.hook";
 import { SingleAttributeModal } from "@/modal/single-attribute/single-attribute.modal";
 
 interface Props {
@@ -80,7 +78,7 @@ export function ListTrack({
 
 	const title =
 		useAttribute(track.attributes, "title", "string") ?? track.title;
-	const image = useRawAttribute(track.attributes, "front", "buffer");
+	const image = useAttribute(track.attributes, "front", "buffer");
 
 	const { menuEntries, modal } = useTrackContextMenu(track, { inPlaylist });
 	const rightClick = useRightClick(menuEntries);
@@ -209,7 +207,7 @@ interface BufferColumnProps {
 }
 
 function BufferColumn({ column, attributes }: BufferColumnProps) {
-	const attribute = useRawAttribute(
+	const attribute = useAttribute(
 		attributes,
 		column.attribute,
 		column.attributeType,

@@ -6,16 +6,14 @@ import {
 import { AttributeMap } from "@api";
 import { useMemo } from "react";
 
-type FormattableType = Exclude<AttributeUnion["type"], "buffer">;
-
-export function useAttribute<T extends FormattableType>(
+export function useAttribute<T extends AttributeUnion["type"]>(
 	attributes: AttributeMap | null,
 	key: string,
 	type: T,
 	multiple?: false,
 ): AttributeValueByType<T> | null;
 
-export function useAttribute<T extends FormattableType>(
+export function useAttribute<T extends AttributeUnion["type"]>(
 	attributes: AttributeMap | null,
 	key: string,
 	type: T,
@@ -29,14 +27,14 @@ export function useAttribute(
 	multiple?: boolean,
 ): AttributeUnion | null;
 
-export function useAttribute<T extends FormattableType>(
+export function useAttribute<T extends AttributeUnion["type"]>(
 	attributes: AttributeMap | null,
 	key: string,
 	type?: T | null,
 	multiple?: boolean,
 ): any {
 	return useMemo(
-		() => getAttribute(attributes, key, type as any, true, multiple as any),
+		() => getAttribute<T>(attributes, key, type as any, true, multiple as any),
 		[attributes, key, type, multiple],
 	);
 }

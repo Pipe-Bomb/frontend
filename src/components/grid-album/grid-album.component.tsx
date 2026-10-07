@@ -15,7 +15,6 @@ import { useRightClick } from "@/hook/right-click.hook";
 import { useMemo, useState } from "react";
 import { AlbumArtists } from "@/components/album-artists/album-artists.component";
 import { OptionalLink } from "@/components/optional-link/optional-link.component";
-import { useRawAttribute } from "@/hook/raw-attribute.hook";
 import { PlaylistSelectModal } from "@/modal/playlist-select/playlist-select.modal";
 import { useNotificationStore } from "@/store/notification.store";
 import { useAlbumBookmark } from "@/hook/saved-toggle.hook";
@@ -43,7 +42,7 @@ export function GridAlbum({ album }: Props) {
 	}, [album]);
 
 	const title = useAttribute(album.attributes, "title", "string");
-	const front = useRawAttribute(album.attributes, "front", "buffer");
+	const front = useAttribute(album.attributes, "front", "buffer");
 
 	const rightClick = useRightClick(() => [
 		{

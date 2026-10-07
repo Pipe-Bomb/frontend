@@ -25,12 +25,10 @@ import { useAttribute } from "@/hook/attribute.hook";
 import { ResourceImage } from "@/components/resource-image/resource-image.component";
 import { TrackArtists } from "@/components/track-artists/track-artists.component";
 import { useSidebarStore } from "@/store/sidebar.store";
-import { useRawAttribute } from "@/hook/raw-attribute.hook";
 import { useTrack } from "@/hook/track.hook";
 import Link from "next/link";
 import { useRightClick } from "@/hook/right-click.hook";
 import { useTrackContextMenu } from "@/hook/track-context-menu.hook";
-import { useState } from "react";
 
 export function Player() {
 	const { open: isSidebarOpen, toggle: toggleSidebar } = useSidebarStore();
@@ -179,7 +177,7 @@ interface NowPlayingProps {
 function NowPlaying({ track }: NowPlayingProps) {
 	const title =
 		useAttribute(track.attributes, "title", "string") ?? track.title;
-	const cover = useRawAttribute(track.attributes, "front", "buffer");
+	const cover = useAttribute(track.attributes, "front", "buffer");
 
 	const { menuEntries, modal } = useTrackContextMenu(track);
 	const rightClick = useRightClick(menuEntries);

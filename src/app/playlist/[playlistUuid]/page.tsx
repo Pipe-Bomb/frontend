@@ -42,7 +42,7 @@ export async function generateMetadata({
 		const playlist = playlistResponse.data;
 
 		const title = getAttribute(playlist.attributes, "title", "string", true);
-		const image = getAttribute(playlist.attributes, "thumb", "buffer");
+		const image = getAttribute(playlist.attributes, "thumb", "buffer", true);
 
 		return {
 			title: `${title ?? "Unnamed Playlist"} - Pipe Bomb`,

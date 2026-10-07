@@ -39,8 +39,8 @@ export async function generateMetadata({
 
 		const name = getAttribute(artist.attributes, "name", "string", true);
 		const image =
-			getAttribute(artist.attributes, "background", "buffer") ??
-			getAttribute(artist.attributes, "thumb", "buffer");
+			getAttribute(artist.attributes, "background", "buffer", true) ??
+			getAttribute(artist.attributes, "thumb", "buffer", true);
 
 		return {
 			title: `${name ?? "Unknown Artist"} - Pipe Bomb`,
@@ -77,9 +77,14 @@ export default async function Page({ params }: Props) {
 		null;
 
 	const name = getAttribute(artist.attributes, "name", "string", true);
-	const thumbnail = getAttribute(artist.attributes, "thumb", "buffer");
-	const background = getAttribute(artist.attributes, "background", "buffer");
-	const logo = getAttribute(artist.attributes, "logo", "buffer");
+	const thumbnail = getAttribute(artist.attributes, "thumb", "buffer", true);
+	const background = getAttribute(
+		artist.attributes,
+		"background",
+		"buffer",
+		true,
+	);
+	const logo = getAttribute(artist.attributes, "logo", "buffer", true);
 	const genres = getAttribute(artist.attributes, "genre", "string", true, true);
 
 	const externalUrls =

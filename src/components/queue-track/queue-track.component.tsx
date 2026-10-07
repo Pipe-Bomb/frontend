@@ -18,7 +18,6 @@ import {
 import { useRightClick } from "@/hook/right-click.hook";
 import { useCallback } from "react";
 import { ContextMenuElement } from "@/context/context-menu.context";
-import { useRawAttribute } from "@/hook/raw-attribute.hook";
 import Link from "next/link";
 import { useTrackContextMenu } from "@/hook/track-context-menu.hook";
 
@@ -33,7 +32,7 @@ export function QueueTrack({ track, queueIndex, dragHandleProps }: Props) {
 		usePlayerStore();
 	const active = currentIndex == queueIndex;
 
-	const cover = useRawAttribute(track.attributes, "front", "buffer");
+	const cover = useAttribute(track.attributes, "front", "buffer");
 	const title =
 		useAttribute(track.attributes, "title", "string") ?? track.title;
 

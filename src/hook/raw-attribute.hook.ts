@@ -6,28 +6,28 @@ import {
 import { AttributeMap } from "@api";
 import { useMemo } from "react";
 
-export function useRawAttribute<T extends AttributeUnion["type"]>(
+export function useAttribute<T extends AttributeUnion["type"]>(
 	attributes: AttributeMap | null,
 	key: string,
 	type: T,
 	multiple?: false,
 ): AttributeValueByType<T> | null;
 
-export function useRawAttribute<T extends AttributeUnion["type"]>(
+export function useAttribute<T extends AttributeUnion["type"]>(
 	attributes: AttributeMap | null,
 	key: string,
 	type: T,
 	multiple: true,
 ): AttributeValueByType<T>[] | null;
 
-export function useRawAttribute(
+export function useAttribute(
 	attributes: AttributeMap | null,
 	key: string,
 	type?: null,
 	multiple?: boolean,
 ): AttributeUnion | null;
 
-export function useRawAttribute<T extends AttributeUnion["type"]>(
+export function useAttribute<T extends AttributeUnion["type"]>(
 	attributes: AttributeMap | null,
 	key: string,
 	type?: T | null,

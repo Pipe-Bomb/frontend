@@ -37,7 +37,7 @@ export async function generateMetadata({
 		const album = albumResponse.data;
 
 		const title = getAttribute(album.attributes, "title", "string", true);
-		const image = getAttribute(album.attributes, "front", "buffer");
+		const image = getAttribute(album.attributes, "front", "buffer", true);
 
 		let artistString = "";
 
@@ -87,7 +87,7 @@ export default async function Page({ params }: Props) {
 	const album = unwrapData(albumResponse);
 	const title =
 		getAttribute(album.attributes, "title", "string", true) ?? "Unknown Album";
-	const front = getAttribute(album.attributes, "front", "buffer");
+	const front = getAttribute(album.attributes, "front", "buffer", true);
 	const year = getAttribute(album.attributes, "year", "integer", false);
 	const trackCount = album.tracks?.length ?? null;
 
