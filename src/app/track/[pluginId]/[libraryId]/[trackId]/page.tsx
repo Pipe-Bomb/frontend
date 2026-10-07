@@ -33,7 +33,7 @@ export default async function Page({ params }: Props) {
 
 	const title =
 		getAttribute(track.attributes, "title", "string", true) ?? track.title;
-	const front = getAttribute(track.attributes, "front", "buffer");
+	const front = getAttribute(track.attributes, "front", "buffer", true);
 
 	const trackUrlsResponse = await getTrackExternalUrls(
 		pluginId,

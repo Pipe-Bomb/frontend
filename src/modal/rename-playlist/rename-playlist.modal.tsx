@@ -1,7 +1,7 @@
 "use client";
 
 import { Modal } from "@/components/modal/modal.component";
-import { useRawAttribute } from "@/hook/raw-attribute.hook";
+import { useAttribute } from "@/hook/attribute.hook";
 import { Playlist, updatePlaylistAttributes } from "@api";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
@@ -51,7 +51,7 @@ function Inner({ playlist, onClose, isRenaming, setIsRenaming }: InnerProps) {
 	const router = useRouter();
 	const pathname = usePathname();
 
-	const initialName = useRawAttribute(playlist.attributes, "title", "string");
+	const initialName = useAttribute(playlist.attributes, "title", "string");
 	const [title, setTitle] = useState(initialName ?? "");
 	const { createNotification } = useNotificationStore();
 

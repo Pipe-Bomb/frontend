@@ -1,5 +1,4 @@
 import { useAttribute } from "@/hook/attribute.hook";
-import { useRawAttribute } from "@/hook/raw-attribute.hook";
 import { Playlist } from "@api";
 import styles from "./grid-playlist.module.scss";
 import Link from "next/link";
@@ -12,7 +11,7 @@ interface Props {
 
 export function GridPlaylist({ playlist }: Props) {
 	const title = useAttribute(playlist.attributes, "title", "string");
-	const thumb = useRawAttribute(playlist.attributes, "thumb", "buffer");
+	const thumb = useAttribute(playlist.attributes, "thumb", "buffer");
 
 	return (
 		<div className={styles.container}>
