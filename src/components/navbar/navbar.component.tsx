@@ -14,6 +14,9 @@ import { IconButton } from "@/components/icon-button/icon-button";
 import {
 	IconBookmark,
 	IconDisc,
+	IconHistory,
+	IconMusicCode,
+	IconMusicShare,
 	IconPlus,
 	IconServerCog,
 	IconUser,
@@ -22,12 +25,13 @@ import {
 import { usePathname } from "next/navigation";
 import { NavbarLink } from "@/components/navbar-link/navbar-link.component";
 import { CreatePlaylistModal } from "@/modal/create-playlist/create-playlist.modal";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useAttribute } from "@/hook/attribute.hook";
 import { useRightClick } from "@/hook/right-click.hook";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { usePrivilegeCheck } from "@/hook/privilege-check.hook";
+import { useAuth } from "@/context/auth.context";
 
 export function Navbar() {
 	const [createPlaylistOpen, setCreatePlaylistOpen] = useState(false);
@@ -68,19 +72,25 @@ export function Navbar() {
 								active={pathname == "/artists"}
 								icon={IconUser}
 							/>
-						<NavbarLink
-							href="/albums"
-							name="Albums"
-							active={pathname == "/albums"}
-							icon={IconDisc}
-						/>
-						<NavbarLink
-							href="/saved"
-							name="Saved"
-							active={pathname.startsWith("/saved")}
-							icon={IconBookmark}
-						/>
-					</div>
+							<NavbarLink
+								href="/albums"
+								name="Albums"
+								active={pathname == "/albums"}
+								icon={IconDisc}
+							/>
+							<NavbarLink
+								href="/saved"
+								name="Saved"
+								active={pathname.startsWith("/saved")}
+								icon={IconBookmark}
+							/>
+							<NavbarLink
+								href="/history"
+								name="History"
+								active={pathname.startsWith("/history")}
+								icon={IconHistory}
+							/>
+						</div>
 
 						<div>
 							<span className={styles.sectionName}>Libraries</span>
@@ -148,6 +158,19 @@ function PlaylistLink({ playlist }: { playlist: Playlist }) {
 	const title = useAttribute(playlist.attributes, "title", "string");
 	const queryClient = useQueryClient();
 	const router = useRouter();
+	const user = useAuth();
+
+	const icon = useMemo(() => {
+		if (!playlist.ownerUuid) {
+			// return <IconRobot />;
+			return IconMusicCode;
+		}
+		if (playlist.ownerUuid !== user?.uuid) {
+			return IconMusicShare;
+		}
+		return null;
+		// return IconMusic;
+	}, [user?.uuid, playlist.ownerUuid]);
 
 	const rightClick = useRightClick(() => [
 		{
@@ -174,6 +197,8 @@ function PlaylistLink({ playlist }: { playlist: Playlist }) {
 			key={playlist.uuid}
 			active={pathname == `/playlist/${playlist.uuid}`}
 			name={title ?? "Unnamed Playlist"}
+			icon={icon}
+			// icon={playlist.ownerUuid === user?.uuid ? <IconPlaylist /> : }
 			{...rightClick}
 		/>
 	);
