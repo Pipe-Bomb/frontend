@@ -145,7 +145,9 @@ export function ListTrack({
 					<div
 						className={styles.column}
 						style={{
-							width: `${column.width}px`,
+							width: Number.isFinite(column.width)
+								? `${column.width}px`
+								: undefined,
 						}}
 						key={index}
 					>

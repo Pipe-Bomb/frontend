@@ -4,6 +4,7 @@ import { useTranslation } from "@/context/language.context";
 import { useScrollParentContext } from "@/context/scroll-parent.context";
 import {
 	BasicAttributeColumn,
+	columnKey,
 	SpecialAttributeColumnFormatter,
 	useTrackColumns,
 } from "@/context/track-columns.context";
@@ -268,17 +269,22 @@ export function BaseTrackList<T>({
 		});
 	}, [boundColumns, rankedAttributes]);
 
-	const startDrag = (e: MouseEvent, index: number) => {
+	const startDrag = (e: MouseEvent, key: string) => {
 		const mover = e.currentTarget as HTMLSpanElement | null;
 		if (!mover || !width) return;
 
+		const targetIndex = boundColumns.findIndex(
+			(column) => columnKey(column) === key,
+		);
+		if (targetIndex === -1) return;
+
 		const startX = e.clientX;
 		const currentVisibleWidths = boundColumns.map((c) => c.width);
-		const initialWidth = currentVisibleWidths[index];
+		const initialWidth = currentVisibleWidths[targetIndex];
 		const maxAvailableColumnSpace = width - MAIN_MIN_WIDTH;
 
 		const otherColumnsWidth = currentVisibleWidths.reduce(
-			(sum, w, idx) => sum + (idx === index ? 0 : w),
+			(sum, w, idx) => sum + (idx === targetIndex ? 0 : w),
 			0,
 		);
 
@@ -293,12 +299,11 @@ export function BaseTrackList<T>({
 			);
 
 			setColumns((prevColumns) =>
-				prevColumns.map((column, columnIndex) => {
-					if (columnIndex === index) {
-						return { ...column, width: newWidth };
-					}
-					return { ...column, width: currentVisibleWidths[columnIndex] };
-				}),
+				prevColumns.map((column) =>
+					columnKey(column) === key
+						? { ...column, width: newWidth }
+						: column,
+				),
 			);
 		};
 
@@ -315,10 +320,14 @@ export function BaseTrackList<T>({
 			<div ref={ref}>
 				<div className={styles.columnHeadingContainer} {...rightClick}>
 					<div className={styles.columnHeadingExpander} />
-					{namedColumns.map(({ column, attribute }, index) => (
+					{namedColumns.map(({ column, attribute }) => (
 						<div
-							key={index}
-							style={{ width: `${column.width}px` }}
+							key={columnKey(column)}
+							style={{
+								width: Number.isFinite(column.width)
+									? `${column.width}px`
+									: undefined,
+							}}
 							className={styles.columnHeading}
 						>
 							<span className={styles.columnName}>
@@ -333,7 +342,9 @@ export function BaseTrackList<T>({
 							</span>
 							<span
 								className={styles.mover}
-								onMouseDown={(e) => startDrag(e as any, index)}
+								onMouseDown={(e) =>
+									startDrag(e as any, columnKey(column))
+								}
 							/>
 						</div>
 					))}

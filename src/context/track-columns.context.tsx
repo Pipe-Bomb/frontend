@@ -55,22 +55,34 @@ const MIN_COLUMN_WIDTH = 50;
 
 const TrackColumnsContext = createContext<TrackColumnsPayload | null>(null);
 
+export function columnKey(column: AttributeColumn): string {
+	if (column.type == "basic") {
+		return `basic:${column.attribute}:${column.attributeType}`;
+	}
+
+	return `special:${column.id}`;
+}
+
+function normalizeColumn(column: AttributeColumn): AttributeColumn {
+	return {
+		...column,
+		width: Number.isFinite(column.width)
+			? Math.max(MIN_COLUMN_WIDTH, column.width)
+			: MIN_COLUMN_WIDTH,
+	};
+}
+
 export function TrackColumnsProvider({ children, initialColumns }: Props) {
-	const [columns, setRawColumns] = useState(initialColumns);
+	const [columns, setRawColumns] = useState(() =>
+		initialColumns.map(normalizeColumn),
+	);
 
 	const setColumns = useCallback<Dispatch<SetStateAction<AttributeColumn[]>>>(
 		(action) => {
-			function transform(column: AttributeColumn): AttributeColumn {
-				return {
-					...column,
-					width: Math.max(MIN_COLUMN_WIDTH, column.width),
-				};
-			}
-
 			if (typeof action == "function") {
-				setRawColumns((previous) => action(previous).map(transform));
+				setRawColumns((previous) => action(previous).map(normalizeColumn));
 			} else {
-				setRawColumns(action.map(transform));
+				setRawColumns(action.map(normalizeColumn));
 			}
 		},
 		[],
