@@ -6,7 +6,7 @@ import { ComponentType, SVGProps } from "react";
 interface Props {
 	href: string;
 	name: string;
-	icon?: ComponentType<SVGProps<SVGSVGElement>>;
+	icon?: ComponentType<SVGProps<SVGSVGElement>> | null;
 	active?: boolean;
 }
 
