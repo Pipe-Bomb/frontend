@@ -29,6 +29,9 @@ import { useTrack } from "@/hook/track.hook";
 import Link from "next/link";
 import { useRightClick } from "@/hook/right-click.hook";
 import { useTrackContextMenu } from "@/hook/track-context-menu.hook";
+import { TrackBookmarkButton } from "@/components/track-bookmark-button/track-bookmark-button.component";
+import { useKeyboardShortcuts } from "@/hook/keyboard-shortcuts.hook";
+import { useTrackBookmark } from "@/hook/saved-toggle.hook";
 
 export function Player() {
 	const { open: isSidebarOpen, toggle: toggleSidebar } = useSidebarStore();
@@ -54,6 +57,18 @@ export function Player() {
 		toggleMute,
 	} = usePlayerStore();
 	const currentTrackResult = useTrack(queue[currentIndex]);
+	const bookmark = useTrackBookmark(currentTrackResult.data ?? null);
+
+	useKeyboardShortcuts(
+		(key, _shift, _ctrl) => {
+			if (key == "l" && currentTrackResult.data) {
+				bookmark.toggle();
+				return true;
+			}
+			return false;
+		},
+		[bookmark],
+	);
 
 	const handlePrev = () => {
 		if (currentTime > 3) {
@@ -83,40 +98,48 @@ export function Player() {
 				)}
 			</div>
 			<div className={styles.center}>
-				<div className={styles.centerButtons}>
-					<IconButton
-						icon={IconArrowsShuffle}
-						iconSource="tabler"
-						iconClassName={shuffle ? styles.activeIcon : undefined}
-						onClick={toggleShuffle}
-					/>
-					<IconButton
-						icon={IconPlayerSkipBackFilled}
-						iconSource="tabler"
-						onClick={handlePrev}
-					/>
-					<IconButton
-						icon={isPlaying ? IconPlayerPauseFilled : IconPlayerPlayFilled}
-						iconSource="tabler"
-						style="background"
-						size="lg"
-						onClick={toggle}
-					/>
-					<IconButton
-						icon={IconPlayerSkipForwardFilled}
-						iconSource="tabler"
-						onClick={() => {
-							next();
-							setIsPlaying(true);
-						}}
-					/>
-					<IconButton
-						icon={repeatIcon}
-						iconSource="tabler"
-						iconClassName={repeat !== "off" ? styles.activeIcon : undefined}
-						onClick={cycleRepeat}
-					/>
+				<div className={styles.playerButtonContainer}>
+					<div className={styles.sideButtons}>
+						<TrackBookmarkButton track={currentTrackResult.data ?? null} />
+					</div>
+					<div className={styles.centerButtons}>
+						<IconButton
+							icon={IconArrowsShuffle}
+							iconSource="tabler"
+							iconClassName={shuffle ? styles.activeIcon : undefined}
+							onClick={toggleShuffle}
+						/>
+						<IconButton
+							icon={IconPlayerSkipBackFilled}
+							iconSource="tabler"
+							onClick={handlePrev}
+						/>
+						<IconButton
+							icon={isPlaying ? IconPlayerPauseFilled : IconPlayerPlayFilled}
+							iconSource="tabler"
+							style="background"
+							size="lg"
+							onClick={toggle}
+						/>
+						<IconButton
+							icon={IconPlayerSkipForwardFilled}
+							iconSource="tabler"
+							onClick={() => {
+								next();
+								setIsPlaying(true);
+							}}
+						/>
+						<IconButton
+							icon={repeatIcon}
+							iconSource="tabler"
+							iconClassName={repeat !== "off" ? styles.activeIcon : undefined}
+							onClick={cycleRepeat}
+						/>
+					</div>
+
+					<div className={styles.sideButtons}></div>
 				</div>
+
 				<div className={styles.progressContainer}>
 					<span className={styles.duration}>{formatTime(currentTime)}</span>
 					<div className={styles.progressTrack}>

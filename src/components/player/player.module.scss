@@ -44,18 +44,34 @@
 		max-width: 600px;
 		flex-grow: 1;
 
-		.centerButtons {
+		.playerButtonContainer {
 			display: flex;
-			justify-content: center;
-			align-items: center;
-			gap: 8px;
+			margin: 0 64px;
+
+			.centerButtons {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				gap: 8px;
+			}
+
+			.sideButtons {
+				flex: 1;
+				display: flex;
+				justify-content: flex-start;
+				align-items: center;
+
+				&:last-child {
+					justify-content: flex-end;
+				}
+			}
 		}
 
 		.progressContainer {
 			display: flex;
 
 			.duration {
-				width: 60px;
+				width: 64px;
 				flex-grow: 0;
 				flex-shrink: 0;
 				display: flex;
