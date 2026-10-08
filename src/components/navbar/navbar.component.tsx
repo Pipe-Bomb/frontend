@@ -198,7 +198,6 @@ function PlaylistLink({ playlist }: { playlist: Playlist }) {
 			active={pathname == `/playlist/${playlist.uuid}`}
 			name={title ?? "Unnamed Playlist"}
 			icon={icon}
-			// icon={playlist.ownerUuid === user?.uuid ? <IconPlaylist /> : }
 			{...rightClick}
 		/>
 	);

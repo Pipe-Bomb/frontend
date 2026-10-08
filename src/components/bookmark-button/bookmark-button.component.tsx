@@ -11,9 +11,10 @@ interface Props {
 	bookmark: BookmarkToggle;
 	size?: ButtonSize;
 	style?: ButtonStyle;
+	disabled?: boolean;
 }
 
-export function BookmarkButton({ bookmark, size, style }: Props) {
+export function BookmarkButton({ bookmark, size, style, disabled }: Props) {
 	const { bookmarked, isUpdating, toggle } = bookmark;
 
 	return (
@@ -24,6 +25,7 @@ export function BookmarkButton({ bookmark, size, style }: Props) {
 			size={size}
 			style={style}
 			onClick={toggle}
+			disabled={disabled}
 		/>
 	);
 }
