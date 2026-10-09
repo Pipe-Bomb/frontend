@@ -85,6 +85,7 @@ export function ProgressTrack({ max, value, loading, onChange }: Props) {
 				max={max}
 				onChange={change}
 				onMouseDown={startDrag}
+				data-global-shortcuts
 			/>
 			<div className={styles.track}>
 				<div className={styles.progress} />

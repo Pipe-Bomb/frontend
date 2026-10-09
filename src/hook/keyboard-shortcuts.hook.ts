@@ -17,15 +17,12 @@ export function useKeyboardShortcuts(
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
 			const target = event.target as HTMLElement | null;
-			if (target) {
-				if (
-					target.tagName == "INPUT" ||
-					target.tagName == "TEXTAREA" ||
-					target.tagName == "SELECT" ||
-					target.isContentEditable
-				) {
-					return;
-				}
+
+			if (
+				target?.closest("input, textarea, select, [contenteditable='true']") &&
+				!target.closest("[data-global-shortcuts]")
+			) {
+				return;
 			}
 
 			if (memoCallback(event.key, event.shiftKey, event.ctrlKey)) {
