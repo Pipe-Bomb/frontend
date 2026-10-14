@@ -40,6 +40,7 @@ export function HorizontalScroller({ children, heading, id }: Props) {
 			"home:my-playlists": false,
 			"home:system-playlists": false,
 			"home:friends-playlists": false,
+			"home:public-playlists": false,
 		},
 	);
 

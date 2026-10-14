@@ -52,7 +52,8 @@ function Inner({ playlist }: SharedProps) {
 	}
 
 	const members = membersQuery.data.data;
-	const ownerUuid = playlist.ownerUuid as unknown as string | null;
+	const ownerUuid =
+		(playlist.owner.type == "user" && playlist.owner.userUuid) || null;
 
 	return (
 		<div className={styles.container}>

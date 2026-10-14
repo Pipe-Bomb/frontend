@@ -9,4 +9,5 @@ export enum HorizontalScrollerId {
 	HOME_MY_PLAYLISTS = "home:my-playlists",
 	HOME_SYSTEM_PLAYLISTS = "home:system-playlists",
 	HOME_FRIENDS_PLAYLISTS = "home:friends-playlists",
+	HOME_PUBLIC_PLAYLISTS = "home:public-playlists",
 }

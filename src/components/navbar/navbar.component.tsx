@@ -161,16 +161,17 @@ function PlaylistLink({ playlist }: { playlist: Playlist }) {
 	const user = useAuth();
 
 	const icon = useMemo(() => {
-		if (!playlist.ownerUuid) {
-			// return <IconRobot />;
-			return IconMusicCode;
-		}
-		if (playlist.ownerUuid !== user?.uuid) {
+		if (
+			playlist.owner.type == "user" &&
+			playlist.owner.userUuid !== user?.uuid
+		) {
 			return IconMusicShare;
 		}
+		if (playlist.owner.type == "system" || playlist.owner.type == "bot") {
+			return IconMusicCode;
+		}
 		return null;
-		// return IconMusic;
-	}, [user?.uuid, playlist.ownerUuid]);
+	}, [user?.uuid, playlist.owner]);
 
 	const rightClick = useRightClick(() => [
 		{
