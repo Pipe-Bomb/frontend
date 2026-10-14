@@ -94,8 +94,8 @@ async function Contents({ params }: Props) {
 			const selfResponse = await getSelf({ headers });
 			if (selfResponse.status === 200) {
 				isOwner =
-					selfResponse.data.uuid ===
-					(playlist.ownerUuid as unknown as string | null);
+					playlist.owner.type == "user" &&
+					playlist.owner.userUuid == selfResponse.data.uuid;
 			}
 		} catch {}
 
@@ -114,14 +114,26 @@ async function Contents({ params }: Props) {
 					/>
 					<div className={styles.topInfo}>
 						<h1 className={styles.title}>{title ?? "Unnamed Playlist"}</h1>
-						{!!playlist.ownerUuid && (
+						{playlist.owner.type == "user" && (
 							<div className={styles.ownerContainer}>
 								<Link
-									href={`/user/${playlist.ownerUuid}`}
+									href={`/user/${playlist.owner.userUuid}`}
 									className={styles.ownerLink}
 								>
-									{playlist.owner?.username ?? "Unknown User"}
+									{playlist.owner.user?.username ?? "Unknown User"}
 								</Link>
+								<span className={styles.visibilityButton}>
+									<PlaylistVisibilityButton playlist={playlist} />
+								</span>
+							</div>
+						)}
+						{playlist.owner.type == "bot" && (
+							<div className={styles.ownerContainer}>
+								<span className={styles.ownerString}>
+									{playlist.owner.botName ??
+										playlist.owner.botId ??
+										"Unknown User"}
+								</span>
 								<span className={styles.visibilityButton}>
 									<PlaylistVisibilityButton playlist={playlist} />
 								</span>

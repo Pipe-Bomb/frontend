@@ -30,10 +30,18 @@ export function GridPlaylist({ playlist }: Props) {
 			<Link href={`/playlist/${playlist.uuid}`} className={styles.name}>
 				{title ?? "Unnamed Playlist"}
 			</Link>
-			{!!playlist.owner && (
-				<Link href={`/user/${playlist.owner.uuid}`} className={styles.owner}>
-					{playlist.owner.username}
+			{playlist.owner.type == "user" && (
+				<Link
+					href={`/user/${playlist.owner.userUuid}`}
+					className={styles.owner}
+				>
+					{playlist.owner.user?.username ?? "Unknown user"}
 				</Link>
+			)}
+			{playlist.owner.type == "bot" && (
+				<span className={styles.owner}>
+					{playlist.owner.botName ?? playlist.owner.botId}
+				</span>
 			)}
 		</div>
 	);

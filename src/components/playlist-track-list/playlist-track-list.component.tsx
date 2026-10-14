@@ -63,18 +63,21 @@ export function PlaylistTrackList({
 				{
 					id: "playlist_track_added_by",
 					formatter: (entry) => {
-						if (entry.addedBySystem) {
+						if (entry.addedBy.type == "user") {
+							return entry.addedBy.user?.username ?? "Unknown user";
+						}
+
+						if (entry.addedBy.type == "system") {
 							return t("attribute.playlist_track_added_by.system");
 						}
-						if (entry.addedBy) {
-							return entry.addedBy.username;
-						}
-						return "";
+
+						return entry.addedBy.botName ?? entry.addedBy.botId;
 					},
 					url: (entry) => {
-						if (entry.addedBy) {
-							return `/user/${entry.addedBy.uuid}`;
+						if (entry.addedBy.type == "user") {
+							return `/user/${entry.addedBy.userUuid}`;
 						}
+
 						return null;
 					},
 				},
