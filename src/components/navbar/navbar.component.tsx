@@ -13,10 +13,13 @@ import { Spinner } from "@/components/spinner/spinner.component";
 import { IconButton } from "@/components/icon-button/icon-button";
 import {
 	IconBookmark,
+	IconDatabase,
 	IconDisc,
 	IconHistory,
+	IconHome,
 	IconMusicCode,
 	IconMusicShare,
+	IconPlug,
 	IconPlus,
 	IconServerCog,
 	IconUser,
@@ -25,17 +28,21 @@ import {
 import { usePathname } from "next/navigation";
 import { NavbarLink } from "@/components/navbar-link/navbar-link.component";
 import { CreatePlaylistModal } from "@/modal/create-playlist/create-playlist.modal";
-import { useMemo, useState } from "react";
+import { ComponentType, SVGProps, useMemo, useState } from "react";
 import { useAttribute } from "@/hook/attribute.hook";
 import { useRightClick } from "@/hook/right-click.hook";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { usePrivilegeCheck } from "@/hook/privilege-check.hook";
 import { useAuth } from "@/context/auth.context";
+import { NavbarSection } from "@/components/navbar-section/navbar-section.component";
+import { useTranslation } from "@/context/language.context";
+import { useUISettings } from "@/context/ui-settings.context";
 
 export function Navbar() {
 	const [createPlaylistOpen, setCreatePlaylistOpen] = useState(false);
 	const hasPrivilege = usePrivilegeCheck();
+	const { t } = useTranslation();
 
 	const libraries = useGetAllLibraries({
 		query: {
@@ -65,7 +72,13 @@ export function Navbar() {
 			<div className={styles.positioner}>
 				<div className={styles.container}>
 					<div className={styles.main}>
-						<div>
+						<NavbarSection title="Main" id="main">
+							<NavbarLink
+								href="/"
+								name="Home"
+								active={pathname == "/"}
+								icon={IconHome}
+							/>
 							<NavbarLink
 								href="/artists"
 								name="Artists"
@@ -90,12 +103,11 @@ export function Navbar() {
 								active={pathname.startsWith("/history")}
 								icon={IconHistory}
 							/>
-						</div>
+						</NavbarSection>
 
-						<div>
-							<span className={styles.sectionName}>Libraries</span>
+						<NavbarSection title="Libraries" id="libraries">
 							{libraries.data?.status == 200 ? (
-								<div className={styles.linkList}>
+								<>
 									{libraries.data.data.map((library) => (
 										<NavbarLink
 											href={`/library/${library.pluginId}/${library.id}`}
@@ -104,33 +116,36 @@ export function Navbar() {
 												pathname == `/library/${library.pluginId}/${library.id}`
 											}
 											name={library.name}
+											subtitle={t(`plugin.${library.pluginId}.name`)}
+											icon={IconPlug}
 										/>
 									))}
-								</div>
+								</>
 							) : (
 								<Spinner position="expand" />
 							)}
-						</div>
+						</NavbarSection>
 
-						<div>
-							<span className={styles.sectionName}>Playlists</span>
+						<NavbarSection
+							title="Playlists"
+							id="playlists"
+							actions={[
+								{
+									icon: IconPlus,
+									onClick: () => setCreatePlaylistOpen(true),
+								},
+							]}
+						>
 							{playlists.data && playlists.data.status == 200 ? (
-								<div className={styles.linkList}>
+								<>
 									{playlists.data.data.map((playlist) => (
 										<PlaylistLink playlist={playlist} key={playlist.uuid} />
 									))}
-									<IconButton
-										icon={IconPlus}
-										iconSource="tabler"
-										size="sm"
-										onClick={() => setCreatePlaylistOpen(true)}
-										className={styles.newPlaylistButton}
-									/>
-								</div>
+								</>
 							) : (
 								<Spinner position="expand" />
 							)}
-						</div>
+						</NavbarSection>
 					</div>
 					<div className={styles.bottom}>
 						<Link href="/settings/user">
@@ -159,19 +174,27 @@ function PlaylistLink({ playlist }: { playlist: Playlist }) {
 	const queryClient = useQueryClient();
 	const router = useRouter();
 	const user = useAuth();
+	const thumb = useAttribute(playlist.attributes, "thumb", "buffer");
 
-	const icon = useMemo(() => {
-		if (
-			playlist.owner.type == "user" &&
-			playlist.owner.userUuid !== user?.uuid
-		) {
-			return IconMusicShare;
-		}
-		if (playlist.owner.type == "system" || playlist.owner.type == "bot") {
-			return IconMusicCode;
-		}
-		return null;
-	}, [user?.uuid, playlist.owner]);
+	const [owner, icon]: [string, ComponentType<SVGProps<SVGSVGElement>> | null] =
+		useMemo(() => {
+			if (
+				playlist.owner.type == "user" &&
+				playlist.owner.userUuid !== user?.uuid
+			) {
+				return [
+					playlist.owner.user?.username ?? "Unknown user",
+					IconMusicShare,
+				];
+			}
+			if (playlist.owner.type == "bot") {
+				return [playlist.owner.botName ?? playlist.owner.botId, IconMusicCode];
+			}
+			if (playlist.owner.type == "system") {
+				return ["SYSTEM", IconMusicCode];
+			}
+			return [user?.username ?? "Unknown user", null];
+		}, [user?.uuid, playlist.owner]);
 
 	const rightClick = useRightClick(() => [
 		{
@@ -199,6 +222,8 @@ function PlaylistLink({ playlist }: { playlist: Playlist }) {
 			active={pathname == `/playlist/${playlist.uuid}`}
 			name={title ?? "Unnamed Playlist"}
 			icon={icon}
+			image={thumb}
+			subtitle={owner}
 			{...rightClick}
 		/>
 	);
