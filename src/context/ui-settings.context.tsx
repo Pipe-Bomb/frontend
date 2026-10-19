@@ -11,6 +11,7 @@ import {
 
 export interface UISettings {
 	horizontalScrollerState: Record<Partial<HorizontalScrollerId>, boolean>;
+	navbarCollapsedSections: string[];
 }
 
 const UISettingsContext = createContext<

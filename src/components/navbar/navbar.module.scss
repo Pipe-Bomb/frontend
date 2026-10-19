@@ -24,12 +24,6 @@
 		.main {
 			flex-grow: 1;
 			overflow-y: auto;
-
-			.sectionName {
-				color: var(--fg-tertiary);
-				font-size: 0.8rem;
-				margin: 0 8px;
-			}
 		}
 
 		.newPlaylistButton {
