@@ -69,6 +69,10 @@
 			display: block;
 			transition: none;
 
+			&.closed {
+				display: none;
+			}
+
 			.contentWrapper .list {
 				gap: 2px;
 				align-items: center;

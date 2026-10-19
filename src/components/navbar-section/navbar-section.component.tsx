@@ -67,10 +67,7 @@ export function NavbarSection({ children, title, id, actions, mini }: Props) {
 				</div>
 			</div>
 			<div
-				className={cc(
-					styles.contentContainer,
-					isCollapsed && !mini && styles.closed,
-				)}
+				className={cc(styles.contentContainer, isCollapsed && styles.closed)}
 			>
 				<div className={styles.contentWrapper}>
 					<div className={styles.list}>{children}</div>
