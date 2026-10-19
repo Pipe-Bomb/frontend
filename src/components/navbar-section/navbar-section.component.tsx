@@ -1,4 +1,4 @@
-import { ComponentType, ReactNode, SVGProps, useMemo, useState } from "react";
+import { ComponentType, ReactNode, SVGProps, useMemo } from "react";
 import styles from "./navbar-section.module.scss";
 import { IconButton } from "@/components/icon-button/icon-button";
 import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
@@ -15,9 +15,10 @@ interface Props {
 	title: string;
 	id: string;
 	actions?: SectionAction[];
+	mini: boolean;
 }
 
-export function NavbarSection({ children, title, id, actions }: Props) {
+export function NavbarSection({ children, title, id, actions, mini }: Props) {
 	const [collapsedSections, setCollapsedSections] = useUISettings(
 		"navbarCollapsedSections",
 		[],
@@ -45,7 +46,7 @@ export function NavbarSection({ children, title, id, actions }: Props) {
 	];
 
 	return (
-		<div className={styles.container}>
+		<div className={cc(styles.container, mini && styles.mini)}>
 			<div className={styles.heading}>
 				<span className={styles.title} onClick={toggleCollapse}>
 					{title}
@@ -66,7 +67,10 @@ export function NavbarSection({ children, title, id, actions }: Props) {
 				</div>
 			</div>
 			<div
-				className={cc(styles.contentContainer, isCollapsed && styles.closed)}
+				className={cc(
+					styles.contentContainer,
+					isCollapsed && !mini && styles.closed,
+				)}
 			>
 				<div className={styles.contentWrapper}>
 					<div className={styles.list}>{children}</div>

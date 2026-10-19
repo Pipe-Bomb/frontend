@@ -15,17 +15,25 @@ import { useState } from "react";
 import { useButtonMenu } from "@/hook/button-menu.hook";
 import { logoutUser } from "@api";
 import { ContextMenuElement } from "@/context/context-menu.context";
+import { usePrivilegeCheck } from "@/hook/privilege-check.hook";
 
 export function TopBar() {
 	const user = useAuth();
 	const router = useRouter();
 	const pathname = usePathname();
 	const [searchInput, setSearchInput] = useState<HTMLInputElement | null>(null);
+	const hasPrivilege = usePrivilegeCheck();
 
 	const [query, setQuery] = useUrlParam("query", {
 		replace: true,
 		debounceMs: 300,
 	});
+
+	const showSettings =
+		hasPrivilege("view-tasks") ||
+		hasPrivilege("view-privileges") ||
+		hasPrivilege("edit-attribute-source-order") ||
+		hasPrivilege("view-workflows");
 
 	useKeyboardShortcuts(
 		(key, _shift, ctrl) => {
@@ -41,13 +49,15 @@ export function TopBar() {
 	);
 
 	const pushTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-const changeQuery = (newQuery: string) => {
-if (pathname != "/search" && newQuery.trim() != "") {
-    if (pushTimeout.current) clearTimeout(pushTimeout.current);
-    pushTimeout.current = setTimeout(() => {
-        router.push(`/search?query=${encodeURIComponent(newQuery)}`, { scroll: false });
-    }, 250);
-}
+	const changeQuery = (newQuery: string) => {
+		if (pathname != "/search" && newQuery.trim() != "") {
+			if (pushTimeout.current) clearTimeout(pushTimeout.current);
+			pushTimeout.current = setTimeout(() => {
+				router.push(`/search?query=${encodeURIComponent(newQuery)}`, {
+					scroll: false,
+				});
+			}, 250);
+		}
 
 		setQuery(newQuery);
 	};
@@ -66,11 +76,23 @@ if (pathname != "/search" && newQuery.trim() != "") {
 		];
 
 		if (user) {
-			items.unshift({
-				key: "go-to-profile",
-				languageKey: "contextmenu.top.view-profile",
-				href: `/user/${user.uuid}`,
-			});
+			items.unshift(
+				{
+					key: "go-to-profile",
+					languageKey: "contextmenu.top.view-profile",
+					href: `/user/${user.uuid}`,
+				},
+				{
+					key: "user-settings",
+					languageKey: "contextmenu.top.user-settings",
+					href: "/settings/user",
+				},
+				{
+					key: "server-settings",
+					languageKey: "contextmenu.top.server-settings",
+					href: "/settings/system",
+				},
+			);
 		}
 
 		return items;
@@ -96,7 +118,11 @@ if (pathname != "/search" && newQuery.trim() != "") {
 				<IconButton
 					icon={IconSearch}
 					iconSource="tabler"
-					onClick={() => router.push(`/search?query=${encodeURIComponent(query ?? "")}`, { scroll: false })}
+					onClick={() =>
+						router.push(`/search?query=${encodeURIComponent(query ?? "")}`, {
+							scroll: false,
+						})
+					}
 					iconClassName={styles.searchIcon}
 				/>
 			</div>

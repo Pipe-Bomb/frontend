@@ -1,16 +1,17 @@
 import Link from "next/link";
-import { HTMLAttributeAnchorTarget, ReactNode } from "react";
+import { HTMLAttributeAnchorTarget, ReactNode, Ref } from "react";
 
 interface Props extends Omit<
 	React.DetailedHTMLProps<
-		React.HTMLAttributes<HTMLAnchorElement>,
-		HTMLAnchorElement
+		React.HTMLAttributes<HTMLAnchorElement | HTMLSpanElement>,
+		HTMLAnchorElement | HTMLSpanElement
 	>,
 	"href"
 > {
 	href: string | null;
 	children?: ReactNode;
 	target?: HTMLAttributeAnchorTarget;
+	ref?: Ref<HTMLSpanElement | HTMLAnchorElement>;
 }
 
 export function OptionalLink({
@@ -18,15 +19,25 @@ export function OptionalLink({
 	children,
 	popoverTarget,
 	target,
+	ref,
 	...props
 }: Props) {
 	if (href) {
 		return (
-			<Link href={href} {...props} target={target}>
+			<Link
+				href={href}
+				{...props}
+				target={target}
+				ref={ref as Ref<HTMLAnchorElement>}
+			>
 				{children}
 			</Link>
 		);
 	}
 
-	return <span {...props}>{children}</span>;
+	return (
+		<span {...props} ref={ref}>
+			{children}
+		</span>
+	);
 }
