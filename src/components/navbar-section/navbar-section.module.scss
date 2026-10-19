@@ -20,7 +20,11 @@
 			cursor: pointer;
 			user-select: none;
 			font-weight: 500;
+			display: block;
 			flex-grow: 1;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
 
 			&:hover {
 				color: var(--fg-secondary);
@@ -51,6 +55,31 @@
 		}
 	}
 
+	&.mini {
+		margin-top: 2px;
+		&:first-of-type {
+			margin-top: 5px;
+		}
+
+		.heading {
+			display: none;
+		}
+
+		.contentContainer {
+			display: block;
+			transition: none;
+
+			&.closed {
+				display: none;
+			}
+
+			.contentWrapper .list {
+				gap: 2px;
+				align-items: center;
+			}
+		}
+	}
+
 	.contentContainer {
 		display: grid;
 		grid-template-rows: 1fr;
@@ -66,6 +95,7 @@
 			.list {
 				display: flex;
 				flex-direction: column;
+				gap: 4px;
 			}
 		}
 	}

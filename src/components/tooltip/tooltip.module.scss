@@ -1,0 +1,9 @@
+.container {
+	background: var(--bg-elevated);
+	border: 1px solid var(--border-strong);
+	position: fixed;
+	z-index: 2147483647;
+	pointer-events: "none";
+	padding: 8px;
+	border-radius: 8px;
+}

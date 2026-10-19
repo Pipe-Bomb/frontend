@@ -1,36 +1,54 @@
 .link {
-	display: block;
 	padding: 4px;
 	border-radius: 8px;
 	display: flex;
 	align-items: center;
 	gap: 4px;
-	min-height: 24px;
+	height: 32px;
 
 	.image {
 		display: block;
 		width: 32px;
 		height: 32px;
 		border-radius: 4px;
+		flex-shrink: 0;
 	}
 
 	.icon {
 		width: 16px;
+		height: 16px;
+		flex-shrink: 0;
 	}
 
-	.name {
+	.content {
 		display: block;
-	}
+		overflow: hidden;
+		flex-grow: 1;
 
-	.subtitle {
-		display: flex;
-		gap: 4px;
-		font-size: 0.6rem;
-		color: var(--fg-tertiary);
+		.name {
+			display: block;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+			overflow: hidden;
+		}
 
-		.icon {
-			width: 12px;
-			height: 12px;
+		.subtitleContainer {
+			display: flex;
+			gap: 4px;
+			font-size: 0.6rem;
+			color: var(--fg-tertiary);
+
+			.icon {
+				width: 12px;
+				height: 12px;
+			}
+
+			.subtitle {
+				display: block;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+				overflow: hidden;
+			}
 		}
 	}
 
@@ -38,12 +56,37 @@
 		background: var(--bg-elevated);
 	}
 
-	&:has(.subtitle),
+	&:has(.subtitleContainer),
 	&:has(.image) {
 		height: 40px;
 	}
 
 	&:hover {
 		background: var(--bg-hover);
+	}
+
+	&.mini {
+		justify-content: center;
+		height: 32px;
+		width: 32px;
+		border-radius: 4px;
+
+		.icon {
+			display: block;
+			width: 24px;
+			height: 24px;
+		}
+
+		.content {
+			display: none;
+		}
+
+		.image {
+			display: block;
+			width: 28px;
+			height: 28px;
+			border-radius: 3px;
+			flex-shrink: 0;
+		}
 	}
 }

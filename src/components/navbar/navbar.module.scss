@@ -1,13 +1,38 @@
 .positioner {
-	--width: 200px;
-
 	width: var(--width);
 	max-width: var(--width);
 	flex-shrink: 0;
-	overflow: hidden;
+	// overflow: hidden;
 	position: relative;
-	transition: width 0.3s cubic-bezier(0.43, 0, 0.18, 0.99);
+	// transition: width 0.3s cubic-bezier(0.43, 0, 0.18, 0.99);
 	background: var(--bg-base);
+
+	.resizeHandle {
+		opacity: 0.5;
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		right: -8px;
+		width: 8px;
+		cursor: col-resize;
+
+		&::after {
+			content: "";
+			position: absolute;
+			inset: 8px 3px;
+			border-radius: 1px;
+		}
+
+		&:hover::after {
+			background: var(--color-gray-700);
+			transition: background 0.1s;
+		}
+
+		&:active::after {
+			background: var(--color-gray-500);
+			transition: none;
+		}
+	}
 
 	.container {
 		position: absolute;
@@ -24,18 +49,6 @@
 		.main {
 			flex-grow: 1;
 			overflow-y: auto;
-		}
-
-		.newPlaylistButton {
-			margin: 4px 12px;
-		}
-
-		.bottom {
-			flex-shrink: 0;
-			padding: 8px;
-			display: flex;
-			gap: 8px;
-			margin: 24px 4px 4px 4px;
 		}
 	}
 }
