@@ -11,6 +11,11 @@
 		transition: opacity 0.3s;
 	}
 
+	&.selected {
+		background: var(--bg-hover);
+		border-radius: 4px;
+	}
+
 	.imageContainer {
 		width: 48px;
 		height: 48px;

@@ -37,6 +37,8 @@ import { useQueueActions } from "@/hook/queue-actions.hook";
 import { OptionalLink } from "@/components/optional-link/optional-link.component";
 import { useTrackContextMenu } from "@/hook/track-context-menu.hook";
 import { SingleAttributeModal } from "@/modal/single-attribute/single-attribute.modal";
+import { useSelectionMode } from "@/store/selection.store";
+import { useClickHold } from "@/hook/click-hold.hook";
 
 interface Props {
 	track: Track | EphemeralTrack;
@@ -44,6 +46,8 @@ interface Props {
 	number?: number;
 	noArt?: boolean;
 	inPlaylist?: string;
+	isSelected: boolean;
+	onToggleSelected: (bulk: boolean) => void;
 }
 
 export function ListTrack({
@@ -52,12 +56,15 @@ export function ListTrack({
 	columns,
 	noArt,
 	inPlaylist,
+	isSelected,
+	onToggleSelected,
 }: Props) {
 	const [infoOpen, setInfoOpen] = useState(false);
 
 	const { queue, currentIndex, isPlaying, toggle } = usePlayerStore();
 	const { playNow } = useQueueActions();
 	const nowPlaying = queue[currentIndex];
+	const inSelectionMode = useSelectionMode();
 	const [openAttribute, setOpenAttribute] = useState<
 		| [
 				(
@@ -82,12 +89,36 @@ export function ListTrack({
 
 	const { menuEntries, modal } = useTrackContextMenu(track, { inPlaylist });
 	const rightClick = useRightClick(menuEntries);
+	const imageHold = useClickHold(
+		(e) => onToggleSelected(e.shiftKey),
+		(e) => {
+			if (inSelectionMode) {
+				e.preventDefault();
+			} else {
+				e.stopPropagation();
+			}
+		},
+	);
 
 	return (
 		<>
 			<div
-				className={cc(styles.container, isPlayingThis && styles.active)}
+				className={cc(
+					styles.container,
+					isPlayingThis && styles.active,
+					isSelected && styles.selected,
+				)}
 				{...rightClick}
+				onClick={(e) => {
+					e.preventDefault();
+					e.stopPropagation();
+					onToggleSelected(e.shiftKey);
+				}}
+				onMouseDown={(e) => {
+					if (inSelectionMode) {
+						e.preventDefault();
+					}
+				}}
 			>
 				<div className={styles.main}>
 					<div className={styles.trackNumberContainer}>
@@ -101,7 +132,8 @@ export function ListTrack({
 								}
 								iconSource="tabler"
 								style={isPlayingThis ? "simple" : "background"}
-								onClick={() => {
+								onClick={(e) => {
+									e.stopPropagation();
 									if (isPlayingThis) {
 										toggle();
 									} else {
@@ -112,9 +144,10 @@ export function ListTrack({
 						</div>
 					</div>
 					{!noArt && (
-						<Link
+						<OptionalLink
 							className={styles.imageContainer}
 							href={`/track/${track.pluginId}/${track.libraryId}/${track.trackId}`}
+							{...imageHold}
 						>
 							<ResourceImage
 								resource={image}
@@ -123,13 +156,14 @@ export function ListTrack({
 								width={42}
 								height={42}
 							/>
-						</Link>
+						</OptionalLink>
 					)}
 
 					<div className={styles.info}>
 						<Link
 							className={styles.title}
 							href={`/track/${track.pluginId}/${track.libraryId}/${track.trackId}`}
+							onClick={(e) => e.stopPropagation()}
 						>
 							{title}
 						</Link>
@@ -150,6 +184,19 @@ export function ListTrack({
 								: undefined,
 						}}
 						key={index}
+						onClick={(e) => {
+							if (inSelectionMode) {
+								e.preventDefault();
+							} else {
+								if (column.type == "special") {
+									if (column.url) {
+										e.stopPropagation();
+									}
+								} else if (column.attributeType == "buffer") {
+									e.stopPropagation();
+								}
+							}
+						}}
 					>
 						{column.type == "special" ? (
 							<OptionalLink
@@ -249,7 +296,10 @@ function ValueColumn({ column, attributes, openAttribute }: ValueColumnProps) {
 	return (
 		<span
 			className={cc(styles.columnValue)}
-			onClick={() => openAttribute(column.attribute)}
+			onClick={(e) => {
+				e.stopPropagation();
+				openAttribute(column.attribute);
+			}}
 		>
 			{attribute}
 		</span>

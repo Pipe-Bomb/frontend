@@ -84,6 +84,7 @@ export function PlaylistTrackList({
 			]}
 			toTrack={(entry) => entry.track}
 			inPlaylist={playlistUuid}
+			variant={[{ type: "playlist", id: playlistUuid }]}
 		/>
 	);
 }

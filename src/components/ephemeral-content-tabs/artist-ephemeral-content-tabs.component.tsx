@@ -13,11 +13,10 @@ import { Spinner } from "@/components/spinner/spinner.component";
 import { Tabs } from "@/components/tabs/tabs.component";
 import { Button } from "@/components/button/button.component";
 import { useUrlParam } from "@/hook/url-param.hook";
-import { HorizontalScroller } from "@/components/horizontal-scroller/horizontal-scroller.component";
-import { GridAlbum } from "@/components/grid-album/grid-album.component";
 import { TrackList } from "@/components/track-list/track-list.component";
 import { RootPadding } from "@/components/root-padding/root-padding.component";
 import { HorizontalScrollerId } from "@/enum/horizontal-scroller-id.enum";
+import { AlbumScroller } from "@/components/album-scroller/album-scroller.component";
 
 interface Props {
 	artistId: string;
@@ -220,20 +219,11 @@ function Content({ tracks, albums }: ContentProps) {
 	return (
 		<div className={styles.content}>
 			{!!albums.length && (
-				<HorizontalScroller
+				<AlbumScroller
 					heading="Albums"
-					id={HorizontalScrollerId.ARTIST_EPHEMERAL_ALBUMS}
-				>
-					{albums.map((album, index) => {
-						let key: string | number = index;
-						const identity = album.identities?.[0];
-						if (identity) {
-							key = `${identity.pluginId} ${identity.identityId} ${identity.value}`;
-						}
-
-						return <GridAlbum album={album} key={key} />;
-					})}
-				</HorizontalScroller>
+					horizontalScrollerId={HorizontalScrollerId.ARTIST_EPHEMERAL_ALBUMS}
+					albums={albums}
+				/>
 			)}
 			{!!tracks.length && (
 				<RootPadding>

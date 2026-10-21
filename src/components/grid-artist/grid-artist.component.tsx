@@ -5,17 +5,28 @@ import { ResourceImage } from "@/components/resource-image/resource-image.compon
 import { useRightClick } from "@/hook/right-click.hook";
 import { useArtistBookmark } from "@/hook/saved-toggle.hook";
 import { ArtistInfoModal } from "@/components/artist-info-modal/artist-info-modal.component";
-import { useMemo, useState } from "react";
+import { MouseEvent, useMemo, useState } from "react";
 import { OptionalLink } from "@/components/optional-link/optional-link.component";
-import { IconUser } from "@tabler/icons-react";
+import {
+	IconCircle,
+	IconCircleCheckFilled,
+	IconUser,
+} from "@tabler/icons-react";
+import { cc } from "@/lib/util";
+import { useSelectionMode } from "@/store/selection.store";
+import { IconButton } from "@/components/icon-button/icon-button";
+import { useClickHold } from "@/hook/click-hold.hook";
 
 interface Props {
 	artist: Artist;
+	isSelected?: boolean;
+	onToggleSelected?: (bulk: boolean) => void;
 }
 
-export function GridArtist({ artist }: Props) {
+export function GridArtist({ artist, isSelected, onToggleSelected }: Props) {
 	const [infoOpen, setInfoOpen] = useState(false);
 	const { bookmarked, toggle } = useArtistBookmark(artist);
+	const inSelectionMode = useSelectionMode();
 
 	const link = useMemo(() => {
 		if (artist.uuid) {
@@ -26,7 +37,7 @@ export function GridArtist({ artist }: Props) {
 			return `/artist/${identity.pluginId}~${identity.identityId}~${identity.value}`;
 		}
 		return null;
-	}, [artist]);
+	}, [artist, inSelectionMode]);
 
 	const name = useAttribute(artist.attributes, "name", "string");
 	const thumbnail = useAttribute(artist.attributes, "thumb", "buffer");
@@ -44,10 +55,34 @@ export function GridArtist({ artist }: Props) {
 		},
 	]);
 
+	const handleClick = (e: MouseEvent, forceSelection?: boolean) => {
+		e.stopPropagation();
+		if (e.ctrlKey || inSelectionMode || forceSelection) {
+			e.preventDefault();
+			onToggleSelected?.(e.shiftKey);
+		}
+	};
+	const hold = useClickHold((e) => onToggleSelected?.(e.shiftKey), handleClick);
+
 	return (
 		<>
-			<OptionalLink className={styles.container} href={link} {...rightClick}>
+			<OptionalLink
+				className={cc(
+					styles.container,
+					isSelected && styles.selected,
+					inSelectionMode && styles.selectionMode,
+				)}
+				href={link}
+				{...rightClick}
+				{...hold}
+			>
 				<div className={styles.imageContainer}>
+					<IconButton
+						icon={isSelected ? IconCircleCheckFilled : IconCircle}
+						iconSource="tabler"
+						className={styles.selectedCheck}
+						size="lg"
+					/>
 					{thumbnail ? (
 						<ResourceImage
 							resource={thumbnail}

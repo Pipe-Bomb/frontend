@@ -3,17 +3,16 @@ import styles from "./page.module.scss";
 import { ResourceImage } from "@/components/resource-image/resource-image.component";
 import Link from "next/link";
 import { Metadata } from "next";
-import { GridAlbum } from "@/components/grid-album/grid-album.component";
 import { getArtistExternalUrls } from "@/api";
 import { getArtistById, unwrapData } from "@/lib/api.util";
 import { ArtistEphemeralContentTabs } from "@/components/ephemeral-content-tabs/artist-ephemeral-content-tabs.component";
 import { TrackList } from "@/components/track-list/track-list.component";
-import { HorizontalScroller } from "@/components/horizontal-scroller/horizontal-scroller.component";
 import { RootPadding } from "@/components/root-padding/root-padding.component";
 import { getAuthHeaders } from "@/lib/server.util";
 import { HorizontalScrollerId } from "@/enum/horizontal-scroller-id.enum";
 import { OptionalLink } from "@/components/optional-link/optional-link.component";
 import { ArtistBookmarkButton } from "@/components/artist-bookmark-button/artist-bookmark-button.component";
+import { AlbumScroller } from "@/components/album-scroller/album-scroller.component";
 
 interface Props {
 	params: Promise<{
@@ -164,14 +163,11 @@ export default async function Page({ params }: Props) {
 				)}
 				{artist.albums && (
 					<div className={styles.albums}>
-						<HorizontalScroller
+						<AlbumScroller
 							heading="Albums"
-							id={HorizontalScrollerId.ARTIST_ALBUMS}
-						>
-							{artist.albums.map((album) => (
-								<GridAlbum album={album} key={album.uuid} />
-							))}
-						</HorizontalScroller>
+							horizontalScrollerId={HorizontalScrollerId.ARTIST_ALBUMS}
+							albums={artist.albums}
+						/>
 					</div>
 				)}
 			</div>

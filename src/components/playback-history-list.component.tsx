@@ -61,6 +61,7 @@ export function PlaybackHistoryList() {
 				},
 			]}
 			toTrack={(entry) => entry.track!}
+			variant={["history"]}
 		/>
 	);
 }

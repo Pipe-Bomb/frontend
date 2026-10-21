@@ -1,7 +1,5 @@
-import { Button } from "@/components/button/button.component";
 import { Modal } from "@/components/modal/modal.component";
 import { Spinner } from "@/components/spinner/spinner.component";
-import { useAttribute } from "@/hook/attribute.hook";
 import { Playlist, useGetOwnPlaylists } from "@api";
 import styles from "./playlist-select.module.scss";
 import { PlaylistEntry } from "@/components/playlist-entry/playlist-entry.component";

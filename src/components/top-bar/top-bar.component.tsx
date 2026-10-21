@@ -2,10 +2,10 @@
 
 import { useAuth } from "@/context/auth.context";
 import styles from "./top-bar.module.scss";
-import { IconSearch, IconUserCircle } from "@tabler/icons-react";
+import { IconCancel, IconSearch, IconUserCircle } from "@tabler/icons-react";
 import { TextInput } from "@/components/text-input/text-input.component";
 import { useUrlParam } from "@/hook/url-param.hook";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
@@ -16,6 +16,14 @@ import { useButtonMenu } from "@/hook/button-menu.hook";
 import { logoutUser } from "@api";
 import { ContextMenuElement } from "@/context/context-menu.context";
 import { usePrivilegeCheck } from "@/hook/privilege-check.hook";
+import {
+	getSelectionMessage,
+	useSelectionCount,
+	useSelectionMode,
+	useSelectionStore,
+} from "@/store/selection.store";
+import { PlaylistSelectModal } from "@/modal/playlist-select/playlist-select.modal";
+import { BulkMenu } from "@/components/bulk-menu/bulk-menu.component";
 
 export function TopBar() {
 	const user = useAuth();
@@ -23,6 +31,14 @@ export function TopBar() {
 	const pathname = usePathname();
 	const [searchInput, setSearchInput] = useState<HTMLInputElement | null>(null);
 	const hasPrivilege = usePrivilegeCheck();
+	const selectionCount = useSelectionCount();
+	const inSelectionMode = useSelectionMode();
+	const selectionMessage = useMemo(
+		() => getSelectionMessage(selectionCount),
+		[selectionCount],
+	);
+	const [playlistModalOpen, setPlaylistModalOpen] = useState(false);
+	const clearAllSelection = useSelectionStore((state) => state.clearAll);
 
 	const [query, setQuery] = useUrlParam("query", {
 		replace: true,
@@ -43,9 +59,13 @@ export function TopBar() {
 				}
 				return true;
 			}
+			if (key == "Escape") {
+				clearAllSelection();
+				return true;
+			}
 			return false;
 		},
-		[searchInput],
+		[searchInput, inSelectionMode],
 	);
 
 	const pushTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -68,7 +88,7 @@ export function TopBar() {
 				key: "logout",
 				languageKey: "contextmenu.top.logout",
 				onClick: () => {
-					logoutUser().then((response) => {
+					logoutUser().then(() => {
 						router.refresh();
 					});
 				},
@@ -76,6 +96,14 @@ export function TopBar() {
 		];
 
 		if (user) {
+			if (showSettings) {
+				items.unshift({
+					key: "server-settings",
+					languageKey: "contextmenu.top.server-settings",
+					href: "/settings/system",
+				});
+			}
+
 			items.unshift(
 				{
 					key: "go-to-profile",
@@ -86,11 +114,6 @@ export function TopBar() {
 					key: "user-settings",
 					languageKey: "contextmenu.top.user-settings",
 					href: "/settings/user",
-				},
-				{
-					key: "server-settings",
-					languageKey: "contextmenu.top.server-settings",
-					href: "/settings/system",
 				},
 			);
 		}
@@ -105,30 +128,50 @@ export function TopBar() {
 					<img src="/logo.png" className={styles.homeButtonLogo} />
 				</Link>
 			</div>
-			<div className={styles.search}>
-				<div className={styles.searchBox}>
-					<TextInput
-						value={query ?? ""}
-						onChange={changeQuery}
-						placeholder="Search..."
-						ref={setSearchInput}
+			{selectionCount.total ? (
+				<div className={styles.selectionContainer}>
+					<span className={styles.selectionMessage}>{selectionMessage}</span>
+					<div className={styles.selectionButtons}>
+						<BulkMenu />
+						<IconButton
+							icon={IconCancel}
+							iconSource="tabler"
+							onClick={clearAllSelection}
+						/>
+					</div>
+				</div>
+			) : (
+				<div className={styles.search}>
+					<div className={styles.searchBox}>
+						<TextInput
+							value={query ?? ""}
+							onChange={changeQuery}
+							placeholder="Search..."
+							ref={setSearchInput}
+						/>
+					</div>
+
+					<IconButton
+						icon={IconSearch}
+						iconSource="tabler"
+						onClick={() =>
+							router.push(`/search?query=${encodeURIComponent(query ?? "")}`, {
+								scroll: false,
+							})
+						}
+						iconClassName={styles.searchIcon}
 					/>
 				</div>
+			)}
 
-				<IconButton
-					icon={IconSearch}
-					iconSource="tabler"
-					onClick={() =>
-						router.push(`/search?query=${encodeURIComponent(query ?? "")}`, {
-							scroll: false,
-						})
-					}
-					iconClassName={styles.searchIcon}
-				/>
-			</div>
 			{user && (
 				<button className={styles.userSection} onClick={onClick}>
 					<IconUserCircle className={styles.userIcon} />
+					<PlaylistSelectModal
+						open={playlistModalOpen}
+						onClose={() => setPlaylistModalOpen(false)}
+						// onSelect={addToPlaylist}
+					/>
 					<span className={styles.username}>{user.username}</span>
 				</button>
 			)}

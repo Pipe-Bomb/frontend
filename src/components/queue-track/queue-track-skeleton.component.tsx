@@ -9,9 +9,10 @@ import {
 
 interface Props {
 	queueIndex: number;
+	isSelected?: boolean;
 }
 
-export function QueueTrackSkeleton({ queueIndex }: Props) {
+export function QueueTrackSkeleton({ queueIndex, isSelected }: Props) {
 	const { currentIndex, isPlaying, toggle, playIndex, setIsPlaying } =
 		usePlayerStore();
 	const active = currentIndex == queueIndex;
@@ -22,6 +23,7 @@ export function QueueTrackSkeleton({ queueIndex }: Props) {
 				styles.container,
 				active && styles.active,
 				currentIndex > queueIndex && styles.history,
+				isSelected && styles.selected,
 			)}
 		>
 			<div className={styles.imageContainer}>
