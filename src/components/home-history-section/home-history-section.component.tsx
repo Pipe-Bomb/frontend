@@ -2,13 +2,12 @@
 
 import { useGetOwnPlaybackHistory, Album, Artist, Track } from "@/api";
 import { Spinner } from "@/components/spinner/spinner.component";
-import { HorizontalScroller } from "@/components/horizontal-scroller/horizontal-scroller.component";
-import { GridAlbum } from "@/components/grid-album/grid-album.component";
-import { GridArtist } from "@/components/grid-artist/grid-artist.component";
 import { TrackList } from "@/components/track-list/track-list.component";
 import { HorizontalScrollerId } from "@/enum/horizontal-scroller-id.enum";
 import { useMemo } from "react";
 import styles from "./home-history-section.module.scss";
+import { ArtistScroller } from "@/components/artist-scroller/artist-scroller.component";
+import { AlbumScroller } from "@/components/album-scroller/album-scroller.component";
 
 function identityKey(
 	identities:
@@ -104,26 +103,20 @@ export function HomeHistorySection() {
 
 	return (
 		<>
-			<HorizontalScroller
+			<AlbumScroller
 				heading="Recently played"
-				id={HorizontalScrollerId.HOME_RECENT_ALBUMS}
-			>
-				{recentAlbums.map((album, i) => (
-					<GridAlbum key={album.uuid ?? i} album={album} />
-				))}
-			</HorizontalScroller>
-			<HorizontalScroller
+				horizontalScrollerId={HorizontalScrollerId.HOME_RECENT_ALBUMS}
+				albums={recentAlbums}
+			/>
+			<ArtistScroller
 				heading="Recent artists"
-				id={HorizontalScrollerId.HOME_RECENT_ARTISTS}
-			>
-				{recentArtists.map((artist, i) => (
-					<GridArtist key={artist.uuid ?? i} artist={artist} />
-				))}
-			</HorizontalScroller>
+				horizontalScrollerId={HorizontalScrollerId.HOME_RECENT_ARTISTS}
+				artists={recentArtists}
+			/>
 			{lastTracks.length > 0 && (
 				<div className={styles.trackSection}>
 					<h3 className={styles.heading}>Last played</h3>
-					<TrackList tracks={lastTracks} />
+					<TrackList tracks={lastTracks} variant={["history"]} />
 				</div>
 			)}
 		</>

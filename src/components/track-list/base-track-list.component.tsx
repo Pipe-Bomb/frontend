@@ -10,7 +10,7 @@ import {
 } from "@/context/track-columns.context";
 import { useRankedAttributes } from "@/hook/ranked-attributes.hook";
 import { useRightClick } from "@/hook/right-click.hook";
-import { ReactNode, useMemo, useState } from "react";
+import { ReactNode, useEffect, useId, useMemo, useState } from "react";
 import { useResizeDetector } from "react-resize-detector";
 import styles from "./track-list.module.scss";
 import { Virtuoso } from "react-virtuoso";
@@ -19,6 +19,12 @@ import { EphemeralTrack, Track, useGetAllLibraries } from "@api";
 import { formatDate } from "@/lib/util";
 import { getAttribute } from "@/lib/attribute.util";
 import { TrackBookmarkButton } from "@/components/track-bookmark-button/track-bookmark-button.component";
+import {
+	ListSelectionApi,
+	SelectionVariant,
+	useListSelection,
+	useSelectionStore,
+} from "@/store/selection.store";
 
 export interface BaseTrackListSpecialColumn<T> {
 	id: string;
@@ -31,9 +37,11 @@ interface BaseTrackListProps<T = Track | EphemeralTrack> {
 	itemContent: (
 		index: number,
 		columns: (BasicAttributeColumn | SpecialAttributeColumnFormatter<T>)[],
+		selection: ListSelectionApi<"track" | "ephemeralTrack">,
 	) => ReactNode;
 	toTrack: (index: number) => Track | EphemeralTrack | null;
 	specialColumns?: BaseTrackListSpecialColumn<T>[];
+	variant?: SelectionVariant<"track">[];
 }
 
 const MAIN_MIN_WIDTH = 200;
@@ -44,7 +52,14 @@ export function BaseTrackList<T>({
 	itemContent,
 	specialColumns,
 	toTrack,
+	variant,
 }: BaseTrackListProps<T>) {
+	const listId = useId();
+	const selection = useListSelection<"track" | "ephemeralTrack">(
+		listId,
+		variant,
+	);
+	const clearList = useSelectionStore((state) => state.clearList);
 	const { t } = useTranslation();
 	const { columns, setColumns } = useTrackColumns();
 	const { ref, width } = useResizeDetector();
@@ -73,7 +88,7 @@ export function BaseTrackList<T>({
 					return null;
 				}
 
-				return <TrackBookmarkButton track={track} />;
+				return <TrackBookmarkButton track={track} style="ghost" />;
 			},
 		});
 
@@ -173,6 +188,10 @@ export function BaseTrackList<T>({
 
 		return columns;
 	}, [specialColumns, libraries]);
+
+	useEffect(() => {
+		return () => clearList(listId);
+	}, [clearList, listId]);
 
 	const rightClick = useRightClick(() => [
 		{
@@ -300,9 +319,7 @@ export function BaseTrackList<T>({
 
 			setColumns((prevColumns) =>
 				prevColumns.map((column) =>
-					columnKey(column) === key
-						? { ...column, width: newWidth }
-						: column,
+					columnKey(column) === key ? { ...column, width: newWidth } : column,
 				),
 			);
 		};
@@ -342,9 +359,7 @@ export function BaseTrackList<T>({
 							</span>
 							<span
 								className={styles.mover}
-								onMouseDown={(e) =>
-									startDrag(e as any, columnKey(column))
-								}
+								onMouseDown={(e) => startDrag(e as any, columnKey(column))}
 							/>
 						</div>
 					))}
@@ -353,7 +368,7 @@ export function BaseTrackList<T>({
 					className={styles.trackList}
 					customScrollParent={scrollParent}
 					totalCount={totalCount}
-					itemContent={(index) => itemContent(index, boundColumns)}
+					itemContent={(index) => itemContent(index, boundColumns, selection)}
 				/>
 			</div>
 			<TrackListModal

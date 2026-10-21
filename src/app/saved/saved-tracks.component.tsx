@@ -61,6 +61,7 @@ export function SavedTracks() {
 				initialTracks={initialTracks}
 				trackNumbers={trackNumbers}
 				toTrack={(track) => track}
+				variant={["saved"]}
 			/>
 		</div>
 	);

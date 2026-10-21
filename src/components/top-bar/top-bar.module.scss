@@ -28,6 +28,23 @@
 		}
 	}
 
+	.selectionContainer {
+		flex-grow: 1;
+		display: flex;
+		align-items: center;
+
+		.selectionMessage {
+			font-weight: 500;
+			font-size: 1.2rem;
+			flex-grow: 1;
+		}
+
+		.selectionButtons {
+			display: flex;
+			gap: 8px;
+		}
+	}
+
 	.userSection {
 		display: flex;
 		align-items: center;

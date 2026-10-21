@@ -7,6 +7,8 @@
 	background: var(--bg-surface);
 	border-radius: 8px;
 	height: 54px;
+	overflow: hidden;
+	isolation: isolate;
 
 	&:has(:focus-visible) {
 		outline: 1px solid var(--accent-primary);
@@ -17,6 +19,17 @@
 
 	&:hover {
 		background: var(--bg-hover);
+	}
+
+	&.selected {
+		&::before {
+			content: "";
+			inset: 0;
+			background: var(--accent-primary);
+			position: absolute;
+			z-index: -1;
+			opacity: 0.2;
+		}
 	}
 
 	.main {

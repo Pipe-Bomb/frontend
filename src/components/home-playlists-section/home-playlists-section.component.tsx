@@ -3,10 +3,9 @@
 import { useGetOwnPlaylists, Playlist, useGetPublicPlaylists } from "@/api";
 import { useAuth } from "@/context/auth.context";
 import { Spinner } from "@/components/spinner/spinner.component";
-import { HorizontalScroller } from "@/components/horizontal-scroller/horizontal-scroller.component";
-import { GridPlaylist } from "@/components/grid-playlist/grid-playlist.component";
 import { HorizontalScrollerId } from "@/enum/horizontal-scroller-id.enum";
 import { useMemo } from "react";
+import { PlaylistScroller } from "@/components/playlist-scroller/playlist-scroller.component";
 
 export function HomePlaylistsSection() {
 	const mainResponse = useGetOwnPlaylists({ query: { enabled: true } });
@@ -50,38 +49,26 @@ export function HomePlaylistsSection() {
 
 	return (
 		<>
-			<HorizontalScroller
+			<PlaylistScroller
 				heading="My playlists"
-				id={HorizontalScrollerId.HOME_MY_PLAYLISTS}
-			>
-				{myPlaylists.map((playlist) => (
-					<GridPlaylist key={playlist.uuid} playlist={playlist} />
-				))}
-			</HorizontalScroller>
-			<HorizontalScroller
+				horizontalScrollerId={HorizontalScrollerId.HOME_MY_PLAYLISTS}
+				playlists={myPlaylists}
+			/>
+			<PlaylistScroller
 				heading="System playlists"
-				id={HorizontalScrollerId.HOME_SYSTEM_PLAYLISTS}
-			>
-				{systemPlaylists.map((playlist) => (
-					<GridPlaylist key={playlist.uuid} playlist={playlist} />
-				))}
-			</HorizontalScroller>
-			<HorizontalScroller
+				horizontalScrollerId={HorizontalScrollerId.HOME_SYSTEM_PLAYLISTS}
+				playlists={systemPlaylists}
+			/>
+			<PlaylistScroller
 				heading="Friends' playlists"
-				id={HorizontalScrollerId.HOME_FRIENDS_PLAYLISTS}
-			>
-				{friendsPlaylists.map((playlist) => (
-					<GridPlaylist key={playlist.uuid} playlist={playlist} />
-				))}
-			</HorizontalScroller>
-			<HorizontalScroller
+				horizontalScrollerId={HorizontalScrollerId.HOME_FRIENDS_PLAYLISTS}
+				playlists={friendsPlaylists}
+			/>
+			<PlaylistScroller
 				heading="Public playlists"
-				id={HorizontalScrollerId.HOME_PUBLIC_PLAYLISTS}
-			>
-				{publicPlaylists.map((playlist) => (
-					<GridPlaylist key={playlist.uuid} playlist={playlist} />
-				))}
-			</HorizontalScroller>
+				horizontalScrollerId={HorizontalScrollerId.HOME_PUBLIC_PLAYLISTS}
+				playlists={publicPlaylists}
+			/>
 		</>
 	);
 }

@@ -10,31 +10,59 @@
 	isolation: isolate;
 	overflow: hidden;
 
-	&::after {
-		content: "";
-		position: absolute;
-		inset: 8px;
-		z-index: -1;
-		transition:
-			inset 0.15s,
-			background 0.15s;
-		background: transparent;
+	&.selectionMode .imageContainer {
+		.selectedCheck {
+			opacity: 1;
+		}
 	}
 
-	&:hover::after {
-		inset: 0;
-		background: var(--bg-hover);
+	&::before {
+		content: "";
+		position: absolute;
+		background: var(--accent-primary);
+		z-index: -1;
+		border-radius: 12px;
+		opacity: 0;
+		inset: 8px;
+		transition:
+			opacity 0.1s,
+			inset 0.1s;
+	}
+
+	&.selected {
+		&::before {
+			opacity: 0.2;
+			inset: 0;
+		}
 	}
 
 	.imageContainer {
 		width: 160px;
 		height: 160px;
 		border-radius: 50%;
-		overflow: hidden;
+		position: relative;
+
+		.selectedCheck {
+			--angle: 45deg;
+			--badge: 32px;
+
+			position: absolute;
+			width: var(--badge);
+			height: var(--badge);
+			color: var(--fg-primary);
+			left: calc(50% + 50% * cos(var(--angle)) - var(--badge) / 2);
+			top: calc(50% - 50% * sin(var(--angle)) - var(--badge) / 2);
+			// filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.1));
+			opacity: 0;
+			z-index: 1;
+			transition: opacity 0.1s;
+		}
 
 		.image {
 			width: 100%;
 			height: 100%;
+			border-radius: 50%;
+			overflow: hidden;
 
 			img {
 				object-fit: cover;
@@ -49,7 +77,8 @@
 			align-items: center;
 			justify-content: center;
 			color: var(--accent-primary);
-			opacity: 0.22;
+			border-radius: 50%;
+			// opacity: 0.22;
 		}
 	}
 

@@ -11,6 +11,10 @@ import {
 	BasicAttributeColumn,
 	SpecialAttributeColumnFormatter,
 } from "@/context/track-columns.context";
+import {
+	ListSelectionApi,
+	SelectionVariant,
+} from "@/store/selection.store";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface Props<T> {
@@ -24,6 +28,7 @@ interface Props<T> {
 	specialColumns?: BaseTrackListSpecialColumn<T>[];
 	toTrack: (entry: T, index: number) => Track | EphemeralTrack;
 	inPlaylist?: string;
+	variant?: SelectionVariant<"track">[];
 }
 
 export function LazyTrackList<T>({
@@ -37,6 +42,7 @@ export function LazyTrackList<T>({
 	specialColumns,
 	toTrack,
 	inPlaylist,
+	variant,
 }: Props<T>) {
 	const queryClient = useQueryClient();
 
@@ -44,6 +50,7 @@ export function LazyTrackList<T>({
 		<BaseTrackList
 			totalCount={totalCount}
 			specialColumns={specialColumns}
+			variant={variant}
 			toTrack={(index) => {
 				const chunkIndex = Math.floor(index / chunkSize);
 				const localIndex = index % chunkSize;
@@ -63,10 +70,11 @@ export function LazyTrackList<T>({
 				}
 				return null;
 			}}
-			itemContent={(index, columns) => (
+			itemContent={(index, columns, selection) => (
 				<Row<T>
 					index={index}
 					columns={columns}
+					selection={selection}
 					queryKey={queryKey}
 					fetchChunk={fetchChunk}
 					chunkSize={chunkSize}
@@ -84,6 +92,7 @@ export function LazyTrackList<T>({
 interface RowProps<T> {
 	index: number;
 	columns: (BasicAttributeColumn | SpecialAttributeColumnFormatter<T>)[];
+	selection: ListSelectionApi<"track" | "ephemeralTrack">;
 	queryKey: unknown[];
 	fetchChunk: (offset: number, limit: number) => Promise<T[]>;
 	chunkSize: number;
@@ -97,6 +106,7 @@ interface RowProps<T> {
 function Row<T>({
 	index,
 	columns,
+	selection,
 	queryKey,
 	fetchChunk,
 	chunkSize,
@@ -121,22 +131,24 @@ function Row<T>({
 		return <ListTrackSkeleton number={trackNumber} noArt={noArt} />;
 	}
 
-	const track = chunkTracks[localIndex];
-	if (!track) {
+	const entry = chunkTracks[localIndex];
+	if (!entry) {
 		return null;
 	}
 
+	const track = toTrack(entry, index);
+
 	return (
 		<ListTrack
-			track={toTrack(track, index)}
+			track={track}
 			columns={columns.map((column) => {
 				if (column.type == "special") {
 					return {
 						type: "special",
 						id: column.id,
 						width: column.width,
-						formatted: column.formatter(track, index),
-						url: column.url?.(track, index) ?? null,
+						formatted: column.formatter(entry, index),
+						url: column.url?.(entry, index) ?? null,
 					};
 				}
 				return column;
@@ -144,6 +156,8 @@ function Row<T>({
 			number={trackNumber}
 			noArt={noArt}
 			inPlaylist={inPlaylist}
+			isSelected={selection.isSelected(track)}
+			onToggleSelected={() => selection.toggle(track)}
 		/>
 	);
 }

@@ -1,13 +1,11 @@
-import { GridAlbum } from "@/components/grid-album/grid-album.component";
-import { GridArtist } from "@/components/grid-artist/grid-artist.component";
-import { Grid } from "@/components/grid/grid.component";
 import { Album, Artist, EphemeralTrack, Track } from "@api";
 import { useMemo } from "react";
 import styles from "./search-results.module.scss";
 import { TrackList } from "@/components/track-list/track-list.component";
-import { HorizontalScroller } from "@/components/horizontal-scroller/horizontal-scroller.component";
 import { RootPadding } from "@/components/root-padding/root-padding.component";
 import { HorizontalScrollerId } from "@/enum/horizontal-scroller-id.enum";
+import { ArtistScroller } from "@/components/artist-scroller/artist-scroller.component";
+import { AlbumScroller } from "@/components/album-scroller/album-scroller.component";
 
 interface Props {
 	tracks: (Track | EphemeralTrack)[];
@@ -43,40 +41,18 @@ export function SearchResults({ tracks, artists, albums }: Props) {
 				</RootPadding>
 			)}
 			{!!artists.length && (
-				<HorizontalScroller
+				<ArtistScroller
 					heading="Artists"
-					id={HorizontalScrollerId.SEARCH_ARTISTS}
-				>
-					{artists.map((artist, index) => {
-						let key = index.toString();
-						if (artist.uuid) {
-							key = artist.uuid;
-						} else if (artist.identities?.length) {
-							const identity = artist.identities[0];
-							key = `${identity.pluginId} ${identity.identityId} ${identity.value}`;
-						}
-
-						return <GridArtist artist={artist} key={key} />;
-					})}
-				</HorizontalScroller>
+					horizontalScrollerId={HorizontalScrollerId.SEARCH_ARTISTS}
+					artists={artists}
+				/>
 			)}
 			{!!albums.length && (
-				<HorizontalScroller
+				<AlbumScroller
 					heading="Albums"
-					id={HorizontalScrollerId.SEARCH_ALBUMS}
-				>
-					{albums.map((album, index) => {
-						let key = index.toString();
-						if (album.uuid) {
-							key = album.uuid;
-						} else if (album.identities?.length) {
-							const identity = album.identities[0];
-							key = `${identity.pluginId} ${identity.identityId} ${identity.value}`;
-						}
-
-						return <GridAlbum album={album} key={key} />;
-					})}
-				</HorizontalScroller>
+					horizontalScrollerId={HorizontalScrollerId.SEARCH_ALBUMS}
+					albums={albums}
+				/>
 			)}
 			{!!remainingTracks.length && (
 				<RootPadding>
