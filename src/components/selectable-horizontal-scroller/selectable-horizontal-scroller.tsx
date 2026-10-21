@@ -20,7 +20,7 @@ interface Props<T extends SelectionItemKey> {
 		entity: SelectionItemEntity<T>,
 		index: number,
 		selected: boolean,
-		onToggleSelected: () => void,
+		onToggleSelected: (bulk: boolean) => void,
 	) => ReactNode;
 }
 
@@ -32,7 +32,23 @@ export function SelectableHorizontalScroller<T extends SelectionItemKey>({
 	itemCreate,
 }: Props<T>) {
 	const listId = useId();
-	const selection = useListSelection<T>(listId, variant);
+	const selection = useListSelection<T>(
+		listId,
+		variant ?? [],
+		(entity1, entity2) => {
+			let index1 = entities.indexOf(entity1);
+			let index2 = entities.indexOf(entity2);
+			if (index1 < 0 || index2 < 0) {
+				return [];
+			}
+
+			if (index2 < index1) {
+				[index1, index2] = [index2, index1];
+			}
+
+			return entities.slice(index1, index2 + 1);
+		},
+	);
 	const clearList = useSelectionStore((state) => state.clearList);
 
 	useEffect(() => {
@@ -42,8 +58,8 @@ export function SelectableHorizontalScroller<T extends SelectionItemKey>({
 	return (
 		<HorizontalScroller heading={heading} id={horizontalScrollerId}>
 			{entities.map((entity, index) =>
-				itemCreate(entity, index, selection.isSelected(entity), () =>
-					selection.toggle(entity),
+				itemCreate(entity, index, selection.isSelected(entity), (bulk) =>
+					selection.toggle(entity, bulk),
 				),
 			)}
 		</HorizontalScroller>

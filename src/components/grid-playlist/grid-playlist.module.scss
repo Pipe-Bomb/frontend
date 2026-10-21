@@ -42,7 +42,7 @@
 		border-radius: 12px;
 		opacity: 0;
 		inset: 0;
-		transition: opacity 0.1s;
+		transition: opacity 0.15s;
 	}
 
 	.imageContainer {
@@ -63,7 +63,7 @@
 			filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.8));
 			opacity: 0;
 			z-index: 1;
-			transition: opacity 0.1s;
+			transition: opacity 0.15s;
 			pointer-events: none;
 		}
 
@@ -73,7 +73,7 @@
 			position: relative;
 			border-radius: 8px;
 			background: var(--bg-elevated);
-			transition: scale 0.1s;
+			transition: scale 0.15s;
 
 			img {
 				object-fit: cover;
@@ -89,11 +89,11 @@
 		white-space: pre;
 		font-weight: bold;
 		margin-top: 4px;
-		transition: margin 0.1s;
+		transition: margin 0.15s;
 	}
 
 	.owner {
 		font-size: 0.9rem;
-		transition: margin 0.1s;
+		transition: margin 0.15s;
 	}
 }

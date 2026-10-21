@@ -15,7 +15,7 @@ import { useClickHold } from "@/hook/click-hold.hook";
 interface Props {
 	playlist: Playlist;
 	isSelected?: boolean;
-	onToggleSelected?: () => void;
+	onToggleSelected?: (bulk: boolean) => void;
 }
 
 export function GridPlaylist({
@@ -31,10 +31,10 @@ export function GridPlaylist({
 		e.stopPropagation();
 		if (e.ctrlKey || inSelectionMode) {
 			e.preventDefault();
-			onToggleSelected?.();
+			onToggleSelected?.(e.shiftKey);
 		}
 	};
-	const hold = useClickHold(() => onToggleSelected?.(), handleClick);
+	const hold = useClickHold((e) => onToggleSelected?.(e.shiftKey), handleClick);
 
 	return (
 		<div

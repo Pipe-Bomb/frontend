@@ -91,7 +91,7 @@ export interface ListSelectionApi<
 	T extends keyof SelectionItemMap = keyof SelectionItemMap,
 > {
 	isSelected: (entity: SelectionEntity<T>) => boolean;
-	toggle: (entity: SelectionEntity<T>) => void;
+	toggle: (entity: SelectionEntity<T>, bulk: boolean) => void;
 }
 
 type ListSelection = Record<string, AnySelectedItem>;
@@ -99,6 +99,12 @@ type ListSelection = Record<string, AnySelectedItem>;
 type SelectionCounts = Record<keyof SelectionItemMap, number> & {
 	total: number;
 };
+
+interface LastSelection {
+	listId: string;
+	entity: SelectionEntity<keyof SelectionItemMap>;
+	selected: boolean;
+}
 
 function countSelection(
 	selected: Record<string, ListSelection>,
@@ -124,6 +130,7 @@ function countSelection(
 
 interface SelectionStore {
 	selected: Record<string, ListSelection>;
+	lastSelection: LastSelection | null;
 	isSelected: (listId: string, key: string) => boolean;
 	setSelected: (
 		listId: string,
@@ -140,9 +147,13 @@ interface SelectionStore {
 
 export const useSelectionStore = create<SelectionStore>((set, get) => ({
 	selected: {},
+	lastSelection: null,
 	isSelected: (listId, key) => !!get().selected[listId]?.[key],
 	setSelected: (listId, items, isSelected) => {
 		set(({ selected }) => {
+			if (!items.length) {
+				return {};
+			}
 			const record: ListSelection = { ...(selected[listId] ?? {}) };
 
 			for (const item of items) {
@@ -153,27 +164,44 @@ export const useSelectionStore = create<SelectionStore>((set, get) => ({
 				}
 			}
 
-			return { selected: { ...selected, [listId]: record } };
+			return {
+				selected: { ...selected, [listId]: record },
+				lastSelection: {
+					listId,
+					entity: items[items.length - 1].entity,
+					selected: isSelected,
+				},
+			};
 		});
 	},
 	toggleSelection: (listId, item) => {
 		set(({ selected }) => {
 			const record: ListSelection = { ...(selected[listId] ?? {}) };
+			let add: boolean;
 
 			if (item.key in record) {
 				delete record[item.key];
+				add = false;
 			} else {
 				record[item.key] = item;
+				add = true;
 			}
 
-			return { selected: { ...selected, [listId]: record } };
+			return {
+				selected: { ...selected, [listId]: record },
+				lastSelection: {
+					listId,
+					entity: item.entity,
+					selected: add,
+				},
+			};
 		});
 	},
 	clearList: (listId) => {
 		set(({ selected }) => {
 			const record = { ...selected };
 			delete record[listId];
-			return { selected: record };
+			return { selected: record, lastSelection: null };
 		});
 	},
 	count: () => {
@@ -282,9 +310,19 @@ export function createSelectionItem(
 
 export function useListSelection<
 	T extends keyof SelectionItemMap = keyof SelectionItemMap,
->(listId: string, variant: SelectionVariant<T>[] = []): ListSelectionApi<T> {
+>(
+	listId: string,
+	variant: SelectionVariant<T>[],
+	getBetweenEntities: (
+		entity1: SelectionEntity<T>,
+		entity2: SelectionEntity<T>,
+	) => SelectionItemEntity<T>[],
+): ListSelectionApi<T> {
 	const listSelection = useSelectionStore((state) => state.selected[listId]);
+	const lastSelection = useSelectionStore((state) => state.lastSelection);
 	const toggleSelection = useSelectionStore((state) => state.toggleSelection);
+	const isSelected = useSelectionStore((state) => state.isSelected);
+	const setSelected = useSelectionStore((state) => state.setSelected);
 
 	return useMemo(
 		() => ({
@@ -292,18 +330,48 @@ export function useListSelection<
 				const key = selectionKey(entity as AnySelectionEntity);
 				return !!key && !!listSelection?.[key];
 			},
-			toggle: (entity: SelectionEntity<T>) => {
-				const item = createSelectionItem(
-					entity as AnySelectionEntity,
-					variant as SelectionVariant<SelectionItemKey>[],
-				);
-
-				if (item) {
-					toggleSelection(listId, item);
+			toggle: (entity: SelectionEntity<T>, bulk) => {
+				const item = createSelectionItem(entity, variant);
+				if (!item) {
+					return;
 				}
+
+				if (bulk && lastSelection?.listId == listId) {
+					const key = selectionKey(entity);
+					if (key) {
+						const isSelecting = isSelected(listId, key);
+						if (isSelecting != lastSelection.selected) {
+							const betweenEntities = getBetweenEntities(
+								lastSelection.entity,
+								entity,
+							);
+
+							const items = betweenEntities.map((entity) =>
+								createSelectionItem(entity, variant),
+							);
+
+							setSelected(
+								listId,
+								[
+									...items.filter((v) => v && v.entity != entity),
+									item,
+								] as AnySelectedItem[],
+								!isSelecting,
+							);
+							return;
+						}
+					} else {
+						console.error(
+							"Unable to bulk select because unable to derive key",
+							entity,
+						);
+					}
+				}
+
+				toggleSelection(listId, item);
 			},
 		}),
-		[listId, listSelection, toggleSelection, variant],
+		[listId, listSelection, toggleSelection, variant, lastSelection],
 	);
 }
 

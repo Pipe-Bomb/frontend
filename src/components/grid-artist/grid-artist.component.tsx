@@ -20,7 +20,7 @@ import { useClickHold } from "@/hook/click-hold.hook";
 interface Props {
 	artist: Artist;
 	isSelected?: boolean;
-	onToggleSelected?: () => void;
+	onToggleSelected?: (bulk: boolean) => void;
 }
 
 export function GridArtist({ artist, isSelected, onToggleSelected }: Props) {
@@ -59,10 +59,10 @@ export function GridArtist({ artist, isSelected, onToggleSelected }: Props) {
 		e.stopPropagation();
 		if (e.ctrlKey || inSelectionMode || forceSelection) {
 			e.preventDefault();
-			onToggleSelected?.();
+			onToggleSelected?.(e.shiftKey);
 		}
 	};
-	const hold = useClickHold(() => onToggleSelected?.(), handleClick);
+	const hold = useClickHold((e) => onToggleSelected?.(e.shiftKey), handleClick);
 
 	return (
 		<>
