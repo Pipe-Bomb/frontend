@@ -25,9 +25,17 @@ interface Props {
 	track: Track | EphemeralTrack;
 	queueIndex: number;
 	dragHandleProps?: React.HTMLAttributes<HTMLElement>;
+	isSelected?: boolean;
+	onToggleSelected?: (bulk: boolean) => void;
 }
 
-export function QueueTrack({ track, queueIndex, dragHandleProps }: Props) {
+export function QueueTrack({
+	track,
+	queueIndex,
+	dragHandleProps,
+	isSelected,
+	onToggleSelected,
+}: Props) {
 	const { currentIndex, isPlaying, toggle, playIndex, setIsPlaying } =
 		usePlayerStore();
 	const active = currentIndex == queueIndex;
@@ -42,7 +50,7 @@ export function QueueTrack({ track, queueIndex, dragHandleProps }: Props) {
 
 	const contextMenu = useCallback<() => ContextMenuElement[]>(() => {
 		return menuEntries();
-	}, [active, queueIndex, menuEntries]);
+	}, [menuEntries]);
 
 	const rightClick = useRightClick(contextMenu);
 
@@ -53,8 +61,10 @@ export function QueueTrack({ track, queueIndex, dragHandleProps }: Props) {
 					styles.container,
 					active && styles.active,
 					currentIndex > queueIndex && styles.history,
+					isSelected && styles.selected,
 				)}
 				{...rightClick}
+				onClick={(e) => onToggleSelected?.(e.shiftKey)}
 			>
 				<div className={styles.imageContainer}>
 					<ResourceImage
@@ -74,7 +84,8 @@ export function QueueTrack({ track, queueIndex, dragHandleProps }: Props) {
 							}
 							style={currentIndex == queueIndex ? "simple" : "background"}
 							size="lg"
-							onClick={() => {
+							onClick={(e) => {
+								e.stopPropagation();
 								if (currentIndex == queueIndex) {
 									toggle();
 								} else {
@@ -89,6 +100,7 @@ export function QueueTrack({ track, queueIndex, dragHandleProps }: Props) {
 					<Link
 						className={styles.title}
 						href={`/track/${track.pluginId}/${track.libraryId}/${track.trackId}`}
+						onClick={(e) => e.stopPropagation()}
 					>
 						{title}
 					</Link>

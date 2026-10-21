@@ -23,8 +23,9 @@ import {
 	verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Virtuoso } from "react-virtuoso";
+import { useQueueSelection } from "@/hook/queue-selection.hook";
 import styles from "./queue-list.module.scss";
 
 export function QueueList() {
@@ -32,6 +33,8 @@ export function QueueList() {
 	const { move } = useQueueActions();
 	const { scrollParent } = useScrollParentContext();
 	const [activeIndex, setActiveIndex] = useState<number | null>(null);
+	const listId = useId();
+	const selection = useQueueSelection(listId, queue);
 
 	const sensors = useSensors(
 		useSensor(PointerSensor, {
@@ -75,10 +78,11 @@ export function QueueList() {
 					totalCount={queue.length}
 					itemContent={(index) => (
 						<SortableRow
-							key={queue[index]}
+							key={index}
 							trackKey={queue[index]}
 							index={index}
 							isDragging={index === activeIndex}
+							selection={selection}
 						/>
 					)}
 				/>
@@ -96,9 +100,15 @@ interface SortableRowProps {
 	trackKey: string;
 	index: number;
 	isDragging: boolean;
+	selection: ReturnType<typeof useQueueSelection>;
 }
 
-function SortableRow({ trackKey, index, isDragging }: SortableRowProps) {
+function SortableRow({
+	trackKey,
+	index,
+	isDragging,
+	selection,
+}: SortableRowProps) {
 	const { attributes, listeners, setNodeRef, transform, transition } =
 		useSortable({ id: String(index) });
 
@@ -117,9 +127,16 @@ function SortableRow({ trackKey, index, isDragging }: SortableRowProps) {
 					track={trackResult.data}
 					queueIndex={index}
 					dragHandleProps={{ ...attributes, ...listeners }}
+					isSelected={selection.isSelected(index)}
+					onToggleSelected={(bulk) =>
+						selection.toggle(index, trackResult.data!, bulk)
+					}
 				/>
 			) : (
-				<QueueTrackSkeleton queueIndex={index} />
+				<QueueTrackSkeleton
+					queueIndex={index}
+					isSelected={selection.isSelected(index)}
+				/>
 			)}
 		</div>
 	);

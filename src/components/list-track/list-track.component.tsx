@@ -47,7 +47,7 @@ interface Props {
 	noArt?: boolean;
 	inPlaylist?: string;
 	isSelected: boolean;
-	onToggleSelected: () => void;
+	onToggleSelected: (bulk: boolean) => void;
 }
 
 export function ListTrack({
@@ -90,7 +90,7 @@ export function ListTrack({
 	const { menuEntries, modal } = useTrackContextMenu(track, { inPlaylist });
 	const rightClick = useRightClick(menuEntries);
 	const imageHold = useClickHold(
-		() => onToggleSelected(),
+		(e) => onToggleSelected(e.shiftKey),
 		(e) => {
 			if (inSelectionMode) {
 				e.preventDefault();
@@ -109,7 +109,16 @@ export function ListTrack({
 					isSelected && styles.selected,
 				)}
 				{...rightClick}
-				onClick={onToggleSelected}
+				onClick={(e) => {
+					e.preventDefault();
+					e.stopPropagation();
+					onToggleSelected(e.shiftKey);
+				}}
+				onMouseDown={(e) => {
+					if (inSelectionMode) {
+						e.preventDefault();
+					}
+				}}
 			>
 				<div className={styles.main}>
 					<div className={styles.trackNumberContainer}>

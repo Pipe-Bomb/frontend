@@ -55,6 +55,7 @@ interface PlayerStore {
 	playNext: (track: string) => void;
 	playNow: (track: string) => void;
 	remove: (index: number) => void;
+	removeMany: (indices: number[]) => void;
 	insert: (tracks: string[], index: number) => void;
 	moveTrack: (fromIndex: number, toIndex: number) => void;
 	clearQueue: () => void;
@@ -203,6 +204,35 @@ export const usePlayerStore = create<PlayerStore>((set, get) => ({
 				queue: newQueue,
 				currentIndex: Math.max(0, newCurrentIndex),
 				isPlaying: newQueue.length > 0 ? state.isPlaying : false,
+			};
+		});
+	},
+
+	removeMany: (indices) => {
+		const removeSet = new Set(indices);
+		set((state) => {
+			let queue = [...state.queue];
+			let currentIndex = state.currentIndex;
+
+			for (const index of [...removeSet].sort((a, b) => b - a)) {
+				if (index < 0 || index >= queue.length) {
+					continue;
+				}
+
+				queue = queue.filter((_, i) => i !== index);
+				if (index < currentIndex) {
+					currentIndex--;
+				} else if (index === currentIndex) {
+					currentIndex = Math.min(currentIndex, queue.length - 1);
+				}
+			}
+
+			return {
+				queue,
+				currentIndex: queue.length
+					? Math.max(0, Math.min(currentIndex, queue.length - 1))
+					: 0,
+				isPlaying: queue.length > 0 ? state.isPlaying : false,
 			};
 		});
 	},

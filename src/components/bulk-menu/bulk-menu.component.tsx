@@ -5,7 +5,11 @@ import { useButtonMenu } from "@/hook/button-menu.hook";
 import { safeFetch } from "@/lib/api.util";
 import { PlaylistSelectModal } from "@/modal/playlist-select/playlist-select.modal";
 import { useNotificationStore } from "@/store/notification.store";
-import { useSelectionStore } from "@/store/selection.store";
+import { usePlayerStore } from "@/store/player.store";
+import {
+	selectionVariantInfo,
+	useSelectionStore,
+} from "@/store/selection.store";
 import { IconDots } from "@tabler/icons-react";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -19,6 +23,8 @@ export function BulkMenu() {
 	const [playlistAddItems, setPlaylistAddItems] =
 		useState<AddPlaylistTracksDto | null>(null);
 	const selected = useSelectionStore((state) => state.selected);
+	const clearAll = useSelectionStore((state) => state.clearAll);
+	const removeMany = usePlayerStore((state) => state.removeMany);
 	const [isPerformingAction, setIsPerformingAction] = useState(false);
 	const { createNotification, resetNotificationTimeout, updateNotification } =
 		useNotificationStore();
@@ -76,6 +82,39 @@ export function BulkMenu() {
 							}
 						}
 						setPlaylistAddItems(add);
+					},
+				},
+			);
+
+			addIf(
+				only({
+					track: ["queue"],
+					ephemeralTrack: ["queue"],
+				}),
+				{
+					key: "remove-from-queue",
+					languageKey: "contextmenu.bulk.remove-from-queue",
+					onClick: () => {
+						const indices: number[] = [];
+						for (const list of Object.values(selected)) {
+							for (const item of Object.values(list)) {
+								for (const variant of item.variant) {
+									const info = selectionVariantInfo(variant);
+									if (info.name !== "queue" || !info.id) {
+										continue;
+									}
+									const index = Number(info.id);
+									if (Number.isInteger(index)) {
+										indices.push(index);
+									}
+								}
+							}
+						}
+						if (!indices.length) {
+							return;
+						}
+						removeMany(indices);
+						clearAll();
 					},
 				},
 			);

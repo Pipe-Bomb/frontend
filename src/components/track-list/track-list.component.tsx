@@ -13,11 +13,26 @@ interface Props {
 }
 
 export function TrackList({ tracks, trackNumbers, noArt, variant }: Props) {
+	const getBetweenEntities = (
+		a: Track | EphemeralTrack,
+		b: Track | EphemeralTrack,
+	) => {
+		const from = tracks.indexOf(a);
+		const to = tracks.indexOf(b);
+		if (from < 0 || to < 0) {
+			return [];
+		}
+
+		const [start, end] = from < to ? [from, to] : [to, from];
+		return tracks.slice(start, end + 1);
+	};
+
 	return (
 		<BaseTrackList
 			totalCount={tracks.length}
 			toTrack={(index) => tracks[index] ?? null}
 			variant={variant}
+			getBetweenEntities={getBetweenEntities}
 			itemContent={(index, columns, selection) => (
 				<ListTrack
 					track={tracks[index]}
@@ -36,7 +51,7 @@ export function TrackList({ tracks, trackNumbers, noArt, variant }: Props) {
 					number={trackNumbers?.[index]}
 					noArt={noArt}
 					isSelected={selection.isSelected(tracks[index])}
-					onToggleSelected={() => selection.toggle(tracks[index])}
+					onToggleSelected={(bulk) => selection.toggle(tracks[index], bulk)}
 				/>
 			)}
 		/>

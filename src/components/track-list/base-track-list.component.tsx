@@ -42,10 +42,18 @@ interface BaseTrackListProps<T = Track | EphemeralTrack> {
 	toTrack: (index: number) => Track | EphemeralTrack | null;
 	specialColumns?: BaseTrackListSpecialColumn<T>[];
 	variant?: SelectionVariant<"track">[];
+	getBetweenEntities?: (
+		a: Track | EphemeralTrack,
+		b: Track | EphemeralTrack,
+	) =>
+		| (Track | EphemeralTrack)[]
+		| Promise<(Track | EphemeralTrack)[] | null>
+		| null;
 }
 
 const MAIN_MIN_WIDTH = 200;
 const COLUMN_MIN_WIDTH = 50;
+const NO_RANGE = () => [];
 
 export function BaseTrackList<T>({
 	totalCount,
@@ -53,11 +61,13 @@ export function BaseTrackList<T>({
 	specialColumns,
 	toTrack,
 	variant,
+	getBetweenEntities,
 }: BaseTrackListProps<T>) {
 	const listId = useId();
 	const selection = useListSelection<"track" | "ephemeralTrack">(
 		listId,
-		variant,
+		variant ?? [],
+		getBetweenEntities ?? NO_RANGE,
 	);
 	const clearList = useSelectionStore((state) => state.clearList);
 	const { t } = useTranslation();

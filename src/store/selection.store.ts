@@ -1,12 +1,12 @@
 import { albumSavedKey, artistSavedKey } from "@/lib/saved.util";
 import { serializeTrackKey } from "@/lib/track-batcher.util";
 import { Album, Artist, EphemeralTrack, Playlist, Track } from "@api";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { create } from "zustand";
 
 export type SelectionItemMap = {
-	track: [Track, ["playlist", "history", "saved"]];
-	ephemeralTrack: [EphemeralTrack, []];
+	track: [Track, ["playlist", "history", "saved", "queue"]];
+	ephemeralTrack: [EphemeralTrack, ["queue"]];
 	playlist: [Playlist, ["owned"]];
 	album: [Album, ["saved"]];
 	artist: [Artist, ["saved"]];
@@ -138,6 +138,7 @@ interface SelectionStore {
 		isSelected: boolean,
 	) => void;
 	toggleSelection: (listId: string, item: AnySelectedItem) => void;
+	setListSelection: (listId: string, items: AnySelectedItem[]) => void;
 	clearList: (listId: string) => void;
 	count: () => number;
 	countSorted: () => SelectionCounts;
@@ -195,6 +196,15 @@ export const useSelectionStore = create<SelectionStore>((set, get) => ({
 					selected: add,
 				},
 			};
+		});
+	},
+	setListSelection: (listId, items) => {
+		set(({ selected }) => {
+			const record: ListSelection = {};
+			for (const item of items) {
+				record[item.key] = item;
+			}
+			return { selected: { ...selected, [listId]: record } };
 		});
 	},
 	clearList: (listId) => {
@@ -261,9 +271,10 @@ export function selectionVariantInfo<T extends SelectionItemKey>(
 export function createSelectionItem(
 	entity: AnySelectionEntity,
 	variant: SelectionVariant<SelectionItemKey>[],
+	keyOverride?: string,
 ): AnySelectedItem | null {
 	const type = selectionType(entity);
-	const key = selectionKey(entity);
+	const key = keyOverride ?? selectionKey(entity);
 
 	if (!key) {
 		return null;
@@ -282,7 +293,9 @@ export function createSelectionItem(
 				type,
 				key,
 				entity: entity as EphemeralTrack,
-				variant: [],
+				variant: (variant as SelectionVariant<"ephemeralTrack">[]).filter(
+					(value) => selectionVariantInfo(value).name === "queue",
+				),
 			};
 		case "playlist":
 			return {
@@ -316,13 +329,17 @@ export function useListSelection<
 	getBetweenEntities: (
 		entity1: SelectionEntity<T>,
 		entity2: SelectionEntity<T>,
-	) => SelectionItemEntity<T>[],
+	) =>
+		| SelectionItemEntity<T>[]
+		| Promise<SelectionItemEntity<T>[] | null>
+		| null,
 ): ListSelectionApi<T> {
 	const listSelection = useSelectionStore((state) => state.selected[listId]);
 	const lastSelection = useSelectionStore((state) => state.lastSelection);
 	const toggleSelection = useSelectionStore((state) => state.toggleSelection);
 	const isSelected = useSelectionStore((state) => state.isSelected);
 	const setSelected = useSelectionStore((state) => state.setSelected);
+	const bulkPending = useRef(false);
 
 	return useMemo(
 		() => ({
@@ -331,6 +348,10 @@ export function useListSelection<
 				return !!key && !!listSelection?.[key];
 			},
 			toggle: (entity: SelectionEntity<T>, bulk) => {
+				if (bulkPending.current) {
+					return;
+				}
+
 				const item = createSelectionItem(entity, variant);
 				if (!item) {
 					return;
@@ -341,23 +362,42 @@ export function useListSelection<
 					if (key) {
 						const isSelecting = isSelected(listId, key);
 						if (isSelecting != lastSelection.selected) {
-							const betweenEntities = getBetweenEntities(
-								lastSelection.entity,
-								entity,
-							);
+							const applyRange = (
+								betweenEntities: SelectionItemEntity<T>[] | null,
+							) => {
+								if (!betweenEntities) {
+									return;
+								}
 
-							const items = betweenEntities.map((entity) =>
-								createSelectionItem(entity, variant),
-							);
+								const items = betweenEntities.map((entity) =>
+									createSelectionItem(entity, variant),
+								);
 
-							setSelected(
-								listId,
-								[
-									...items.filter((v) => v && v.entity != entity),
-									item,
-								] as AnySelectedItem[],
-								!isSelecting,
-							);
+								setSelected(
+									listId,
+									[
+										...items.filter((v) => v && v.entity != entity),
+										item,
+									] as AnySelectedItem[],
+									!isSelecting,
+								);
+							};
+
+							const result = getBetweenEntities(lastSelection.entity, entity);
+
+							if (result instanceof Promise) {
+								bulkPending.current = true;
+								result
+									.then(applyRange)
+									.catch((error) => {
+										console.error("Failed to bulk select entities", error);
+									})
+									.finally(() => {
+										bulkPending.current = false;
+									});
+							} else {
+								applyRange(result);
+							}
 							return;
 						}
 					} else {
@@ -371,7 +411,16 @@ export function useListSelection<
 				toggleSelection(listId, item);
 			},
 		}),
-		[listId, listSelection, toggleSelection, variant, lastSelection],
+		[
+			listId,
+			listSelection,
+			toggleSelection,
+			variant,
+			lastSelection,
+			getBetweenEntities,
+			isSelected,
+			setSelected,
+		],
 	);
 }
 
