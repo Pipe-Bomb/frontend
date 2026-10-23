@@ -2,7 +2,7 @@
 
 import { Spinner } from "@/components/spinner/spinner.component";
 import { useSearchArtists } from "@api";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import styles from "./artist-grid.module.scss";
 import { GridArtist } from "@/components/grid-artist/grid-artist.component";
 import { Paginator } from "@/components/paginator/paginator.component";
@@ -16,8 +16,17 @@ import {
 	Dropdown,
 	DropdownEntry,
 } from "@/components/dropdown/dropdown.component";
+import {
+	SelectionVariant,
+	useListSelection,
+	useSelectionStore,
+} from "@/store/selection.store";
 
-export function ArtistGrid() {
+interface Props {
+	variant?: SelectionVariant<"artist">[];
+}
+
+export function ArtistGrid({ variant }: Props) {
 	const search = useSearchArtists();
 	const { currentPage, setPage } = useUrlPagination();
 	const { pluginId, sourceId, hasSortMethods, sortMethods } = useSearchSource({
@@ -26,6 +35,33 @@ export function ArtistGrid() {
 	const { t } = useTranslation();
 	const [sortParam, setSortParam] = useUrlParam("sort", { replace: true });
 	const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
+	const listId = useId();
+	const selection = useListSelection<"artist">(
+		listId,
+		variant ?? [],
+		(entity1, entity2) => {
+			if (search.data?.status == 200) {
+				const entities = search.data.data.artists;
+
+				let index1 = entities.indexOf(entity1);
+				let index2 = entities.indexOf(entity2);
+				if (index1 < 0 || index2 < 0) {
+					return [];
+				}
+
+				if (index2 < index1) {
+					[index1, index2] = [index2, index1];
+				}
+
+				return entities.slice(index1, index2 + 1);
+			}
+			return [entity1, entity2];
+		},
+	);
+	const clearList = useSelectionStore((state) => state.clearList);
+	useEffect(() => {
+		return () => clearList(listId);
+	}, [clearList, listId, currentPage]);
 
 	const sortEntries = useMemo<DropdownEntry[]>(() => {
 		if (!hasSortMethods || !pluginId || !sourceId) {
@@ -103,7 +139,12 @@ export function ArtistGrid() {
 			)}
 			<Grid>
 				{artists.map((artist) => (
-					<GridArtist key={artist.uuid} artist={artist} />
+					<GridArtist
+						key={artist.uuid}
+						artist={artist}
+						isSelected={selection.isSelected(artist)}
+						onToggleSelected={(bulk) => selection.toggle(artist, bulk)}
+					/>
 				))}
 			</Grid>
 			<Paginator urlKey="page" totalPages={totalPages} />

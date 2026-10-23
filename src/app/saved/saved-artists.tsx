@@ -7,6 +7,8 @@ import { Paginator } from "@/components/paginator/paginator.component";
 import { Spinner } from "@/components/spinner/spinner.component";
 import { useUrlPagination } from "@/hook/url-pagination.hook";
 import styles from "./saved-section.module.scss";
+import { useEffect, useId } from "react";
+import { useListSelection, useSelectionStore } from "@/store/selection.store";
 
 const PAGE_SIZE = 30;
 
@@ -16,6 +18,33 @@ export function SavedArtists() {
 		page: String(currentPage),
 		pageSize: String(PAGE_SIZE),
 	});
+	const listId = useId();
+	const selection = useListSelection<"artist">(
+		listId,
+		["saved"],
+		(entity1, entity2) => {
+			if (data?.status == 200) {
+				const entities = data.data.artists;
+
+				let index1 = entities.indexOf(entity1);
+				let index2 = entities.indexOf(entity2);
+				if (index1 < 0 || index2 < 0) {
+					return [];
+				}
+
+				if (index2 < index1) {
+					[index1, index2] = [index2, index1];
+				}
+
+				return entities.slice(index1, index2 + 1);
+			}
+			return [entity1, entity2];
+		},
+	);
+	const clearList = useSelectionStore((state) => state.clearList);
+	useEffect(() => {
+		return () => clearList(listId);
+	}, [clearList, listId, currentPage]);
 
 	if (!data || data.status != 200) {
 		return (
@@ -36,7 +65,12 @@ export function SavedArtists() {
 			{artists.length ? (
 				<Grid>
 					{artists.map((artist, i) => (
-						<GridArtist key={artist.uuid ?? i} artist={artist} />
+						<GridArtist
+							key={artist.uuid ?? i}
+							artist={artist}
+							isSelected={selection.isSelected(artist)}
+							onToggleSelected={(bulk) => selection.toggle(artist, bulk)}
+						/>
 					))}
 				</Grid>
 			) : (

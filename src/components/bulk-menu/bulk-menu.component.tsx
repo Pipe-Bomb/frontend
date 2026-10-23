@@ -2,11 +2,20 @@ import { IconButton } from "@/components/icon-button/icon-button";
 import { ContextMenuElement } from "@/context/context-menu.context";
 import { useBulkFilters } from "@/hook/bulk-filters.hook";
 import { useButtonMenu } from "@/hook/button-menu.hook";
+import { useQueueActions } from "@/hook/queue-actions.hook";
 import { safeFetch } from "@/lib/api.util";
+import { albumSavedKey, artistSavedKey, trackSavedKey } from "@/lib/saved.util";
+import {
+	AnyTrack,
+	getAlbumTracklist,
+	getPlaylistTracklist,
+} from "@/lib/tracklist.util";
 import { PlaylistSelectModal } from "@/modal/playlist-select/playlist-select.modal";
 import { useNotificationStore } from "@/store/notification.store";
 import { usePlayerStore } from "@/store/player.store";
+import { useSavedStore } from "@/store/saved.store";
 import {
+	AnySelectedItem,
 	selectionVariantInfo,
 	useSelectionStore,
 } from "@/store/selection.store";
@@ -14,9 +23,11 @@ import { IconDots } from "@tabler/icons-react";
 import { usePathname, useRouter } from "next/navigation";
 import {
 	AddPlaylistTracksDto,
+	Playlist,
+	saveTrack,
 	TrackIdDto,
 	updatePlaylistTracks,
-} from "pipe-bomb-tanstack-client";
+} from "@api";
 import { useState } from "react";
 
 export function BulkMenu() {
@@ -25,14 +36,19 @@ export function BulkMenu() {
 	const selected = useSelectionStore((state) => state.selected);
 	const clearAll = useSelectionStore((state) => state.clearAll);
 	const removeMany = usePlayerStore((state) => state.removeMany);
-	const [isPerformingAction, setIsPerformingAction] = useState(false);
+	const { addToEnd } = useQueueActions();
+	// const [isPerformingAction, setIsPerformingAction] = useState(false);
+	const [isAddingToPlaylist, setIsAddingToPlaylist] = useState<string | null>(
+		null,
+	);
 	const { createNotification, resetNotificationTimeout, updateNotification } =
 		useNotificationStore();
 	const pathname = usePathname();
 	const router = useRouter();
+	const saveOverrides = useSavedStore((state) => state.overrides);
 
-	const getMenu = useBulkFilters<ContextMenuElement>(
-		({ add, addIf, only, reduce }) => {
+	const menu = useBulkFilters<ContextMenuElement>(
+		({ add, addIf, only, reduce, forEach }) => {
 			addIf(
 				only({
 					album: true,
@@ -82,6 +98,77 @@ export function BulkMenu() {
 							}
 						}
 						setPlaylistAddItems(add);
+					},
+				},
+			);
+
+			addIf(
+				only({
+					track: true,
+					ephemeralTrack: true,
+					album: true,
+					playlist: true,
+				}),
+				{
+					key: "add-to-queue",
+					languageKey: "contextmenu.bulk.add-to-queue",
+					onClick: () => {
+						const items: AnySelectedItem[] = [];
+						forEach((item) => items.push(item));
+
+						const needsLoading = items.some(
+							(item) => item.type === "album" || item.type === "playlist",
+						);
+						const notificationId = needsLoading
+							? createNotification("Loading tracklists…", {
+									timeout: null,
+									isLoading: true,
+								})
+							: null;
+
+						const finish = (message: string) => {
+							if (notificationId) {
+								updateNotification(notificationId, {
+									message,
+									isLoading: false,
+								});
+								resetNotificationTimeout(notificationId);
+							} else {
+								createNotification(message);
+							}
+						};
+
+						(async () => {
+							try {
+								const tracks: AnyTrack[] = [];
+
+								for (const item of items) {
+									switch (item.type) {
+										case "track":
+										case "ephemeralTrack":
+											tracks.push(item.entity);
+											break;
+										case "album":
+											tracks.push(...(await getAlbumTracklist(item.entity)));
+											break;
+										case "playlist":
+											tracks.push(...(await getPlaylistTracklist(item.entity)));
+											break;
+									}
+								}
+
+								if (!tracks.length) {
+									finish("No tracks to add");
+									return;
+								}
+
+								addToEnd(tracks);
+								finish(`Added ${tracks.length} tracks to queue`);
+							} catch (e) {
+								console.error("Failed to load tracklists", e);
+								finish("Failed to load tracklists");
+							}
+						})();
 					},
 				},
 			);
@@ -188,6 +275,7 @@ export function BulkMenu() {
 											message: "Removed tracks from playlist",
 											isLoading: false,
 										});
+										clearAll();
 										if (pathname == `/playlist/${playlistIds[0]}`) {
 											router.refresh();
 										}
@@ -204,9 +292,10 @@ export function BulkMenu() {
 				}
 			}
 		},
+		[saveOverrides],
 	);
 
-	const buttonMenu = useButtonMenu(getMenu);
+	const buttonMenu = useButtonMenu(() => menu);
 
 	return (
 		<>
@@ -214,22 +303,23 @@ export function BulkMenu() {
 				icon={IconDots}
 				iconSource="tabler"
 				style="background"
+				disabled={!menu.length}
 				{...buttonMenu}
 			/>
 			<PlaylistSelectModal
 				open={!!playlistAddItems}
-				onClose={() => !isPerformingAction && setPlaylistAddItems(null)}
+				onClose={() => !isAddingToPlaylist && setPlaylistAddItems(null)}
 				onSelect={(playlist) => {
-					if (isPerformingAction || !playlistAddItems) {
+					if (isAddingToPlaylist || !playlistAddItems) {
 						return;
 					}
-					setIsPerformingAction(true);
+					setIsAddingToPlaylist(playlist.uuid);
 					setPlaylistAddItems(null);
 					safeFetch(updatePlaylistTracks, playlist.uuid, {
 						add: playlistAddItems,
 						remove: null,
 					}).then(([status]) => {
-						setIsPerformingAction(false);
+						setIsAddingToPlaylist(null);
 						if (status == 200) {
 							createNotification("Started importing tracks to playlist...");
 						} else {
@@ -237,6 +327,7 @@ export function BulkMenu() {
 						}
 					});
 				}}
+				loading={isAddingToPlaylist ? [isAddingToPlaylist] : null}
 			/>
 		</>
 	);

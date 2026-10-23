@@ -2,7 +2,7 @@
 
 import { Spinner } from "@/components/spinner/spinner.component";
 import { useSearchAlbums } from "@api";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import styles from "./album-grid.module.scss";
 import { Paginator } from "@/components/paginator/paginator.component";
 import { useUrlPagination } from "@/hook/url-pagination.hook";
@@ -16,8 +16,16 @@ import {
 	Dropdown,
 	DropdownEntry,
 } from "@/components/dropdown/dropdown.component";
+import {
+	SelectionVariant,
+	useListSelection,
+	useSelectionStore,
+} from "@/store/selection.store";
 
-export function AlbumGrid() {
+interface Props {
+	variant?: SelectionVariant<"album">[];
+}
+export function AlbumGrid({ variant }: Props) {
 	const search = useSearchAlbums();
 	const { currentPage, setPage } = useUrlPagination();
 	const { pluginId, sourceId, hasSortMethods, sortMethods } = useSearchSource({
@@ -26,6 +34,33 @@ export function AlbumGrid() {
 	const { t } = useTranslation();
 	const [sortParam, setSortParam] = useUrlParam("sort", { replace: true });
 	const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
+	const listId = useId();
+	const selection = useListSelection<"album">(
+		listId,
+		variant ?? [],
+		(entity1, entity2) => {
+			if (search.data?.status == 200) {
+				const entities = search.data.data.albums;
+
+				let index1 = entities.indexOf(entity1);
+				let index2 = entities.indexOf(entity2);
+				if (index1 < 0 || index2 < 0) {
+					return [];
+				}
+
+				if (index2 < index1) {
+					[index1, index2] = [index2, index1];
+				}
+
+				return entities.slice(index1, index2 + 1);
+			}
+			return [entity1, entity2];
+		},
+	);
+	const clearList = useSelectionStore((state) => state.clearList);
+	useEffect(() => {
+		return () => clearList(listId);
+	}, [clearList, listId, currentPage]);
 
 	const sortEntries = useMemo<DropdownEntry[]>(() => {
 		if (!hasSortMethods || !pluginId || !sourceId) {
@@ -103,7 +138,12 @@ export function AlbumGrid() {
 			)}
 			<Grid>
 				{albums.map((album) => (
-					<GridAlbum key={album.uuid} album={album} />
+					<GridAlbum
+						key={album.uuid}
+						album={album}
+						isSelected={selection.isSelected(album)}
+						onToggleSelected={(bulk) => selection.toggle(album, bulk)}
+					/>
 				))}
 			</Grid>
 			<Paginator urlKey="page" totalPages={totalPages} />
