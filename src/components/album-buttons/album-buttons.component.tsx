@@ -30,7 +30,9 @@ export function AlbumButtons({ album }: Props) {
 	const { trackList: backupTrackList } = useTrackListContext();
 	const isMounted = useIsMounted();
 	const [playlistOpen, setPlaylistOpen] = useState(false);
-	const [isAddingToPlaylist, setIsAddingToPlaylist] = useState(false);
+	const [isAddingToPlaylist, setIsAddingToPlaylist] = useState<string | null>(
+		null,
+	);
 	const { createNotification } = useNotificationStore();
 	const albumBookmark = useAlbumBookmark(album);
 
@@ -53,7 +55,7 @@ export function AlbumButtons({ album }: Props) {
 		if (isAddingToPlaylist) {
 			return;
 		}
-		setIsAddingToPlaylist(true);
+		setIsAddingToPlaylist(playlist.uuid);
 		let promise: Promise<updatePlaylistTracksResponse | undefined>;
 
 		if (album.uuid) {
@@ -88,7 +90,7 @@ export function AlbumButtons({ album }: Props) {
 				remove: null,
 			});
 		} else {
-			setIsAddingToPlaylist(false);
+			setIsAddingToPlaylist(null);
 			return;
 		}
 
@@ -103,7 +105,7 @@ export function AlbumButtons({ album }: Props) {
 				console.error(e);
 				createNotification("Failed to add tracks to playlist");
 			})
-			.finally(() => setIsAddingToPlaylist(false));
+			.finally(() => setIsAddingToPlaylist(null));
 	};
 
 	return (
@@ -154,6 +156,7 @@ export function AlbumButtons({ album }: Props) {
 				open={playlistOpen}
 				onClose={() => !isAddingToPlaylist && setPlaylistOpen(false)}
 				onSelect={addToPlaylist}
+				loading={isAddingToPlaylist ? [isAddingToPlaylist] : null}
 			/>
 		</>
 	);

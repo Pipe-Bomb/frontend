@@ -184,19 +184,6 @@ export function ListTrack({
 								: undefined,
 						}}
 						key={index}
-						onClick={(e) => {
-							if (inSelectionMode) {
-								e.preventDefault();
-							} else {
-								if (column.type == "special") {
-									if (column.url) {
-										e.stopPropagation();
-									}
-								} else if (column.attributeType == "buffer") {
-									e.stopPropagation();
-								}
-							}
-						}}
 					>
 						{column.type == "special" ? (
 							<OptionalLink
@@ -205,6 +192,9 @@ export function ListTrack({
 									styles.columnValue,
 									!!column.url && styles.columnLink,
 								)}
+								onClick={(e) => {
+									e.stopPropagation();
+								}}
 							>
 								{column.formatted}
 							</OptionalLink>

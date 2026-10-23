@@ -22,7 +22,6 @@ import {
 	useSelectionMode,
 	useSelectionStore,
 } from "@/store/selection.store";
-import { PlaylistSelectModal } from "@/modal/playlist-select/playlist-select.modal";
 import { BulkMenu } from "@/components/bulk-menu/bulk-menu.component";
 
 export function TopBar() {
@@ -37,7 +36,6 @@ export function TopBar() {
 		() => getSelectionMessage(selectionCount),
 		[selectionCount],
 	);
-	const [playlistModalOpen, setPlaylistModalOpen] = useState(false);
 	const clearAllSelection = useSelectionStore((state) => state.clearAll);
 
 	const [query, setQuery] = useUrlParam("query", {
@@ -167,11 +165,6 @@ export function TopBar() {
 			{user && (
 				<button className={styles.userSection} onClick={onClick}>
 					<IconUserCircle className={styles.userIcon} />
-					<PlaylistSelectModal
-						open={playlistModalOpen}
-						onClose={() => setPlaylistModalOpen(false)}
-						// onSelect={addToPlaylist}
-					/>
 					<span className={styles.username}>{user.username}</span>
 				</button>
 			)}

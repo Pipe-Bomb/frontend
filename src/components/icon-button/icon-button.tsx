@@ -77,6 +77,7 @@ export function IconButton({
 				href={props.href}
 				target={props.target}
 				// disabled={disabled}
+				onClick={(e) => e.stopPropagation()}
 			>
 				<IconComponent
 					className={cc(styles.icon, styles[iconSource], iconClassName)}

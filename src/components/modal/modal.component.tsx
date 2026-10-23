@@ -58,7 +58,20 @@ export function Modal({
 	}
 
 	return createPortal(
-		<div className={cc(styles.container, className, !open && styles.closing)}>
+		<div
+			className={cc(styles.container, className, !open && styles.closing)}
+			onKeyDown={(e) => {
+				console.log(e.key);
+				if (e.key == "Escape") {
+					e.stopPropagation();
+					closeRef.current?.("escape");
+				}
+			}}
+			ref={(e) => {
+				console.log("REF", e);
+				e?.focus();
+			}}
+		>
 			{onBack && (
 				<span className={styles.back}>
 					<IconButton

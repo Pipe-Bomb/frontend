@@ -3,6 +3,7 @@
 import { ContextMenuElement } from "@/context/context-menu.context";
 import { useQueueActions } from "@/hook/queue-actions.hook";
 import { useTrackBookmark } from "@/hook/saved-toggle.hook";
+import { safeFetch } from "@/lib/api.util";
 import { PlaylistSelectModal } from "@/modal/playlist-select/playlist-select.modal";
 import { useNotificationStore } from "@/store/notification.store";
 import { usePlayerStore } from "@/store/player.store";
@@ -21,6 +22,9 @@ export function useTrackContextMenu(
 	const router = useRouter();
 	const pathname = usePathname();
 	const { bookmarked, toggle: toggleBookmark } = useTrackBookmark(track);
+	const [isAddingToPlaylist, setIsAddingToPlaylist] = useState<string | null>(
+		null,
+	);
 
 	const menuEntries = useCallback<() => ContextMenuElement[]>(() => {
 		if (!track) {
@@ -120,11 +124,11 @@ export function useTrackContextMenu(
 	}, [track, options.queueIndex, currentIndex, bookmarked, toggleBookmark]);
 
 	const addToPlaylist = (playlist: Playlist) => {
-		if (!track) {
+		if (!track || isAddingToPlaylist) {
 			return;
 		}
-
-		updatePlaylistTracks(playlist.uuid, {
+		setIsAddingToPlaylist(playlist.uuid);
+		safeFetch(updatePlaylistTracks, playlist.uuid, {
 			add: {
 				tracks: [
 					{
@@ -136,23 +140,27 @@ export function useTrackContextMenu(
 				albums: null,
 			},
 			remove: null,
-		})
-			.then((response) => {
-				// todo: update playlist query key
+		}).then(([status, data]) => {
+			setIsAddingToPlaylist(null);
+
+			if (status == 200) {
 				createNotification("Started importing track to playlist");
-			})
-			.catch((e) => {
-				console.error(e);
+				if (pathname == `/playlist/${data.uuid}`) {
+					router.refresh();
+				}
+				setPlaylistOpen(false);
+			} else {
 				createNotification("Failed to add track to playlist");
-			})
-			.finally(() => setPlaylistOpen(false));
+			}
+		});
 	};
 
 	const playlistSelect = (
 		<PlaylistSelectModal
 			open={playlistOpen}
-			onClose={() => setPlaylistOpen(false)}
+			onClose={() => !isAddingToPlaylist && setPlaylistOpen(false)}
 			onSelect={addToPlaylist}
+			loading={isAddingToPlaylist ? [isAddingToPlaylist] : null}
 		/>
 	);
 

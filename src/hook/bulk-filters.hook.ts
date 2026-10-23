@@ -1,6 +1,6 @@
 import {
+	AnySelectedItem,
 	ENTITY_NAMES,
-	SelectionEntity,
 	SelectionItemEntity,
 	SelectionItemKey,
 	SelectionVariant,
@@ -8,7 +8,7 @@ import {
 	selectionVariantInfo,
 	useSelectionStore,
 } from "@/store/selection.store";
-import { DependencyList, useCallback } from "react";
+import { DependencyList, useMemo } from "react";
 
 export type SelectionFilter = {
 	[K in SelectionItemKey]?: SelectionVariant<K>[] | boolean;
@@ -46,6 +46,8 @@ interface Helpers<T> {
 			value: V,
 		) => V,
 	) => V;
+	forEach: (callback: (item: AnySelectedItem) => void) => void;
+	some: (filter: SelectionFilter) => boolean;
 }
 
 export function useBulkFilters<T>(
@@ -54,7 +56,7 @@ export function useBulkFilters<T>(
 ) {
 	const selected = useSelectionStore((state) => state.selected);
 
-	return useCallback(() => {
+	return useMemo(() => {
 		const keys: Partial<Record<SelectionItemKey, VariantUsage[]>> = {};
 		for (const list of Object.values(selected)) {
 			for (const selection of Object.values(list)) {
@@ -97,12 +99,13 @@ export function useBulkFilters<T>(
 					if (!allowedVariants) {
 						return false;
 					}
-					if (!variants.length) {
-						continue;
-					}
 
 					if (allowedVariants === true) {
 						continue;
+					}
+
+					if (!variants.length) {
+						return false;
 					}
 					for (const variant of variants) {
 						if (
@@ -140,8 +143,51 @@ export function useBulkFilters<T>(
 
 				return value;
 			},
+			forEach: (callback) => {
+				for (const list of Object.values(selected)) {
+					for (const item of Object.values(list)) {
+						callback(item);
+					}
+				}
+			},
+			some: (filter) => {
+				const types = Object.keys(ENTITY_NAMES) as SelectionItemKey[];
+
+				for (const type of types) {
+					const variants = keys[type];
+
+					if (!variants) {
+						continue;
+					}
+
+					const allowedVariants:
+						| SelectionVariant<SelectionItemKey>[]
+						| boolean
+						| undefined = filter[type as keyof SelectionFilter];
+
+					if (!allowedVariants) {
+						continue;
+					}
+
+					if (allowedVariants === true) {
+						return true;
+					}
+
+					if (
+						variants.some((variant) =>
+							allowedVariants.some((allowed) =>
+								variantMatches(variant, allowed),
+							),
+						)
+					) {
+						return true;
+					}
+				}
+				return false;
+			},
 		});
 
 		return result;
+		// eslint-disable-next-line react-hooks/use-memo, react-hooks/exhaustive-deps
 	}, [selected, ...(deps ?? [])]);
 }

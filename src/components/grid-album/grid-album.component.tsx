@@ -32,7 +32,9 @@ interface Props {
 
 export function GridAlbum({ album, isSelected, onToggleSelected }: Props) {
 	const [playlistOpen, setPlaylistOpen] = useState(false);
-	const [isAddingToPlaylist, setIsAddingToPlaylist] = useState(false);
+	const [isAddingToPlaylist, setIsAddingToPlaylist] = useState<string | null>(
+		null,
+	);
 	const { createNotification } = useNotificationStore();
 	const { bookmarked, toggle } = useAlbumBookmark(album);
 	const inSelectionMode = useSelectionMode();
@@ -68,7 +70,7 @@ export function GridAlbum({ album, isSelected, onToggleSelected }: Props) {
 		if (isAddingToPlaylist) {
 			return;
 		}
-		setIsAddingToPlaylist(true);
+		setIsAddingToPlaylist(playlist.uuid);
 		let promise: Promise<updatePlaylistTracksResponse | undefined>;
 
 		if (album.uuid) {
@@ -103,7 +105,7 @@ export function GridAlbum({ album, isSelected, onToggleSelected }: Props) {
 				remove: null,
 			});
 		} else {
-			setIsAddingToPlaylist(false);
+			setIsAddingToPlaylist(null);
 			return;
 		}
 
@@ -118,7 +120,7 @@ export function GridAlbum({ album, isSelected, onToggleSelected }: Props) {
 				console.error(e);
 				createNotification("Failed to add tracks to playlist");
 			})
-			.finally(() => setIsAddingToPlaylist(false));
+			.finally(() => setIsAddingToPlaylist(null));
 	};
 
 	const handleClick = (e: MouseEvent, forceSelection?: boolean) => {
@@ -166,6 +168,7 @@ export function GridAlbum({ album, isSelected, onToggleSelected }: Props) {
 				open={playlistOpen}
 				onClose={() => !isAddingToPlaylist && setPlaylistOpen(false)}
 				onSelect={addToPlaylist}
+				loading={isAddingToPlaylist ? [isAddingToPlaylist] : null}
 			/>
 		</>
 	);
