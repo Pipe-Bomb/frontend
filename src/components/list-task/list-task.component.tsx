@@ -17,6 +17,7 @@ import { getGetTasksQueryKey, startTask } from "@api";
 import { useButtonMenu } from "@/hook/button-menu.hook";
 import { ContextMenuElement } from "@/context/context-menu.context";
 import { usePrivilegeCheck } from "@/hook/privilege-check.hook";
+import { formatDate, formatTime } from "@/lib/util";
 
 interface Props {
 	task: Task;
@@ -104,18 +105,35 @@ export function ListTask({ task }: Props) {
 				loading={isLoading}
 				disabled={!canRun || task.status == TaskStatus.running}
 			/>
-			<div className={styles.right}>
-				<span className={styles.source}>
-					{t(task.pluginId ? `plugin.${task.pluginId}.name` : "task.system")}
-				</span>
-				<div className={styles.nameContainer}>
-					<span className={styles.name}>{t(`${baseLanguageKey}.name`)}</span>
-					{task.percent !== null && (
-						<span className={styles.percent}>
-							{Math.round(task.percent * 100) / 100}%
+			<div className={styles.content}>
+				<div className={styles.split}>
+					<div className={styles.main}>
+						<span className={styles.source}>
+							{t(
+								task.pluginId ? `plugin.${task.pluginId}.name` : "task.system",
+							)}
 						</span>
+						<span className={styles.name}>{t(`${baseLanguageKey}.name`)}</span>
+					</div>
+
+					{task.lastRun && (
+						<div className={styles.lastRunContainer}>
+							<span>
+								Last run {task.lastRun.result} in{" "}
+								{formatTime(task.lastRun.duration / 1000)}
+							</span>
+							<span>
+								Started: {formatDate(new Date(task.lastRun.dateStarted))}
+							</span>
+						</div>
 					)}
+
+					<span className={styles.percent}>
+						{task.percent !== null &&
+							`${Math.round(task.percent * 100) / 100}%`}
+					</span>
 				</div>
+
 				{task.status != TaskStatus.stopped && (
 					<ProgressBar percent={task.percent} loading={task.percent === null} />
 				)}
