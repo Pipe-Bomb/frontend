@@ -15,30 +15,4 @@
 		display: flex;
 		gap: 8px;
 	}
-
-	.input {
-		background: var(--input-bg);
-		color: var(--input-fg);
-		border: 2px solid var(--input-border);
-		font-size: 1rem;
-		padding: 4px 8px;
-		border-radius: 4px;
-
-		&::placeholder {
-			color: var(--input-placeholder);
-		}
-
-		&:focus {
-			outline: none;
-			border-color: var(--input-focus-border);
-		}
-	}
-
-	.button {
-		border-radius: 4px;
-		font-size: 1rem;
-		border: none;
-		padding: 4px 8px;
-		cursor: pointer;
-	}
 }

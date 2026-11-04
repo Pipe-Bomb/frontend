@@ -1,0 +1,28 @@
+.container {
+	padding: 8px;
+	border-radius: 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+
+	&.horizontal {
+		flex-direction: row;
+		align-items: center;
+	}
+
+	&.background-surface {
+		background: var(--bg-surface);
+	}
+
+	&.background-warning {
+		background: var(--color-warning);
+	}
+
+	&.background-error {
+		background: var(--color-error);
+	}
+
+	&.background-none {
+		padding: 0;
+	}
+}

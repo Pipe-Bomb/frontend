@@ -11,7 +11,7 @@ import {
 	useGetPluginConfig,
 } from "@api";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface Props {
 	pluginId: string;
@@ -28,6 +28,15 @@ export function Contents({ pluginId }: Props) {
 			enabled: true,
 		},
 	});
+	const [config, setConfig] = useState(
+		(configResponse.data?.status == 200 && configResponse.data.data) || null,
+	);
+
+	useEffect(() => {
+		if (configResponse.data?.status == 200) {
+			setConfig(configResponse.data.data);
+		}
+	}, [configResponse.data]);
 
 	const save = (values: PluginConfigUpdateDtoValues) => {
 		if (isSaving) {
@@ -52,11 +61,14 @@ export function Contents({ pluginId }: Props) {
 		<div>
 			<h1>{t(`plugin.${pluginId}.name`)}</h1>
 			{configResponse.data ? (
-				configResponse.data.status == 200 ? (
+				configResponse.data.status == 200 && config ? (
 					<RootConfigNode
-						config={configResponse.data.data}
+						pluginId={pluginId}
+						userConfigId={null}
+						config={config}
 						onSave={save}
 						canEdit={canEdit}
+						onChange={setConfig}
 					/>
 				) : (
 					<h2>Config not found</h2>

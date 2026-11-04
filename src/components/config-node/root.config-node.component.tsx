@@ -8,11 +8,23 @@ import styles from "./root.config-node.module.scss";
 
 interface Props {
 	config: PluginConfig;
+	pluginId: string;
+	userConfigId: string | null;
 	onSave: (values: PluginConfigUpdateDtoValues) => void;
 	canEdit?: boolean;
+	onChange: (config: PluginConfig) => void;
 }
 
-export function RootConfigNode({ config, onSave, canEdit }: Props) {
+export function RootConfigNode({
+	config,
+	onSave,
+	canEdit,
+	pluginId,
+	userConfigId,
+	onChange,
+}: Props) {
+	const [actionKey, setActionKey] = useState<{} | null>();
+
 	const defaultValues = useMemo(() => {
 		const values: Record<string, any> = {};
 		const evaluate = (node: PluginConfig["node"]) => {
@@ -49,10 +61,28 @@ export function RootConfigNode({ config, onSave, canEdit }: Props) {
 		<div>
 			<ConfigNode
 				node={config.node}
+				pluginId={pluginId}
+				userConfigId={userConfigId}
 				onChange={(id, value) =>
 					setValues((values) => ({ ...values, [id]: value }))
 				}
-				disabled={!canEdit}
+				disabled={!canEdit || !!actionKey}
+				onAction={() => {
+					const actionKey = {};
+					setActionKey(actionKey);
+
+					return (config) => {
+						setActionKey((current) => {
+							if (current === actionKey) {
+								return null;
+							}
+							return current;
+						});
+						if (config) {
+							onChange(config);
+						}
+					};
+				}}
 			/>
 			{canEdit && (
 				<div className={styles.saveContainer}>
